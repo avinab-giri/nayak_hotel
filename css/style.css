@@ -1040,7 +1040,7 @@ table thead {
 table thead tr {
   text-align: center;
 }
-table tbody td {
+table tbody td:not(.datepicker td) {
   text-align: center;
   color: inherit;
   border-right: 1px solid #ddd;
@@ -1059,7 +1059,7 @@ table tbody td:first-child {
 table tbody td.left {
   text-align: left;
 }
-table tbody tr {
+table tbody tr:not(.datepicker tbody  tr) {
   color: #000;
 }
 table tbody tr .tableCenter {
@@ -1084,7 +1084,7 @@ table tbody tr.confirmOrder:hover td {
 table tbody tr:nth-child(even).confirmOrder {
   background-image: linear-gradient(310deg, rgba(23, 173, 55, 0.3490196078), rgba(152, 236, 45, 0.3490196078)) !important;
 }
-table tbody tr:hover {
+table tbody tr:hover:not(.datepicker tbody  tr:hover) {
   color: #000000;
   background-color: #e9e9e9;
 }
@@ -1681,7 +1681,6 @@ table.dummystuf tr:nth-child(even) {
   width: 100%;
   height: auto;
   background: white;
-  padding: 25px;
   display: none;
   z-index: 50;
 }
@@ -1696,12 +1695,22 @@ table.dummystuf tr:nth-child(even) {
   position: sticky;
   top: 64px;
 }
+#loadAddResorvation .inputLabel input{
+  padding-left: 50px;
+}
 #loadAddResorvation .iconBox {
   position: absolute;
   top: 50%;
   right: 0;
   display: flex;
   transform: translateY(-50%);
+  padding: 10px;
+}
+#loadAddResorvation .inputLabel.right .iconBox{
+  right: 0;
+}
+#loadAddResorvation .inputLabel.left .iconBox{
+  left: 0;
 }
 #loadAddResorvation .iconBox .iconCon {
   width: 38px;
@@ -10759,4 +10768,23 @@ footer {
 
 .inputLabel input {
     border: none;
+}
+
+.propertyArea {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 215px;
+  background: #dddddd;
+  border-radius: 3px;
+  height: 35px;
+  padding: 0 10px !important;
+}
+
+.propertyArea h4 {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  margin: 0;
 }

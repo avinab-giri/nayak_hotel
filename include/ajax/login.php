@@ -35,8 +35,7 @@ if($type == 'checkLogin'){
                             $row = mysqli_fetch_assoc($sql);
                             $id = $row['id'];
                             $hotelMainId = $row['hotelMainId'];
-                            $hotelArray = hotelDetail($hotelMainId);
-                            $hotelId = $hotelArray['hotelId'];
+                            $hotelId = $row['hotelId'];
                             
                             $_SESSION['ADMIN_ID']= $id;
                             $_SESSION['HOTEL_ID']= $hotelId ;

@@ -15,7 +15,13 @@ include(SERVER_INCLUDE_PATH . 'calendar.php');
 // pr(bookingDetailPopUpContent(5, 6, 'all'));
 
 // pr(generateDownloadInvoice('invoice',20));
-pr(filterBookingFolio(23,'','Room Charge'));
+// pr(fetchData('hotel',['pid'=>1]));
+
+$data = array();
+
+echo $hotelId;
+pr($_SESSION);
+
 die();
 
 // $text = "1";
@@ -77,7 +83,7 @@ die();
 
 
 
-$oid =1;
+$oid = 1;
 
 
 $name = getGuestDetail($oid)[0]['name'];
@@ -135,11 +141,11 @@ foreach ($bookingDetailArry['roomDetailArry'] as $bidrow) {
     $gstPrice = $bidrow['gstPrice'];
     $couponPriceHtml = '';
     $bookingStatus = $bidrow['bookingStatus'];
-    $plan =$bidrow['rateplan'][0];
+    $plan = $bidrow['rateplan'][0];
     $total = $bidrow['total'];
     $discount = $bookingDetailArry['totalDiscount'];
 
-    $roomdetailsHtml.='
+    $roomdetailsHtml .= '
     <table style="width:100%; border-collapse:collapse;">
     <tbody>
         <tr>
@@ -151,34 +157,34 @@ foreach ($bookingDetailArry['roomDetailArry'] as $bidrow) {
         </tr>
         <tr>
             <td>
-                1. Room Type :'. $roomName.'
+                1. Room Type :' . $roomName . '
             </td>
             <td>Room Rate:</td>
-            <td>'. $roomPrice.'</td>
+            <td>' . $roomPrice . '</td>
         </tr>
         <tr>
             <td>
-                Plan: '. $plan.'
+                Plan: ' . $plan . '
             </td>
             <td>Discount:</td>
-            <td>'. $discount.'</td>
+            <td>' . $discount . '</td>
         </tr>
         <tr>
             <td>
-                Adult: '. $adult.'
+                Adult: ' . $adult . '
             </td>
             <td>Extra Charge:</td>
-            <td>'. $extraCharge.'</td>
+            <td>' . $extraCharge . '</td>
         </tr>
         <tr>
-            <td>Child: '. $child.'</td>
+            <td>Child: ' . $child . '</td>
             <td>Tax:</td>
-            <td>'. $gstPrice.'</td>
+            <td>' . $gstPrice . '</td>
         </tr>
         <tr>
             <td></td>
             <td>Total:</td>
-            <td>'. $total.'</td>
+            <td>' . $total . '</td>
         </tr>
    
     </tbody>
@@ -189,17 +195,17 @@ foreach ($bookingDetailArry['roomDetailArry'] as $bidrow) {
 
 $reservationNumber = printBooingId($oid);
 $date = date('Y-m-d');
-$hotelMail=ucfirst(hotelDetail()['hotelEmailId']);
+$hotelMail = ucfirst(hotelDetail()['hotelEmailId']);
 $hotelPhonenumber = ucfirst(hotelDetail()['hotelPhoneNum']);
 $hotelAdd = ucfirst(hotelDetail()['address']);
 $hotelWebsite = ucfirst(hotelDetail()['website']);
 
 $hotelDetails = '';
 
-$hotelDetails.='<p>'.$hotelAdd.'</p>';
-$hotelDetails.='<p>'.$hotelPhonenumber.'</p>';
-$hotelDetails.='<p>'.$hotelMail.'</p>';
-$hotelDetails.='<p>'.$hotelWebsite.'</p>';
+$hotelDetails .= '<p>' . $hotelAdd . '</p>';
+$hotelDetails .= '<p>' . $hotelPhonenumber . '</p>';
+$hotelDetails .= '<p>' . $hotelMail . '</p>';
+$hotelDetails .= '<p>' . $hotelWebsite . '</p>';
 
 
 
@@ -255,15 +261,15 @@ $html = '
                         <tbody>
                             <tr>
                                 <td style="width: 20%;">
-                                    <img src="'.$logo.'" alt="logo">
-                                    <p>Reservation number: '. $reservationNumber.'</p>
+                                    <img src="' . $logo . '" alt="logo">
+                                    <p>Reservation number: ' . $reservationNumber . '</p>
                                 </td>
                                 <td style="width: 60%; text-align: center;">
-                                    <h1>'. $hotelName.'</h1>
-                                    '. $hotelDetails.'
+                                    <h1>' . $hotelName . '</h1>
+                                    ' . $hotelDetails . '
                                 </td>
                                 <td style="width: 20%;">
-                                    <p>Date:'. $date.'</p>
+                                    <p>Date:' . $date . '</p>
                                 </td>
                             </tr>
                         </tbody>
@@ -287,39 +293,39 @@ $html = '
                         <tbody>
                             <tr>
                                 <td>Name:</td>
-                                <td>'. $name.'</td>
+                                <td>' . $name . '</td>
                                 <td>Booking Status:</td>
-                                <td>'. $bookingStatus.'</td>
+                                <td>' . $bookingStatus . '</td>
                             </tr>
                             <tr>
                                 <td>Phone Number::</td>
-                                <td>'. $phoneNumber.'</td>
+                                <td>' . $phoneNumber . '</td>
                                 <td>Booked On:</td>
-                                <td>'. $bookedOn.'</td>
+                                <td>' . $bookedOn . '</td>
                             </tr>
                             <tr>
                                 <td>Email::</td>
-                                <td>'. $email.'</td>
+                                <td>' . $email . '</td>
                                 <td>Arrival Date:</td>
-                                <td>'. $arrivalDate.'</td>
+                                <td>' . $arrivalDate . '</td>
                             </tr>
                             <tr>
                                 <td>Organisation:</td>
-                                <td>'. $company_name.'</td>
+                                <td>' . $company_name . '</td>
                                 <td>Departure Date:</td>
-                                <td>'. $departureDate.'</td>
+                                <td>' . $departureDate . '</td>
                             </tr>
                             <tr>
                                 <td>GST:</td>
-                                <td>'. $gst.'</td>
+                                <td>' . $gst . '</td>
                                 <td>Night:</td>
-                                <td>'. $night.'</td>
+                                <td>' . $night . '</td>
                             </tr>
                             <tr>
                                 <td>Total Room:</td>
-                                <td>'. $totalRoom.'</td>
+                                <td>' . $totalRoom . '</td>
                                 <td>Booking Type:</td>
-                                <td>'. $bookingType.'</td>
+                                <td>' . $bookingType . '</td>
                             </tr>
 
                         </tbody>
@@ -327,20 +333,20 @@ $html = '
 
                     <hr>
 
-                   '.$roomdetailsHtml.'
+                   ' . $roomdetailsHtml . '
                     <hr>
 
                     <table style="width:100%; border-collapse:collapse;">
                         <tbody>
                             <tr style="width: 100%;">
                                 <td style="width: 33%;">
-                                    <h3>Grand Total: '. $total.'</h3>
+                                    <h3>Grand Total: ' . $total . '</h3>
                                 </td>
                                 <td style="width: 33%;">
-                                    <h3>Total Advances: '. $paid.'</h3>
+                                    <h3>Total Advances: ' . $paid . '</h3>
                                 </td>
                                 <td style="width: 33%;">
-                                    <h3>Est. Balance: '. $ToBePay.'</h3>
+                                    <h3>Est. Balance: ' . $ToBePay . '</h3>
                                 </td>
                             </tr>
                         </tbody>

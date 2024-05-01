@@ -3944,5 +3944,32 @@ function loadAddLostAndFound(){
 }
 
 
+function activeProperty(){
+    $hid = $_POST['hid'];
+    $_SESSION['HOTEL_ID'] = $hid;
+    return 1;
+}
+
+
+function pinChangeToFetch(){
+    $pincode = $_POST['pinCode'];
+    $result = file_get_contents('https://api.postalpincode.in/pincode/'.$pincode);
+    $result = json_decode($result);
+    $data = array();
+
+    if(isset($result['0']->PostOffice['0'])){
+        $arr_data['state'] = $result['0']->PostOffice['0']->State;
+        $arr_data['district'] = $result['0']->PostOffice['0']->District;
+        $arr_data['block'] = $result['0']->PostOffice['0']->Block;
+
+        $data = $arr_data;
+        
+    }else{
+        echo "No";
+    }
+
+    return $data;
+}
+
 
 ?>

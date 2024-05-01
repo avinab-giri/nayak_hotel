@@ -149,6 +149,7 @@ function debounce(n, i, l) {
         a && n.apply(e, t)
     }
 }
+
 document.addEventListener("DOMContentLoaded", function() {
     [].slice.call(document.querySelectorAll(".toast")).map(function(e) {
         return new bootstrap.Toast(e)
@@ -160,6 +161,7 @@ document.addEventListener("DOMContentLoaded", function() {
         })
     })
 }),
+
 document.querySelector('[data-toggle="widget-calendar"]') && (calendarEl = document.querySelector('[data-toggle="widget-calendar"]'),
 mYear = (today = new Date).getFullYear(),
 mDay = (weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"])[today.getDay()],
@@ -226,10 +228,9 @@ document.getElementsByClassName("widget-calendar-day")[0].innerHTML = mDay,
         className: "bg-gradient-warning"
     }]
 })).render()),
-0 != document.querySelectorAll(".input-group").length && (allInputs = document.querySelectorAll("input.form-control")).forEach(e=>setAttributes(e, {
-    onfocus: "focused(this)",
-    onfocusout: "defocused(this)"
-})),
+
+
+
 document.querySelector(".fixed-plugin") && (fixedPlugin = document.querySelector(".fixed-plugin"),
 fixedPluginButton = document.querySelector(".fixed-plugin-button"),
 fixedPluginButtonNav = document.querySelector(".fixed-plugin-button-nav"),
@@ -252,10 +253,11 @@ fixedPluginCloseButton.forEach(function(e) {
 }),
 document.querySelector("body").onclick = function(e) {
     e.target != fixedPluginButton && e.target != fixedPluginButtonNav && e.target.closest(".fixed-plugin .card") != fixedPluginCard && fixedPlugin.classList.remove("show")
-}
-,
+},
+
 navbar && "true" == navbar.getAttribute("data-scroll") && buttonNavbarFixed && buttonNavbarFixed.setAttribute("checked", "true"));
 var sidenavToggler, sidenavShow, toggleNavbarMinimize, total = document.querySelectorAll(".nav-pills");
+
 function initNavs() {
     total.forEach(function(l, e) {
         var s = document.createElement("div")

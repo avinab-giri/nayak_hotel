@@ -5308,3 +5308,49 @@ function loadReportContainer(type,date = '', name = '') {
         $('#loadReportContainer').html(html);
     });
 }
+
+
+function activeProperty(hid){
+    var data = `request_type=activeProperty&hid=${hid}`;
+    ajax_request(data).done(function(request){
+        location.reload();
+    })
+}
+
+function pinChangeToFetch(e){
+    var parentDiv = e.target.closest('.row');
+    var blockDiv = parentDiv.querySelector('.block');
+    var districtDiv = parentDiv.querySelector('.district');
+    var stateDiv = parentDiv.querySelector('.state');
+    
+    var value = e.target.value;
+    var numericInput = /^[0-9]+$/;
+
+    if (!numericInput.test(value)) {
+        console.log('true');
+        sweetAlert('Pin code should contain only digits.','error')
+        e.target.value = ''; 
+    }else if(value.length > 6){
+        sweetAlert('Pin code should be exactly 6 characters.','error')
+    } else {
+        if (value.length === 6) {
+            var data = `request_type=pinChangeToFetch&pinCode=${value}`;
+            blockDiv.value = 'Loading...';
+            districtDiv.value =  'Loading...';
+            stateDiv.value = 'Loading...';
+
+            ajax_request(data).done(function(request){
+                var response = JSON.parse(request);
+                var block = response.block;
+                var district = response.district;
+                var state = response.state;
+
+                blockDiv.value =block;
+                districtDiv.value =district;
+                stateDiv.value =state;
+            })
+        }
+    }
+
+
+}

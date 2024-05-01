@@ -1,4 +1,4 @@
-var webUrl = 'https://login.retrod.in/';
+var webUrl = 'http://localhost/nayak_hotel/';
 var loadingGif = webUrl + 'img/loading.gif';
 
 window.loader = `<div class="loadingCon"><div class="loader"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>`;
@@ -579,13 +579,10 @@ function loadAddResorvation($bid = '', $page = '', $checkIn = '', $checkOut = ''
 
             $('#loadAddResorvation').html(data);
 
-            $('#checkInReservation').datepick({
-                dateFormat: 'M d, yyyy', monthsToShow: 1, minDate: 0, defaultDate: '-1w', selectDefaultDate: true,
-                onSelect: function (dates) {
-                    getNextDateByCurrentDate(dates);
-                    loadReservationPreview();
-                }
-            });
+            
+            // $('#checkInReservation').datepicker({});
+
+
             $('#checkOutReservation').datepick({
                 dateFormat: 'M d, yyyy', monthsToShow: 1, minDate: 0, defaultDate: '-1w', selectDefaultDate: true, onSelect: function (dates) {
                     loadReservationPreview();
@@ -4850,3 +4847,120 @@ $(document).on('click','#addBlockRoomSubmit', function(e){
 
     
 });
+
+
+
+
+
+
+$('#travelagent').on('click', function(){
+    var value = $(this).val();
+    if (value == 'other') {
+        var html = `
+            <div class="row">
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="">Name</label>
+                        <div class="form-group">
+                            <div class="inputLabel left">
+                                <input type="text" placeholder="Name" class="form-control" name="bookByName" id="bookByName" autocomplete="off">
+                                <div class="iconBox">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                                        <path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- <div class="iconBox">
+                                <a onclick="searchGuestView()" href="javascript:void(0)" class="iconCon" data-tooltip-top="Search guest">
+                                    <svg class="w20 h20">
+                                        <use xlink:href="#guestSearchIcon"></use>
+                                    </svg>
+                                </a>
+                            </div> -->
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="">Email</label>
+                        <div class="inputLabel left">
+                            <input type="text" placeholder="Email Id" class="form-control" name="bookByEmail">
+                            <div class="iconBox">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                    <path d="M494.6 164.5c-4.7-3.9-111.7-90-135.3-108.7C337.2 38.2 299.4 0 256 0c-43.2 0-80.6 37.7-103.3 55.9-24.5 19.5-131.1 105.2-135.2 108.5A48 48 0 0 0 0 201.5V464c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48V201.5a48 48 0 0 0 -17.4-37zM464 458a6 6 0 0 1 -6 6H54a6 6 0 0 1 -6-6V204.3c0-1.8 .8-3.5 2.2-4.7 15.9-12.8 108.8-87.6 132.4-106.3C200.8 78.9 232.4 48 256 48c23.7 0 55.9 31.4 73.4 45.4 23.6 18.7 116.5 93.5 132.4 106.3a6 6 0 0 1 2.2 4.7V458zm-32-187.7c4.2 5.2 3.5 12.8-1.7 17-29 23.3-59.3 47.6-70.9 56.9C336.6 362.3 299.2 400 256 400c-43.5 0-81.3-38.2-103.3-55.9-11.3-9-41.7-33.4-70.9-56.9-5.2-4.2-6-11.8-1.7-17l15.3-18.5c4.2-5.1 11.7-5.8 16.8-1.7 28.6 23 58.6 47 70.6 56.6C200.1 320.6 232.3 352 256 352c23.6 0 55.2-30.9 73.4-45.4 12-9.5 41.9-33.6 70.6-56.6 5.1-4.1 12.6-3.3 16.8 1.7l15.3 18.5z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="bookByWhatsApp">WhatsApp</label>
+                        <div class="inputLabel left">
+                            <input type="number" placeholder="whatsApp" class="form-control" name="whatsApp" id="bookByWhatsApp">
+                            <div class="iconBox left">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                                    <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="bookByMobile">Mobile</label>
+                        <div class="inputLabel left">
+                            <input type="number" placeholder="Mobile No" class="form-control" name="bookByMobile" id="bookByMobile">
+                            <div class="iconBox left">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                    <path d="M497.4 361.8l-112-48a24 24 0 0 0 -28 6.9l-49.6 60.6A370.7 370.7 0 0 1 130.6 204.1l60.6-49.6a23.9 23.9 0 0 0 6.9-28l-48-112A24.2 24.2 0 0 0 122.6 .6l-104 24A24 24 0 0 0 0 48c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.3 24.3 0 0 0 -14-27.6z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="">Pin Code</label>
+                        <input onkeyup="pinChangeToFetch(event)" type="text" placeholder="Pin code" class="form-control" name="bookBypinCode">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="">Block</label>
+                        <input readonly="" disable="" type="text" placeholder="Block" class="form-control block" name="bookByblock">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="">District</label>
+                        <input readonly="" disable="" type="text" placeholder="District" class="form-control district" name="bookBydistrict">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <input readonly="" disable="" type="text" placeholder="State" class="form-control state" name="bookBystate">
+                    </div>
+                </div>
+            </div>
+        `;
+        $('#advanceFieldContent').html(html);
+    } else {
+        $('#advanceFieldContent').html('');
+    }
+})

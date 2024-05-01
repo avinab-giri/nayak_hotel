@@ -49,31 +49,10 @@ $grcLink = FRONT_SITE . '/grc';
             <div class="reservationNav sNavBar">
                 <?php
 
-                $stayOverviewLink = FRONT_SITE.'/stay-view';
+                $leftNav = reservationLeftNav('all');
 
-                $leftNav = '<div class="mainNavContent">
-                    <ul id="loadReservationCountContent">
-                         <li><a id="New" href="javascript:void(0)" class="reservationTab py-3">New</a> </li>
-                        <li><a id="all" class="reservationTab py-3 active" href="javascript:void(0)">All Reservations<span></span></a></li>
-                        <li><a id="noShow" href="javascript:void(0)" class="reservationTab py-3" >No Show</a></li>     
-                        <li><a id="void" href="javascript:void(0)" class="reservationTab py-3" >Void</a></li>                    
-                    </ul>
-                    <span class="nav-indicator"></span>
-                </div>';
+                $rightNav = reservationRightNav();
 
-                // <li><a id="excelExport" href="javascript:void(0)"> <i class="fas fa-file-export"></i> Export</a> </li>
-                $rightNav = '
-                        <ul>
-                        
-                            <li style="margin-right: 5px;"><a class="btn btn-success" id="excelImport" href="javascript:void(0)"> <i class="fas fa-file-import"></i> Import</a> </li>
-                            <li style="margin-right: 5px;"><a target="_blank" class="mb-0 btn btn-secondary" href="' . $grcLink . '"><i class="fas fa-print"></i> Print Blank GRC</a></li>
-                            <li style="margin-right: 5px;"><a class="mb-0 btn btn-info" href="' . $stayOverviewLink . '">Stay Overview <i class="ml-1 fas fa-th-list"></i></a></li>
-                            <li><a class="btn btn-warning" id="searchBtnReservation" href="javascript:void(0)"> <i class="fas fa-search"></i></a> </li>
-                        </ul>
-                        <div id="searchForReservation">
-                            <input id="searchForReservationValue" type="text" class="form-contol" placeholder="Search Text.">
-                            <button id="searchForCloseBtn">X</button>
-                        </div>';
                 echo backNavbarUi('', '', $rightNav, $leftNav);
                 ?>
             </div>
@@ -97,6 +76,7 @@ $grcLink = FRONT_SITE . '/grc';
 
 
     <script>
+
         function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingType = '', $currentDate = '') {
 
             var rTab = $rTab;
@@ -131,7 +111,6 @@ $grcLink = FRONT_SITE . '/grc';
                     },
                     success: function(data) {
                         $('#resorvationContent').html(data);
-                        reservationCountNavBar(rTab, '', currentDate);
                     }
                 });
             }

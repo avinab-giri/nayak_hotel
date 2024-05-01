@@ -859,6 +859,14 @@ if ($type == 'load_add_resorvation') {
         $topBookingDetailHtml = '
                 <div class="row">
 
+                    <div class="col-md-6">
+                        <div class="input-daterange input-group" id="datepicker">
+                            <input type="text" class="input-sm form-control" name="start" />
+                            <span class="input-group-addon">to</span>
+                            <input type="text" class="input-sm form-control" name="end" />
+                        </div>
+                    </div>
+
                     <div class="col-md-2">
 
                         <div class="form-group">
@@ -879,9 +887,7 @@ if ($type == 'load_add_resorvation') {
                     <div class="col-md-3">
 
                         <div class="form-group">
-                            <label for="">
-                                Checkout
-                            </label>
+                            <label for="">Checkout</label>
 
                             <div class="dFlex jcsb aic">
                                 <div class="form-group w100 mb0">
@@ -892,24 +898,6 @@ if ($type == 'load_add_resorvation') {
                         </div>
 
                     </div>
-
-                    
-
-                    <div class="col-md-2">
-                        <div class="form-group mb0">
-                            <label for="couponCode">Coupon Code</label>
-                            
-                            <div class="couponContent">
-                                <select name="couponCode" class="form-control" id="couponCode">
-                                ' . $couponCodeHtml . '
-                                </select>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
 
                     <div class="col-md-4">
                         <div class="form-group mb0">
@@ -1087,15 +1075,33 @@ if ($type == 'load_add_resorvation') {
                     </div>
 
                     <div class="row align-items-end">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="">Address</label>
-                                <input type="text" placeholder="Address" class="form-control" name="guestAddress">
 
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="">Pin Code</label>
+                                <input onchange="pinChangeToFetch" type="text" placeholder="Pin code" class="form-control" name="pinCode">
                             </div>
                         </div>
-                        <div style="display:none" class="col-md-4 guestContentBtn">
-                            <button id="guestAddBtn" class="btn bg-gradient-dark">Add Guest</button>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="">State</label>
+                                <input readonly disable type="text" placeholder="Address" class="form-control" name="state" id="state">
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="">District</label>
+                                <input readonly disable type="text" placeholder="District" class="form-control" name="district" id="district">
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="">City</label>
+                                <input readonly disable type="text" placeholder="City" class="form-control" name="city" id="city">
+                            </div>
                         </div>
 
 

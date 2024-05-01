@@ -1334,10 +1334,12 @@ if (isset($_POST["type"])) {
             }
         }else{
             $roomNumListHtml = '';
-            foreach($_SESSION['roomNumUpload'] as $key=>$item){
-                $num = $item['roomNo'];
-                $roomNumListHtml .= '<li>'.$num.'<a class="removeRoomNum session" data-value="'.$num.'" href="javascript:void(0)" data-rid="'.$key.'">X</a></li>';
-            }
+            if(isset($_SESSION['roomNumUpload'])){
+                foreach($_SESSION['roomNumUpload'] as $key=>$item){
+                    $num = $item['roomNo'];
+                    $roomNumListHtml .= '<li>'.$num.'<a class="removeRoomNum session" data-value="'.$num.'" href="javascript:void(0)" data-rid="'.$key.'">X</a></li>';
+                }
+            }            
         }
 
         $ratePlanHtml = createSelectItem(getPropertyRatePlaneList('',$hotelId,'','yes'));

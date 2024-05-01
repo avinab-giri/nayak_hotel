@@ -1,11 +1,11 @@
 <?php
 $servername = "localhost";
-$username = "xmwvxejrgq";
-$password = 'yAvVBCNz96';
+$username = "root";
+$password = '';
 
 date_default_timezone_set('Asia/Kolkata');
 session_start(); 
-$conDB = mysqli_connect("localhost","$username","$password","xmwvxejrgq") or die("Connection Failed");
+$conDB = mysqli_connect("localhost","$username","$password","nayak_hotel") or die("Connection Failed");
 
 
 ?>

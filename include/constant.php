@@ -17,7 +17,7 @@ define('RETROD_GST', '21AALCR2582C1ZN ');
 define('RETROD_PAN', 'AALCR2582C');
 define('RETROD_TAN', 'BBNR03307D');
 
-define('SERVER_PATH', $_SERVER['DOCUMENT_ROOT']);
+define('SERVER_PATH', $_SERVER['DOCUMENT_ROOT'].'/nayak_hotel');
 
 define('SA_SERVER_PATH', SERVER_PATH);
 define('FO_SERVER_PATH', SERVER_PATH);
@@ -47,7 +47,7 @@ define('SERVER_HERO_IMG', SERVER_BOOKING_PATH.'/admin/img/hero/');
 
 
 
-define('FRONT_SITE','https://login.retrod.in');
+define('FRONT_SITE','http://localhost/nayak_hotel');
 
 define('SA_FRONT_SITE','https://superadmin.retrod.in');
 define('DOMAIN','retrod.in');
