@@ -118,7 +118,7 @@ $grcLink = FRONT_SITE . '/grc';
         }
 
         $('.linkBtn').removeClass('active');
-        $('.pmsLink').addClass('active');
+        $('.resLink').addClass('active');
 
         const indicator = document.querySelector('.nav-indicator');
         const items = document.querySelectorAll('.reservationTab');

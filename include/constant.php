@@ -4,6 +4,7 @@ define('SITE_NAME', 'Retrod');
 define('BOOK_GENERATE', 'retrod_');
 define('QP_GENERATE', 'qpretrod_');
 
+
 define('RETROD_MAIL_ID', 'booking@retrodtech.org');
 
 define('HOTEL_LOGIN', 'Retrod'); 
@@ -76,6 +77,8 @@ define('FRONT_ADMIN_SITE_AJAX', FRONT_ADMIN_SITE_INCLUDE.'/ajax/');
 define('FRONT_SITE_ADMIN_LOGO', FRONT_BOOKING_SITE.'/admin/img/admin/');
 define('FRONT_SITE_ROOM_IMG', FRONT_BOOKING_SITE.'/admin/img/room/');
 define('FRONT_SITE_HERO_IMG', FRONT_BOOKING_SITE.'/admin/img/hero/');
+
+define('API_KEY', '$2y$10$KIJ70OtaZDZWPZJV5V7bZOfjE2nS9pIGbGXXI3mENV9Fj2JXBLLnS');
 
 
 

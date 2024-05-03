@@ -167,7 +167,7 @@
 
     function generateInvoice($type,$gname,$bid){
         $reviewsImg = FRONT_SITE_IMG.'icon/google-review.png';        
-        $bookDetailImg = FRONT_SITE_IMG.'icon/book-detail-btn.png';        
+        $bookDetailImg = FRONT_SITE_IMG.'icon/book-detail-btn.jpg';        
         $guestName = $gname;
         $year = date('Y');
         $addRoomUrl = '';
@@ -191,12 +191,13 @@
 
         $bookingDetailArray = getBookingData($bid)[0];
         $guestAmendArray = guestAmendReport('','',$bid);
-        $checkin = ($bookingDetailArray['checkIn'] != '') ? date('d M, Y', strtotime($bookingDetailArray['checkIn'])) : '';
-        $checkinTime = ($guestAmendArray['checkInTime'] != '') ? date('h:i A', strtotime($guestAmendArray['checkInTime'])) : '';
+
+        $checkin = (isset($bookingDetailArray['checkIn']) && $bookingDetailArray['checkIn'] != '') ? date('d M, Y', strtotime($bookingDetailArray['checkIn'])) : '';
+        $checkinTime = (isset($guestAmendArray['checkInTime']) && $guestAmendArray['checkInTime'] != '') ? date('h:i A', strtotime($guestAmendArray['checkInTime'])) : '';
 
         $checkOut = ($bookingDetailArray['checkOut'] != '') ? date('d M, Y', strtotime($bookingDetailArray['checkOut'])) : '';
-        $checkOutTime = ($guestAmendArray['checkOutTime'] != '') ? date('h:i A', strtotime($guestAmendArray['checkOutTime'])) : ''; 
-        $bookingTime = ($guestAmendArray['add_on'] != '') ? date('d M Y, h:i A', strtotime($guestAmendArray['add_on'])) : ''; 
+        $checkOutTime = (isset($guestAmendArray['checkOutTime']) && $guestAmendArray['checkOutTime'] != '') ? date('h:i A', strtotime($guestAmendArray['checkOutTime'])) : ''; 
+        $bookingTime = (isset($guestAmendArray['add_on']) && $guestAmendArray['add_on'] != '') ? date('d M Y, h:i A', strtotime($guestAmendArray['add_on'])) : ''; 
         $roomNum = $bookingDetailArray['room_number'];
         $reviewButton = "<a target='_blank' href=''><img style='width:80%' src='$reviewsImg'/></a>";
 
@@ -212,6 +213,7 @@
         }, $databaseString);
 
         $html = "
+        
         <table width='100%' cellspacing='0' cellpadding='0' border='0' align='center'
             style='background-color:#f2f5f8;font-family:Arial,sans-serif;word-spacing:normal'>
             <tbody>

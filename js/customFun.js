@@ -5354,3 +5354,16 @@ function pinChangeToFetch(e){
 
 
 }
+
+
+function calculateTotal() {
+    $("#roomDetailId tr").each(function() {
+        var gstPercentage = parseInt($(this).find(".roomGst").val());
+        var price = parseFloat($(this).find(".totalPriceSection").val());
+        console.log(gstPercentage);
+        console.log(price);
+        var totalPriceWithGst = price + (price * gstPercentage / 100);
+
+        $(this).find(".totalPriceWithGst").val(totalPriceWithGst.toFixed(2));
+    });
+}

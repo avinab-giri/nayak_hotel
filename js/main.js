@@ -106,7 +106,7 @@ function numberWithCommas(number) {
 function ajax_request(data = '',json='') {
     // request_type
     const api_url = `${webUrl}api.php`;
-    const api_key = "zaCELgL.0imfnc8mVLWwsAawjYr4Rx-Af50DDqtlx";
+    const api_key = "$2y$10$KIJ70OtaZDZWPZJV5V7bZOfjE2nS9pIGbGXXI3mENV9Fj2JXBLLnS";
 
     data += "&api_key=" + api_key;
     if(json == 'json'){
@@ -399,25 +399,41 @@ function convertArryToJSON($arry) {
     });
 }
 
-function loadGuest($page = '', $search = '') {
+function loadGuest($page = '', $search = '', limit=15) {
     var search = $search;
     var page = $page;
     $.ajax({
         url: webUrl + 'include/ajax/guest.php',
         type: 'post',
-        data: { type: 'loadGuest', search: search, page: page },
+        data: { type: 'loadGuest', search: search, page: page, limit: limit },
         success: function (data) {
             var response = JSON.parse(data);
+            var data = response.data;
+            var pagination = response.pagination;
+            var paginationHtml = '';
+            var paginationList = ''
+
+            if(pagination.length > 0){
+                $.each(paginationList,(key,val)=>{
+                    var active = (key == 0) ? 'active' : '';
+                    paginationList += `<li class="paginate_button ${active}"><a href="javascript:void(0)" aria-controls="example" data-dt-idx="1" tabindex="0">2</a></li>`;
+                })
+                paginationHtml = `
+                    <ul class="pagination">
+                    </ul>
+                `;
+            }
+
             var tableBody = '';
-            if(response.length > 0){
+            if(data.length > 0){
                 var sn =0;
-                $.each(response, (key,val)=>{
+                $.each(data, (key,val)=>{
                     sn ++;
                     var gId = val.id;
                     var name = val.name;
                     var email = val.email;
                     var phone = val.phone;
-                    var country = (val.country == null) ? '' : val.country;
+                    var block = (val.block == null) ? '' : val.block;
                     var guestImg = val.guestImg;
                     
                     var deleteHtml = `<a data-gid="${gId}" class='tableIcon delete bg-gradient-warning guestDetailBtn'  href='javascript:void(0)' data-tooltip-top='Detail Log'><i class='fas fa-info'></i></a>`;
@@ -429,7 +445,7 @@ function loadGuest($page = '', $search = '') {
                                 <label for="guestNameCheck'.$si.'"><img class="guestImg"src="${guestImg}"> ${name} </label></td>
                                 <td data-label="Email" class="text-center">${email}</td>
                                 <td data-label="Phone" class="text-center">${phone}</td>
-                                <td data-label="Country" class="text-center">${country}</td>
+                                <td data-label="Block" class="text-center">${block}</td>
                                 <td data-label="Action" class="iconCon ">
                                     <div class="tableCenter">
                                         <span class="tableHide"><i class="fas fa-ellipsis-h"></i></span>
@@ -447,6 +463,7 @@ function loadGuest($page = '', $search = '') {
 
 
             var html = `
+
                 <table id="guestListTable" border="1" class="table align-items-center mb-0 tableLine">
                     <thead>
                         <tr>
@@ -454,7 +471,7 @@ function loadGuest($page = '', $search = '') {
                             <th scope="col" class="text-left">Guest name</th>
                             <th scope="col" class="text-center">Email</th>
                             <th scope="col" class="text-center">Phone</th>
-                            <th scope="col" class="text-center">Counrty</th>
+                            <th scope="col" class="text-center">Block</th>
                             <th scope="col" class="text-right"></th>
                         </tr>
                     </thead>
@@ -463,6 +480,9 @@ function loadGuest($page = '', $search = '') {
                         ${tableBody}
                     </tbody>
                 </table>
+
+                
+
             `;
             $('#guestListTableContent').html(html);
             $('#guestListTable').DataTable();
@@ -926,44 +946,6 @@ $(document).on('click', '#roomDetailIncBtnId', function (e) {
 
 $(document).on('change', '.selectRoomId', function (e) {
     e.preventDefault();
-    var id = $(this).val();
-    var target = $(this).parent().parent().siblings().find('.rateTypeId');
-    var targetAdult = $(this).parent().parent().siblings().find('.adultSelect');
-    var targetChild = $(this).parent().parent().siblings().find('.childSelect');
-    var targetRoomNum = $(this).parent().parent().siblings().find('.roomNumSelect');
-    var targetPrice = $(this).parent().parent().siblings().find('.totalPriceSection');
-
-    var checkIn = $('#checkInReservation').val();
-    var checkOut = $('#checkOutReservation').val();
-
-
-
-    $.ajax({
-        url: webUrl + 'include/ajax/resorvation.php',
-        type: 'post',
-        data: { type: 'getRateTypeByRID', id: id },
-        success: function (data) {
-            target.prop('disabled', false);
-            target.html(data);
-
-        }
-    });
-
-    $.ajax({
-        url: webUrl + 'include/ajax/resorvation.php',
-        type: 'post',
-        data: { type: 'getAdultCountByRId', id: id },
-        success: function (data) {
-            targetAdult.prop('disabled', false);
-            targetAdult.html(data);
-
-        }
-    });
-
-
-    getTotalSingleRoomPrice(targetPrice, id);
-    getChildData(targetChild, id);
-    getRoomNum(targetRoomNum, id, checkIn, checkOut);
 
     if (id == 0) {
 
@@ -974,37 +956,22 @@ $(document).on('change', '.selectRoomId', function (e) {
 });
 
 $(document).on('change', '.adultSelect', function () {
-    var id = $(this).parent().parent().siblings().find('.selectRoomId').val();
-    var rdid = $(this).parent().parent().siblings().find('.rateTypeId').val();
-    var target = $(this).parent().parent().siblings().find('.childSelect');
-    var targetPrice = $(this).parent().parent().siblings().find('.totalPriceSection');
-    var adult = $(this).val();
-
-    getChildData(target, id, adult);
-    getTotalSingleRoomPrice(targetPrice, id, rdid, '', '', adult);
     loadReservationPreview();
 });
 
 $(document).on('change', '.rateTypeId', function () {
-    var id = $(this).parent().parent().siblings().find('.selectRoomId').val();
-    var rdid = $(this).val();
-    var target = $(this).parent().parent().siblings().find('.childSelect');
-    var targetPrice = $(this).parent().parent().siblings().find('.totalPriceSection');
-    var adult = $(this).parent().parent().siblings().find('.adultSelect').val();
+    loadReservationPreview();
+});
 
-    getChildData(target, id, adult);
-    getTotalSingleRoomPrice(targetPrice, id, rdid, '', '', adult);
+$(document).on('change', '.totalPriceSection', function () {
+    loadReservationPreview();
+});
+
+$(document).on('change', '.roomGst', function () {
     loadReservationPreview();
 });
 
 $(document).on('change', '.childSelect', function () {
-    var id = $(this).parent().parent().siblings().find('.selectRoomId').val();
-    var rdid = $(this).parent().parent().siblings().find('.rateTypeId').val();
-    var child = $(this).val();
-    var adult = $(this).parent().parent().siblings().find('.adultSelect').val();
-    var targetPrice = $(this).parent().parent().siblings().find('.totalPriceSection');
-
-    getTotalSingleRoomPrice(targetPrice, id, rdid, '', '', adult, child);
     loadReservationPreview();
 });
 
@@ -1148,8 +1115,8 @@ $(document).on('click', '#addReservationSubmitBtn', function (e) {
     });
 
 
-    $(this).html('Loading...');
-    $(this).addClass('disabled');
+    // $(this).html('Loading...');
+    // $(this).addClass('disabled');
 
     if (roomId == '') {
         sweetAlert("Please select Room.", "error");
@@ -1182,26 +1149,26 @@ $(document).on('click', '#addReservationSubmitBtn', function (e) {
             type: 'post',
             data: $('#addReservationForm').serialize(),
             success: function (data) {
-                $('#loadAddResorvation').html('').hide();
-                $('#addReservationForm').trigger('reset');
+                // $('#loadAddResorvation').html('').hide();
+                // $('#addReservationForm').trigger('reset');
                 sweetAlert("Successfull Add Reservation.");
 
-                $(this).html('Save');
-                $(this).removeClass('disabled');
+                // $(this).html('Save');
+                // $(this).removeClass('disabled');
 
-                if (page == 'reservations') {
-                    $('#loadReservationCountContent a').removeClass('active');
-                    loadResorvation('all');
-                    $('#loadReservationCountContent #all').addClass('active');
-                    $('.nav-indicator').css({"width": "99px", "left": "45px"});
-                }else if (page == 'walk-in'){
-                    window.location.href = `${webUrl}reservations`;
-                }else if (page == 'stay-view'){
-                    var date = $('#currentDateStart').val();
-                    loadStayView(date);
-                }else if(page == 'room-view'){
-                    loadRoomView();
-                }
+                // if (page == 'reservations') {
+                //     $('#loadReservationCountContent a').removeClass('active');
+                //     loadResorvation('all');
+                //     $('#loadReservationCountContent #all').addClass('active');
+                //     $('.nav-indicator').css({"width": "99px", "left": "45px"});
+                // }else if (page == 'walk-in'){
+                //     window.location.href = `${webUrl}reservations`;
+                // }else if (page == 'stay-view'){
+                //     var date = $('#currentDateStart').val();
+                //     loadStayView(date);
+                // }else if(page == 'room-view'){
+                //     loadRoomView();
+                // }
 
             }
         });
@@ -4263,112 +4230,6 @@ $(document).on('click', '#addRoomBtnForReservation', function (e) {
     
 });
 
-$(document).on('change', '#editResAddRoomForm .addRoomSelectRoomId', function (e) {
-    e.preventDefault();
-    var id = $(this).val();
-    var target = $(this).parent().siblings().find('.addRoomRateTypeId');
-    console.log(target);
-    var targetAdult = $(this).parent().siblings().find('.addRoomAdultSelect');
-    var targetChild = $(this).parent().siblings().find('.addRoomChildSelect');
-    var targetRoomNum = $(this).parent().siblings().find('.addRoomNumSelect');
-    var targetPrice = $(this).parent().siblings().find('.addRoomTotalPriceSection');
-
-    var checkIn = $('#checkInReservation').val();
-    var checkOut = $('#checkOutReservation').val();
-
-
-
-    $.ajax({
-        url: webUrl + 'include/ajax/resorvation.php',
-        type: 'post',
-        data: { type: 'getRateTypeByRID', id: id },
-        success: function (data) {
-            target.prop('disabled', false);
-            target.html(data);
-
-        }
-    });
-
-    $.ajax({
-        url: webUrl + 'include/ajax/resorvation.php',
-        type: 'post',
-        data: { type: 'getAdultCountByRId', id: id },
-        success: function (data) {
-            targetAdult.prop('disabled', false);
-            targetAdult.html(data);
-
-        }
-    });
-
-
-    getTotalSingleRoomPrice(targetPrice, id);
-    getChildData(targetChild, id);
-    getRoomNum(targetRoomNum, id, checkIn, checkOut, 'yes');
-
-    if (id == 0) {
-
-    } else {
-
-    }
-
-});
-
-$(document).on('change', '#editResAddRoomForm .addRoomAdultSelect', function () {
-    var id = $(this).parent().siblings().find('.addRoomSelectRoomId').val();
-    var rdid = $(this).parent().siblings().find('.addRoomRateTypeId').val();
-    var target = $(this).parent().siblings().find('.addRoomChildSelect');
-    var targetPrice = $(this).parent().siblings().find('.addRoomTotalPriceSection');
-    var adult = $(this).val();
-
-    getChildData(target, id, adult);
-    getTotalSingleRoomPrice(targetPrice, id, rdid, '', '', adult);
-
-});
-
-$(document).on('change', '#editResAddRoomForm .addRoomRateTypeId', function () {
-    var id = $(this).parent().siblings().find('.addRoomSelectRoomId').val();
-    var rdid = $(this).val();
-    var target = $(this).parent().siblings().find('.addRoomChildSelect');
-    var targetPrice = $(this).parent().siblings().find('.addRoomTotalPriceSection');
-    var adult = $(this).parent().siblings().find('.addRoomAdultSelect').val();
-
-    getChildData(target, id, adult);
-    getTotalSingleRoomPrice(targetPrice, id, rdid, '', '', adult);
-
-});
-
-$(document).on('change', '#editResAddRoomForm .addRoomChildSelect', function () {
-    var id = $(this).parent().siblings().find('.addRoomSelectRoomId').val();
-    var rdid = $(this).parent().siblings().find('.addRoomRateTypeId').val();
-    var child = $(this).val();
-    var adult = $(this).parent().siblings().find('.addRoomAdultSelect').val();
-    var targetPrice = $(this).parent().siblings().find('.addRoomTotalPriceSection');
-
-    getTotalSingleRoomPrice(targetPrice, id, rdid, '', '', adult, child);
-
-});
-
-$(document).on('submit', '#editResAddRoomForm', function (e) {
-    e.preventDefault();
-    var data = $(this).serialize();
-    var data = `request_type=editResAddRoomSubmit&${data}`;
-    ajax_request(data).done(function (request) {
-        var response = JSON.parse(request);
-        var status = response.status;
-        var msg = response.msg;
-        var bid = response.bid;
-        var rnum = response.rnum;
-        if (status == 'success') {
-            sweetAlert(msg);
-            $('#customModal').toggleClass('is-visible');
-            loadEditResturentReport('room', bid);
-        }
-        else if(status == 'error'){
-            sweetAlert(msg,'error');
-        }
-    });
-});
-
 
 $(document).on('click', '#editBookingDetailSubmit', function (e) {
     {
@@ -4871,14 +4732,6 @@ $('#travelagent').on('click', function(){
                                     </svg>
                                 </div>
                             </div>
-
-                            <!-- <div class="iconBox">
-                                <a onclick="searchGuestView()" href="javascript:void(0)" class="iconCon" data-tooltip-top="Search guest">
-                                    <svg class="w20 h20">
-                                        <use xlink:href="#guestSearchIcon"></use>
-                                    </svg>
-                                </a>
-                            </div> -->
                         </div>
 
                     </div>
@@ -4903,7 +4756,7 @@ $('#travelagent').on('click', function(){
                     <div class="form-group">
                         <label for="bookByWhatsApp">WhatsApp</label>
                         <div class="inputLabel left">
-                            <input type="number" placeholder="whatsApp" class="form-control" name="whatsApp" id="bookByWhatsApp">
+                            <input type="number" placeholder="bookByWhatsApp" class="form-control" name="bookByWhatsApp" id="bookByWhatsApp">
                             <div class="iconBox left">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                                     <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
@@ -4964,3 +4817,6 @@ $('#travelagent').on('click', function(){
         $('#advanceFieldContent').html('');
     }
 })
+
+
+

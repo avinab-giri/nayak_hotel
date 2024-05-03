@@ -56,47 +56,14 @@ if($type == 'loadGuest'){
             $advance = [
                 'guestImg'=>$guestImg
             ];
-            $data[] = array_merge($row, $advance);
-
-            $si ++;
-            
-            $bookId = $row['bookId'];
-            $name = ucfirst($row['name']);
-            $email = ($row['email'] == '') ? 'Null' : $row['email'];
-            $phone = ($row['phone'] == '') ? 'Null' : $row['phone'];
-            $company_name = $row['company_name'];
-            $comGst = $row['comGst'];
-            $country = ($row['country'] == '') ? 'Null' : $row['country'];
-            
-            
-            
-            // <input type="checkbox" name="guestNameCheck[]" id="guestNameCheck'.$si.'"> 
-            $html .= '<tr id="guestNameCheckRow'.$si.'" class="guestCheckRow">
-                            <td data-label="Image" class="text-left">
-                             
-                             <label for="guestNameCheck'.$si.'"><img class="guestImg"src="'.$guestImg.'"> '.$name.' </label></td>
-                            <td data-label="Email" class="text-center">'.$email.'</td>
-                            <td data-label="Phone" class="text-center">'.$phone.'</td>
-                            <td data-label="Country" class="text-center">'.$country.'</td>
-                            <td data-label="Action" class="iconCon ">
-                                <div class="tableCenter">
-                                    <span class="tableHide"><i class="fas fa-ellipsis-h"></i></span>
-                                    <span class="tableHoverShow">
-                                        
-                                        '.$updateHtml.'
-                                        '.$deleteHtml.'
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>';
-            
+            $data[] = array_merge($row, $advance);            
 
         }
     }else{
        
     }
 
-    echo json_encode($data);
+    echo json_encode(['data'=>$data, 'pagination'=>'']);
 }
 
 if($type == 'load_add_guest'){
@@ -269,6 +236,8 @@ if($type == 'loadAddGuestReservationForm'){
     $guestCountry = '';
     $guestState = '';
     $guestCity = '';
+    $guestBlock = '';
+    $guestDistrict = '';
     $guestZip = '';
     $guestGender = '';
     $guestImage = '';
@@ -280,6 +249,10 @@ if($type == 'loadAddGuestReservationForm'){
     $guestSerialNum ='';
     $guestUploadType = '';
     $guestProofUploadType = '';
+
+    $birthdayDate = '';
+    $anniversaryDate = '';
+
     $actionBtn = 'reservationAddGuestForm';
     $guestArray = array();
     if($gid != '' && !empty(getGuestDetail($bid,'',$gid))){
@@ -298,7 +271,8 @@ if($type == 'loadAddGuestReservationForm'){
         $guestName = $guestArray['name'];
         $guestEmail = $guestArray['email'];
         $guestPhone = $guestArray['phone'];
-        $guestCountry = $guestArray['country'];
+        $guestBlock = $guestArray['block'];
+        $guestDistrict = $guestArray['district'];
         $guestState = $guestArray['state'];
         $guestCity = $guestArray['city'];
         $guestZip = $guestArray['zip'];
@@ -311,6 +285,8 @@ if($type == 'loadAddGuestReservationForm'){
         $guestUploadType = $guestArray['file_upload_type'];
         $guestProofUploadType = $guestArray['proof_file_upload_type'];
         
+        $birthdayDate = $guestArray['birthday'];
+        $anniversaryDate = $guestArray['anniversary'];
         
     }
 
@@ -399,22 +375,22 @@ if($type == 'loadAddGuestReservationForm'){
 
                     <div class="col-md-3 col-sm-6 col-xs-12">
                         <div class="form-group">
-                            <label for="">Country</label>
-                            <input type="text" name="guestCountry" class="form-control" placeholder="Enter Address" value="'.$guestCountry.'">
+                            <label for="">Block</label>
+                            <input type="text" name="guestBlock" class="form-control" placeholder="Enter Block" value="'.$guestBlock.'">
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label for="">District</label>
+                            <input type="text" name="guestDistrict" class="form-control" placeholder="Enter District" value="'.$guestDistrict.'">
                         </div>
                     </div>
 
                     <div class="col-md-3 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label for="">State</label>
-                            <input type="text" name="guestState" class="form-control" placeholder="Enter Address" value="'.$guestState.'">
-                        </div>
-                    </div>
-
-                    <div class="col-md-3 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label for="">City</label>
-                            <input type="text" name="guestCity" class="form-control" placeholder="Enter Address" value="'.$guestCity.'">
+                            <input type="text" name="guestState" class="form-control" placeholder="Enter State" value="'.$guestState.'">
                         </div>
                     </div>
 
@@ -424,6 +400,21 @@ if($type == 'loadAddGuestReservationForm'){
                             <input type="text" name="guestZip" class="form-control" placeholder="Enter Address" value="'.$guestZip.'">
                         </div>
                     </div>
+
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="">Birthday</label>
+                            <input type="date" name="guestBirthday" class="form-control" placeholder="Enter Address" value="'.$birthdayDate.'">
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="">Anniversary</label>
+                            <input type="date" name="guestAnniversary" class="form-control" placeholder="Enter Anniversary" value="'.$anniversaryDate.'">
+                        </div>
+                    </div>
+
 
 
                 </div>
@@ -462,8 +453,7 @@ if($type == 'loadAddGuestReservationForm'){
                                     <input type="text" name="guestIdNumber" placehold="Enter ID Number" class="form-control" value="'.$guestKycNumber.'">
                                 </div>
                             </div>
-                            <div class="col-md-4"></div>
-                            
+                            <div class="col-md-4"></div>                            
 
                         </div>
                     </div>
@@ -481,13 +471,14 @@ if($type == 'loadAddGuestReservationFormSubmit'){
     $guestName = safeData($_POST['guestName']);
     $guestPhone = safeData($_POST['guestPhone']);
     $guestEmail = safeData($_POST['guestEmail']);
-    $guestCountry = safeData($_POST['guestCountry']);
     $guestZip = safeData($_POST['guestZip']);
     $guestIdNumber = safeData($_POST['guestIdNumber']);
     $guestIdType = safeData($_POST['guestIdType']);
 
     $guestIdState = safeData($_POST['guestState']);
-    $guestIdcity = safeData($_POST['guestCity']);
+
+    $guestBirthday = safeData($_POST['guestBirthday']);
+    $guestAnniversary = safeData($_POST['guestAnniversary']);
 
     $hotelId = $_SESSION['HOTEL_ID'];
     $bookId = safeData($_POST['bookingId']);
@@ -545,11 +536,11 @@ if($type == 'loadAddGuestReservationFormSubmit'){
     }
 
 
-    $sql = "insert into guest(hotelId,bookId,bookingdId,name,email,phone,country,state,city,zip,image,kyc_file,kyc_number,kyc_type,addBy,serial) values('$hotelId','$bookId','$bookingDId','$guestName','$guestEmail','$guestPhone','$guestCountry','$guestIdState','$guestIdcity','$guestZip','$guestImgSec','$guestProofImgSec','$guestIdNumber','$guestIdType','$addBy','$serialNo')";
+    $sql = "insert into guest(hotelId,bookId,bookingdId,name,email,phone,state,zip,image,kyc_file,kyc_number,kyc_type,addBy,serial,birthday,anniversary) values('$hotelId','$bookId','$bookingDId','$guestName','$guestEmail','$guestPhone','$guestIdState','$guestZip','$guestImgSec','$guestProofImgSec','$guestIdNumber','$guestIdType','$addBy','$serialNo','$guestBirthday','$guestAnniversary')";
 
     if($_POST['guestId'] != ''){
         
-        $sql = "update guest set name='$guestName',email='$guestEmail',phone='$guestPhone',country='$guestCountry',state='$guestIdState',city='$guestIdcity',zip='$guestZip',kyc_number='$guestIdNumber',kyc_type='$guestIdType',addBy='$addBy' $guestImgStrSql $guestProofStrSql where id = '$gId'";
+        $sql = "update guest set name='$guestName',email='$guestEmail',phone='$guestPhone',state='$guestIdState',zip='$guestZip',kyc_number='$guestIdNumber',kyc_type='$guestIdType',addBy='$addBy',birthday='$guestBirthday',anniversary='$guestAnniversary' $guestImgStrSql $guestProofStrSql where id = '$gId'";
     }
     
 

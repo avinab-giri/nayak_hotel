@@ -55,101 +55,87 @@ if ($type == 'load_resorvation') {
 
 
     $clrPreviewHtml = clrPreviewHtml();
-    $html = '<div class="row"> <div class="col-12 mb-1">'.$clrPreviewHtml.'</div>';
-
+    $html = '<div class="row"> <div class="col-12 mb-1">' . $clrPreviewHtml . '</div>';
+   
     $query = mysqli_query($conDB, $sql);
     // $si = $si + ($limit_per_page *  $page) - $limit_per_page;
 
-    if (checkBEStatus($_SESSION['HOTEL_ID']) == 'Improper') {
-        $setupLink = FRONT_SITE . '/setup';
-        $html .= '
-            
-            <div class="noDataContent">
-                <div class="content">
-                    <h4>Please setup your property.</h4>
-                    <a href="' . $setupLink . '" class="btn bg-gradient-info">Hotel Setup</a>
-                </div>
-            </div>
-        
-        ';
-    } else {
-        if (count(getBookingData()) > 0) {
-            if (mysqli_num_rows($query) > 0) {
-                while ($row = mysqli_fetch_assoc($query)) {
-                    // pr($row);
-                    $html .= '<div class="col-xl-3 col-md-4 col-sm-6 col-xs-12">';
-                    $bid = $row['bookingMainId'];
-                    $bookinId = $row['bookinId'];
-                    $reciptNo = $row['reciptNo'];
-                    $userPay = $row['userPay'];
-                    $checkIn = $row['checkIn'];
-                    $checkOut = $row['checkOut'];
-                    $nroom = $row['nroom'];
-                    $couponCode = $row['couponCode'];
+    if (mysqli_num_rows($query) > 0) {
+        if (mysqli_num_rows($query) > 0) {
+            while ($row = mysqli_fetch_assoc($query)) {
+                // pr($row);
+                $html .= '<div class="col-xl-3 col-md-4 col-sm-6 col-xs-12">';
+                $bid = $row['bookingMainId'];
+                $bookinId = $row['bookinId'];
+                $reciptNo = $row['reciptNo'];
+                $userPay = $row['userPay'];
+                $checkIn = $row['checkIn'];
+                $checkOut = $row['checkOut'];
+                $nroom = $row['nroom'];
+                $couponCode = $row['couponCode'];
 
-                    $pickUp = $row['pickUp'];
-                    $payment_status = $row['payment_status'];
-                    $payment_id = $row['payment_id'];
-                    $bookingSource = $row['bookingSource'];
-                    $add_on = $row['add_on'];
-                    $bookingDetailMainId = '';
-                    if (isset($row['bookingDetailMainId'])) {
-                        $bookingDetailMainId = $row['bookingDetailMainId'];
-                    }
-                    $addBy = explode(',', $row['addBy']);
-                    $maxAddBy = count($addBy);
-                    $addByValue = $addBy[$maxAddBy - 1];
-                    $addByValueArr = explode('_', $addByValue);
-
-                    $bookingDetailArray = getBookingDetailById($bid);
-                    
-                    $grossCharge = $bookingDetailArray['totalPrice'];
-                    $gname = $bookingDetailArray['name'];
-                    $nAdult = $bookingDetailArray['totalAdult'];
-                    $nChild = $bookingDetailArray['totalChild'];
-                    $checkinStatusArray = $bookingDetailArray['checkinStatusArray'][0];
-
-                    $statusArray = [
-                        'name' => $checkinStatusArray['name'],
-                        'bg' => $checkinStatusArray['bg'],
-                        'clr' => $checkinStatusArray['color'],
-                    ];
-
-
-                    $html .= reservationContentView($bid, $reciptNo, $gname, $checkIn, $checkOut, $add_on, $nAdult, $nChild, $grossCharge, $userPay, 'yes', $rTabType, $bookingDetailMainId, '', $bookingSource, '', $bookinId, $statusArray);
-
-                    $html .= '</div>';
+                $pickUp = $row['pickUp'];
+                $payment_status = $row['payment_status'];
+                $payment_id = $row['payment_id'];
+                $bookingSource = $row['bookingSource'];
+                $add_on = $row['add_on'];
+                $bookingDetailMainId = '';
+                if (isset($row['bookingDetailMainId'])) {
+                    $bookingDetailMainId = $row['bookingDetailMainId'];
                 }
-            } else {
-                $html .= '
-            
-                    <div class="noDataContent">
-                        <div class="content">
-                            <h4>No Data</h4>
-                        </div>
-                    </div>
-                
-                ';
+                $addBy = explode(',', $row['addBy']);
+                $maxAddBy = count($addBy);
+                $addByValue = $addBy[$maxAddBy - 1];
+                $addByValueArr = explode('_', $addByValue);
+
+                $bookingDetailArray = getBookingDetailById($bid);
+
+                $grossCharge = $bookingDetailArray['totalPrice'];
+                $gname = $bookingDetailArray['name'];
+                $nAdult = $bookingDetailArray['totalAdult'];
+                $nChild = $bookingDetailArray['totalChild'];
+                $checkinStatusArray = $bookingDetailArray['checkinStatusArray'][0];
+
+                $statusArray = [
+                    'name' => $checkinStatusArray['name'],
+                    'bg' => $checkinStatusArray['bg'],
+                    'clr' => $checkinStatusArray['color'],
+                ];
+
+
+                $html .= reservationContentView($bid, $reciptNo, $gname, $checkIn, $checkOut, $add_on, $nAdult, $nChild, $grossCharge, $userPay, 'yes', $rTabType, $bookingDetailMainId, '', $bookingSource, '', $bookinId, $statusArray);
+
+                $html .= '</div>';
             }
         } else {
-            if ($rTabType == 'all') {
-                $html .= '
-                    <div class="noDataContent">
-                        <div class="content">
-                            <h4>No Data</h4>
-                            <button id="noDataClickToReservation" class="btn bg-gradient-info">Add Reservation</button>
-                        </div>
-                    </div>
-                ';
-            } else {
-                $html .= '
+            $html .= '
+        
                 <div class="noDataContent">
                     <div class="content">
-                        <h4>No Data</h4>                      
+                        <h4>No Data</h4>
+                    </div>
+                </div>
+            
+            ';
+        }
+    } else {
+        if ($rTabType == 'all') {
+            $html .= '
+                <div class="noDataContent">
+                    <div class="content">
+                        <h4>No Data</h4>
+                        <button id="noDataClickToReservation" class="btn bg-gradient-info">Add Reservation</button>
                     </div>
                 </div>
             ';
-            }
+        } else {
+            $html .= '
+            <div class="noDataContent">
+                <div class="content">
+                    <h4>No Data</h4>                      
+                </div>
+            </div>
+        ';
         }
     }
 
@@ -528,12 +514,8 @@ if ($type == 'getRoomDetailByRoomNo') {
     $ratePlanHtml = '';
     $adultHtml = '';
     $childHtml = '';
-    $disabled = 'disabled';
-
-    $totalroomPrice = 0.00;
-    $totalgstPer = 0.00;
-    $totalgstPrice = 0.00;
-    $totaltotalPrice = 0.00;
+    $disabled = '';
+    
 
     if ($roomNum != '') {
         $roomNumArry = getRoomNumber($roomNum)[0];
@@ -550,48 +532,31 @@ if ($type == 'getRoomDetailByRoomNo') {
             $roomNumHtml .=  "<option $select value='$roomNum'>$roomNo</option>";
         }
 
-        foreach (getRateType($roomId) as $key => $getRateTypeItem) {
-            $id = $getRateTypeItem['id'];
-            $name = $getRateTypeItem['srtcode'];
-            $select = ($key == 0) ? 'selected' : '';
-            $roomDId = ($key == 0) ? $id : 0;
-            $ratePlanHtml .=  "<option $select value='$id'>$name</option>";
-        }
-
-        for ($n = 2; $n <= $totalCapacity; $n++) {
-            $select = ($n == $noAdult) ? 'selected' : '';
-            $adultHtml .=  "<option $select value='$n'>$n</option>";
-        }
-
-        $childHtml = "<option value='1'>1</option>";
-        $checkIn = (isset($_POST['checkIn'])) ? $_POST['checkIn'] : '';
-        $checkOut = (isset($_POST['checkOut'])) ? $_POST['checkOut'] : '';
-
-        $quickPriceArry = getQuickBookingPrice($roomId, $roomDId, $noAdult, 0, $checkIn, $checkOut);
-
-        $totalroomPrice = $quickPriceArry['roomPrice'];
-        $totalgstPer = $quickPriceArry['gstPer'];
-        $totalgstPrice = $quickPriceArry['gstPrice'];
-        $totaltotalPrice = $quickPriceArry['totalPrice'];
+              
     }
+
+    foreach (fetchData('sys_rate_plan') as $item) {
+        $rpId = $item['id'];
+        $srtcode = $item['srtcode'];
+        $ratePlanHtml .= '<option value="' . $rpId . '">' . $srtcode . '</option>';
+    }  
 
     $html = '';
 
     for ($i = 0; $i < $nRoom; $i++) {
         $room = '';
-
-        foreach (getRoomType('', 1) as $key => $getRoomTypeList) {
-            $id = $getRoomTypeList['id'];
-            $name = ucfirst($getRoomTypeList['header']);
-            $select = ($roomId == $id) ? 'selected' : '';
-            $room .=  "<option $select value='$id'>$name</option>";
+        
+        foreach (fetchData('room', ['hotelId' => $_SESSION['HOTEL_ID']]) as $item) {
+            $roomId = $item['id'];
+            $roomName = $item['header'];
+            $room .= '<option value="' . $roomId . '">' . $roomName . '</option>';
         }
 
         $html .= '
             <tr>
                 <td class="pr10">
                     <div class="form-group">
-                        <select class="form-control selectRoomId" name="selectRoom[]" data-rno="' . $i . '">
+                        <select class="customSelect" name="selectRoom[]" data-rno="' . $i . '">
                             <option value="0" selected>-Select Room</option>
                             ' . $room . '
                         </select>
@@ -599,7 +564,7 @@ if ($type == 'getRoomDetailByRoomNo') {
                 </td>
                 <td class="pr10">
                     <div class="form-group">
-                        <select class="form-control rateTypeId" name="selectRateType[]" ' . $disabled . ' data-rno="' . $i . '">
+                        <select class="customSelect" name="selectRateType[]" ' . $disabled . ' data-rno="' . $i . '">
                             <option value="" selected>-Select</option>
                             ' . $ratePlanHtml . '
                         </select>
@@ -607,46 +572,35 @@ if ($type == 'getRoomDetailByRoomNo') {
                 </td>
                 <td class="pr10">
                     <div class="form-group">
-                        <select class="form-control adultSelect" name="selectAdult[]" ' . $disabled . '>
-                            <option value="1" selected>1</option>
-                            ' . $adultHtml . '
-                        </select>
+                        <input class="form-control" type="number" value="0" placeholder="" name="selectAdult[]">
                     </div>
                 </td>
                 <td class="pr10">
                     <div class="form-group">
-                        <select class="form-control childSelect" name="selectChild[]" ' . $disabled . '>
-                            <option value="0" selected >0</option>
-                            ' . $childHtml . '
-                        </select>
+                        <input class="form-control" type="number" value="0" name="selectChild[]">
                     </div>
                 </td>
 
                 <td class="pr10">
                     <div class="form-group">
-                        <select class="form-control roomNumSelect" name="roomNum[]" ' . $disabled . '>
-                            <option value="" selected>No</option>
-                            ' . $roomNumHtml . '
+                        <select class="customSelect roomGst" name="roomGst[]" id="">
+                            <option value="0">0</option>
+                            <option selected value="12">12%</option>
+                            <option value="18">18%</option>
                         </select>
                     </div>
                 </td>
 
-                <td class="dFlex aic jcsb">
-                    <div class="form-group reservationRateArea w85p">
-                        <input type="text" value="' . $totaltotalPrice . '" class="form-control totalPriceSection" disabled>
-                        <div class="content">
-                            <div class="overflowContent">
-                                <ul>
-                                    <li><span>Room Price :</span> <span>Rs <strong class="roomPricesSec">' . $totalroomPrice . '</strong></span></li>
-                                    <li><span>Adult Price :</span> <span>Rs <strong class="adultPricesSec">0.00</strong></span></li>
-                                    <li><span>Child Price :</span> <span>Rs <strong class="childPricesSec">0.00</strong></span></li>
-                                    <li><span>Gst :</span> <span>Rs <strong class="gstPricesSec">' . $totalgstPrice . '</strong></span></li>
-                                </ul>
-                            </div>
-                            <span class="icon reservationRateAreaIcon"><i class="bi bi-info-lg"></i></span>
-                        </div>
+                <td>
+                    <div class="form-group reservationRateArea">
+                        <input onchange="calculateTotal()" value="0" type="number" class="form-control totalPriceSection" name="totalPrice[]">
                     </div>
-                    ' . $removeBtn . '
+                </td>
+
+                <td>
+                    <div class="form-group reservationRateArea">
+                        <input type="number" disabled value="0" class="form-control totalPriceWithGst" name="totalPriceWithGst[]">
+                    </div>
                 </td>
             </tr>
         ';
@@ -1432,163 +1386,150 @@ if ($type == 'load_form_organisation') {
 
 
     $html = '
-<div class="organisation-modal-body">
-<form action="" id="organisationForm">
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="control-label">Name</label>                     
-            <input type="text" placeholder="Organisation Name" class="form-control" name="organisationname">
+        <div class="organisation-modal-body">
+            <form action="" id="organisationForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Name</label>                     
+                            <input type="text" placeholder="Organisation Name" class="form-control" name="organisationname">
 
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Email</label>                     
+                            <input type="text" placeholder="Organisation Email" class="form-control" name="organisationemail">
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Address</label>                     
+                            <input type="text" placeholder="Organisation Address" class="form-control" name="organisationaddress">
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">City</label>                     
+                            <input type="text" placeholder="City" class="form-control" name="organisationcity">
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">State</label>                     
+                            <input type="text" placeholder="State" class="form-control" name="organisationState">
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Country</label>                     
+                            <input type="text" placeholder="Country" class="form-control" name="organisationCountry">
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Post Code</label>                     
+                            <input type="text" placeholder="Post Code" class="form-control" name="organisationPostCode">
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Phone Number</label>                     
+                            <input type="text" placeholder="eg:+91 ***** *****" class="form-control" name="organisationNumber">
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="control-label">GST Number</label>                     
+                            <input type="text" id="gstNoField" placeholder="GST Number" class="form-control" name="organisationGstNo">
+
+                        </div>
+                    </div>       
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Rate Plan</label>       
+
+                            <select class="form-control" name="rateplan" id="rateplan">                        
+                            
+                            <option value="0" select="selected">Select</option>   
+                            ' . $rateList . '                           
+
+                            </select>
+                            
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Sales Manager</label>                  
+                            <input type="text" id="salesManager" placeholder="Sales Manager" class="form-control" name="salesManager">
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label">Discount</label>       
+
+                            <input type="number" placeholder="eg:5%" class="form-control" name="organisationDiscount">
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="control-label">Notes</label>                     
+                                            
+                            <input type="text" placeholder="note" class="form-control" name="organisationNote">
+                                                        
+
+                        
+                    
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </form>
         </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="control-label">Email</label>                     
-            <input type="text" placeholder="Organisation Email" class="form-control" name="organisationemail">
-
-        </div>
-    </div>
-
-
-</div>
-
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="control-label">Address</label>                     
-            <input type="text" placeholder="Organisation Address" class="form-control" name="organisationaddress">
-
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="control-label">City</label>                     
-            <input type="text" placeholder="City" class="form-control" name="organisationcity">
-
-        </div>
-    </div>
-
-
-</div>
-
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="control-label">State</label>                     
-            <input type="text" placeholder="State" class="form-control" name="organisationState">
-
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="control-label">Country</label>                     
-            <input type="text" placeholder="Country" class="form-control" name="organisationCountry">
-
-        </div>
-    </div>
-
-
-</div>
-
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="control-label">Post Code</label>                     
-            <input type="text" placeholder="Post Code" class="form-control" name="organisationPostCode">
-
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="control-label">Phone Number</label>                     
-            <input type="text" placeholder="eg:+91 ***** *****" class="form-control" name="organisationNumber">
-
-        </div>
-    </div>
-
-
-</div>
-
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="form-group">
-            <label class="control-label">GST Number</label>                     
-            <input type="text" id="gstNoField" placeholder="GST Number" class="form-control" name="organisationGstNo">
-
-        </div>
-    </div>       
-</div>
-
-
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="control-label">Rate Plan</label>       
-
-               <select class="form-control" name="rateplan" id="rateplan">                        
-               
-               <option value="0" select="selected">Select</option>   
-               ' . $rateList . '                           
-
-               </select>
-             
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="control-label">Sales Manager</label>                  
-             <input type="text" id="salesManager" placeholder="Sales Manager" class="form-control" name="salesManager">
-        </div>
-    </div>
-
-
-</div>
-
-
-
-
-
-<div class="row">
-    <div class="col-md-4">
-        <div class="form-group">
-            <label class="control-label">Discount</label>       
-
-            <input type="number" placeholder="eg:5%" class="form-control" name="organisationDiscount">
-        </div>
-    </div>
-
-    <div class="col-md-8">
-        <div class="form-group">
-            <label class="control-label">Notes</label>                     
-                              
-            <input type="text" placeholder="note" class="form-control" name="organisationNote">
-                                        
-
-          
-    
-
-        </div>
-    </div>
-
-
-</div>
-
-
-
-
- </form>
-</div>
 ';
     echo $html;
 }
@@ -1629,7 +1570,7 @@ if ($type == 'addNewOrganisation') {
 if ($type == 'loadReservationPreview') {
     // pr($_POST);couponCode
     $hotelDeatailArry = hotelDetail();
-    $bookingCode = getHotelServiceData('', $hotelId, '3')[0]['voucher'];
+    $bookingCode = getHotelServiceData('',HOTEL_ID, '3')[0]['voucher'];
     $slug = $hotelDeatailArry['slug'];
     if (isset($_SESSION['reservatioId']) && $_SESSION['reservatioId'] != '') {
         $bid = $_SESSION['reservatioId'];
@@ -1674,14 +1615,14 @@ if ($type == 'loadReservationPreview') {
     }
 
     if (isset($_POST['selectAdult'])) {
-        $selectAdult = ($_POST['selectAdult'] == '') ? 0 : $_POST['selectAdult'];
+        $selectAdult = ($_POST['selectAdult'] == '') ? [] : $_POST['selectAdult'];
+        $adultSum = array_sum($selectAdult);
     }
 
     if (isset($_POST['selectChild'])) {
-        $selectChild = ($_POST['selectChild'] == '') ? 0 : $_POST['selectChild'];
+        $selectChild = ($_POST['selectChild'] == '') ? [] : $_POST['selectChild'];
+        $childSum = array_sum($selectChild);
     }
-
-
 
     $bDate = date('Y-m-d');
 
@@ -1691,10 +1632,22 @@ if ($type == 'loadReservationPreview') {
     $nChild = 0;
     $totalPrice = 0;
     $total = '';
+
+
     if (isset($_POST['paidAmount'])) {
         $paid = ($_POST['paidAmount'] == '') ? '' : $_POST['paidAmount'];
     } else {
         $paid = '';
+    }
+    $sumTotalPrice = 0;
+    $gstArray = $_POST['roomGst'];
+    if (isset($_POST['totalPrice'])) {
+        $totalPrice = ($_POST['totalPrice'] == '') ? [] : $_POST['totalPrice'];
+        foreach($totalPrice as $key=>$val){
+            $gst = $gstArray[$key];
+            $gstPrice = getPriceCalculate('percentage',$gst,$val);
+            $sumTotalPrice += $val + $gstPrice;
+        }
     }
 
     $couponCode = (isset($_POST['couponCode'])) ? $_POST['couponCode'] : '';
@@ -1703,39 +1656,10 @@ if ($type == 'loadReservationPreview') {
     $couponPer = '';
     $couponType = '';
 
-    if (isset($_POST['selectRoom']) && !empty($_POST['selectRoom'])) {
-        foreach ($_POST['selectRoom'] as $key => $val) {
-            if ($val != 0) {
-                $roomId = $selectRoom[$key];
-                $rateType = isset($selectRateType[$key]) ? $selectRateType[$key] : getRateType($roomId)[0]['id'];
-                $adult = isset($selectAdult[$key]) ? $selectAdult[$key] : getNoAdultCountByRId($roomId);
-
-                $child = 0;
-                if (isset($selectChild[$key])) {
-                    $child = $selectChild[$key];
-                }
-
-                $nAdult += $adult;
-                $nChild += $child;
-
-                if ($roomId == 0) {
-                    $totalPrice = 0;
-                } else {
-                    $singlePriceArry = getSingleRoomPrice($roomId, $rateType, $adult, $child, $checkIn, $countNight, $couponCode);
-                    $totalPrice += $singlePriceArry['total'];
-                    $couponPrice += $singlePriceArry['couponPrice'];
-                    $couponPer = $singlePriceArry['couponPer'];
-                    $couponType = $singlePriceArry['couponType'];
-                }
-            }
-        }
-    }
+    
 
 
-    $_SESSION['reservationTotalPrice'] = $totalPrice;
-
-
-    $html = reservationContent($bid, $reciptNo, $gname, $checkIn, $checkOut, $bDate, $nAdult, $nChild, $totalPrice, $paid, '', '', '', 'no', $couponCode, $couponPrice, $couponType, $couponPer);
+    $html = reservationContent($bid, $reciptNo, $gname, $checkIn, $checkOut, $bDate, $adultSum, $childSum, $sumTotalPrice, $paid, '', '', '', 'no', $couponCode, $couponPrice, $couponType, $couponPer);
 
     echo $html;
 }

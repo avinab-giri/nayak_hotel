@@ -10095,6 +10095,7 @@ footer {
   padding: 0 5px;
   font-weight: 700;
   font-size: .75rem;
+  border: 1px solid #d2d6da;
 }
 
 .bookingRoomNumList li{
@@ -10788,3 +10789,5 @@ footer {
   letter-spacing: .05em;
   margin: 0;
 }
+
+

@@ -4,8 +4,6 @@ include ('include/constant.php');
 include (SERVER_INCLUDE_PATH.'db.php');
 include (SERVER_INCLUDE_PATH.'ajaxFunction.php');
 
-    define('API_KEY', 'zaCELgL.0imfnc8mVLWwsAawjYr4Rx-Af50DDqtlx');
-
     $received_api_key = isset($_POST['api_key']) ? $_POST['api_key'] : die('Invalid Request');
 
     if($received_api_key != API_KEY){

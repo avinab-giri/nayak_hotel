@@ -2,7 +2,11 @@
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
 // error_reporting(E_ALL);
+
 use Mpdf\Tag\A;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
 include(SERVER_INCLUDE_PATH . 'uiFunction.php');
 include(SERVER_INCLUDE_PATH . 'mailFunction.php');
@@ -14,19 +18,16 @@ function currentPage(){
 }
 
 function redirect($link){
-
     ob_start();
     header('Location: '.$link);
     ob_end_flush();
-    die();
-    
+    die();    
 }
 
 
-
-
-
 $time = date('Y-m-d h:i:s');
+
+define('HOTEL_ID', (isset($_SESSION['HOTEL_ID'])) ? $_SESSION['HOTEL_ID'] : '');
 
 if (isset($_SESSION['HOTEL_ID'])) {
     $hotelId = $_SESSION['HOTEL_ID'];
@@ -38,8 +39,7 @@ if (isset($_SESSION['HOTEL_ID'])) {
 }
 
 
-function orginalHotelId($hotelId){
-    
+function orginalHotelId($hotelId){    
     $hotelArray = fetchData('hotel', ['hCode' => "$hotelId"])[0];
     $pid = $hotelArray['pid'];
     if($pid != 0){
@@ -74,20 +74,18 @@ function websiteLink(){
         <link href="' . $frontSite . '/css/icons.css" rel="stylesheet">
         <link href="' . $frontSite . '/css/svg.css" rel="stylesheet">
         <link id="pagestyle" href="' . $frontSite . '/css/getbootstrap.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
         <link id="pagestyle" href="' . $frontSite . '/css/multiStep.min.css" rel="stylesheet">
         <link id="pagestyle" href="' . $frontSite . '/css/multiStep-theme.min.css" rel="stylesheet">
         <link id="pagestyle" href="' . $frontSite . '/css/hierarchy-select.min.css" rel="stylesheet">
         <link rel="stylesheet" href="' . $frontSite . '/css/jstable.css">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css" rel="stylesheet">
         <link rel="stylesheet" href="' . $frontSite . '/css/sweetalert.css">
-        <link rel="stylesheet" type="text/css" href="' . $frontSite . '/css/jquery.datepick.css">
-        <link rel="stylesheet" type="text/css" href="' . $frontSite . '/css/ui-flick.datepick.css">
+        <link rel="stylesheet" type="text/css" href="' . $frontSite . '/css/bootstrap-datepicker.css">
         <link rel="stylesheet" href="' . $frontSite . '/css/fancybox.css"/>
         <link rel="stylesheet" href="' . $frontSite . '/css/jph-tooltip.css"/>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">  
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.css"> 
         <link id="pagestyle" href="' . $frontSite . '/css/style.css" rel="stylesheet">
     
         <style>
@@ -111,7 +109,8 @@ function websiteLink(){
 }
 
 function websiteNav(){
-    $logo = FRONT_SITE_IMG."logo/".LOGO('',1);
+    // $logo = FRONT_SITE_IMG."logo/".LOGO('',1);
+    $logo = '';
     $deshboardLink = FO_FRONT_SITE.'/dashboard';
     $pmsLink = FO_FRONT_SITE.'/pms';
     $posLink = POS_FRONT_SITE;
@@ -126,7 +125,7 @@ function websiteNav(){
     $reservationLink = FRONT_SITE.'/reservations';
     $stayViewLink = FRONT_SITE.'/stay-view';
     $inventoryLink = FRONT_SITE.'/inventory';
-    $guestLink = FRONT_SITE.'/guest';
+    $guestLink = FRONT_SITE.'/guest-list';
     $paymentLink = FRONT_SITE.'/payment-link';
     $roomViewLink = FRONT_SITE.'/room-view';
     $channelManagerLink = FRONT_SITE.'/channel-manager';
@@ -270,10 +269,9 @@ function websiteNav(){
                         <ul class="mainNav">
                             <li><a class="homeLink logo" href="'.$deshboardLink.'"><img src="'.$logo.'" alt=""></a></li>
                             <li><a class="homeLink linkBtn" href="'.$deshboardLink.'">Dashboard</a></li>
-                            <li><a class="pmsLink linkBtn" href="'.$pmsLink.'">Front Office</a></li>
+                            <li><a class="resLink linkBtn" href="'.$reservationLink.'">Reservation</a></li>
                             <li><a class="cashingLink linkBtn" href="'.$cashingLink.'">Cashiering</a></li>
-                            <li><a class="hkLink linkBtn" href="'.$hkLink.'">House Keeping</a></li>
-                            <li><a class="kotLink linkBtn" href="'.$posLink.'">POS</a></li>                            
+                            <li><a class="guestLink linkBtn" href="'.$guestLink.'">Guest</a></li>                          
                             <li> <a class="reportLink linkBtn" href="'.$reportLink.'">Reports</a></li>
                         </ul>
                     </div>
@@ -391,7 +389,6 @@ function websiteNav(){
 }
 
 function websiteFooter(){
-
     $frontSite = FRONT_SITE;
     $frontSiteImg = FRONT_SITE_IMG;
 
@@ -1561,9 +1558,9 @@ function unique_id($l = 8)
 }
 
 function printBooingId($bid, $obid = '', $or = ''){
-
-    $reciptNum = threeNumberFormat(getBookingData($bid)[0]['reciptNo']);
-    $bookingId = getBookingData($bid)[0]['bookinId'];
+    $bookingData = fetchData('booking', ['id'=>$bid])[0];
+    $reciptNum = threeNumberFormat($bookingData['reciptNo']);
+    $bookingId = $bookingData['bookinId'];
 
     $data = $bookingId . ' / ' . $reciptNum;
     if ($obid != '') {
@@ -1594,8 +1591,7 @@ function checkImg($path, $demo = '')
     return $data;
 }
 
-function LOGO($light = '', $dark = '')
-{
+function LOGO($light = '', $dark = ''){
     $darkLogo = hotelDetail()['darklogo'];
     $lightLogo = hotelDetail()['lightlogo'];
     $data = 'logodemo.jpg';
@@ -2575,8 +2571,7 @@ function getBookingIdByBVID($bvid)
 function getBookingData($bid = '', $rNum = '', $checkIn = '', $id = '', $onlyCheckIn = '', $rid = '', $bookingSourse = '', $limit = '', $order = '', $addOn = '', $group = '', $checkinDone = '', $checkOut = '', $user = '', $salesId = '', $reservationId = '', $cancel = '', $search = '', $exceptCancel='', $status = '')
 {
     global $conDB;
-    global $hotelId;
-
+    $hotelId = HOTEL_ID;
     $query = "select booking.*, bookingdetail.*, bookingdetail.id as bookingdetailId , guest.id as guestId , guest.name as guestName , guest.phone as guestPhone from booking,bookingdetail,guest where booking.id=bookingdetail.bid and booking.id=guest.bookId and bookingdetail.id = guest.bookingdId and booking.hotelId='$hotelId' ";
 
     if ($cancel != '') {
@@ -2712,7 +2707,7 @@ function getBookingData($bid = '', $rNum = '', $checkIn = '', $id = '', $onlyChe
                 'addByDName' => $addByArray['displayName'],
                 'companyName' => (isset($coompanyArray['name'])) ? $coompanyArray['name'] : '',
                 'gstPrice' => $priceArry['gst'],
-                'commision' => $priceArry['commision'],
+                'commision' => $priceArry['commission'],
                 'subTotal' => $priceArry['nightPrice'],
                 'totalAdult' => $totalAdult,
                 'totalChild' => $totalChild,
@@ -2889,6 +2884,8 @@ function getBookingDetailById($bid = '', $roomNo = '', $bdid = '', $date = ''){
     $roomDetailArry = array();
     $checkinstatus = '';
     $bookingArray = array();
+    $checkInDate = '';
+    $checkOutDate = '';
 
     if (isset(getBookingData($bid)[0])) {
         $bookingArray = getBookingData($bid)[0];
@@ -2943,7 +2940,8 @@ function getBookingDetailById($bid = '', $roomNo = '', $bdid = '', $date = ''){
     if (mysqli_num_rows($bookingSql) > 0) {
         while ($row = mysqli_fetch_assoc($bookingSql)) {
             $subTotalPrice = 0;
-
+            $checkInDate = $row['checkIn'];
+            $checkOutDate = $row['checkOut'];
             $bookngDId = $row['id'];
             $adult = $row['adult'];
             $child = $row['child'];
@@ -3055,6 +3053,8 @@ function getBookingDetailById($bid = '', $roomNo = '', $bdid = '', $date = ''){
         'subTotalPrice' => $sumSubTotalPrice,
         'gstPrice' => $totalGst,
         'totalPrice' => round($totalPrice,2),
+        'checkIn'=>$checkInDate,
+        'checkOut'=>$checkOutDate,
         'checkinstatus' => $checkinstatus,
         'roomTotalPrice' => $roomTotalPrice,
         'kotPrice' => $kotPrice,
@@ -5330,7 +5330,7 @@ function getHotelServiceData($id = '', $hid = '', $sid = '', $status = '')
     if ($status != '') {
         $sql .= " and status = '$status'";
     }
-
+    
     $data = array();
     $query = mysqli_query($conDB, $sql);
 
@@ -7593,8 +7593,7 @@ function getQPVoucher($qpid)
 }
 
 
-function getGuestEmailId($gid = '', $grid = '', $kotid = '')
-{
+function getGuestEmailId($gid = '', $grid = '', $kotid = ''){
     global $conDB;
     if ($gid == '') {
         $sql = "select * from guest_review where id = $grid";
@@ -7609,66 +7608,79 @@ function getGuestEmailId($gid = '', $grid = '', $kotid = '')
 }
 
 
-function send_email($email='', $gname = '', $cc = '', $bcc = '', $html='', $subject='')
-{
-    include(SERVER_INCLUDE_PATH . 'smtp/PHPMailerAutoload.php');
-    $hotel_name = hotelDetail()['hotelName'];
 
-    $mail = new PHPMailer;
-
-    $mail->SMTPDebug = 0;
-
-    $mail->isSMTP();
-    $mail->Host = 'smtp.zeptomail.in';
-    $mail->SMTPAuth = true;
-    $mail->Username = 'emailapikey';
-    $mail->Password = 'PHtE6r0KRbjviWIvpxgJ5ae7HselZ4smqepvfwdD4o0RD/UAHE1Wqdp9xjCxqEssUqFAFPefyto5ueud5bqNJDu5PGsZX2qyqK3sx/VYSPOZsbq6x00cslsbd03VXIDocdBr0yDRstqX';
-    $mail->SMTPSecure = 'tls';
-    $mail->Port = 587;
+function send_email($email='', $gname = '', $cc = '', $bcc = '', $html='', $subject='',$invoice_html='',$file_name='invoice') {
 
 
-    $mail->setFrom('noreply@retrod.in', $hotel_name);
-    $mail->addAddress("$email", "$gname");
-    $mail->addCC("$cc");
-    $mail->addBCC("$bcc");
+    if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+        include(SERVER_INCLUDE_PATH . 'smtp/autoload.php');
+    }
 
-    $mail->isHTML(true);
-    $mail->Subject = "$subject";
-    $mail->Body    = $html;
-
+    if (!class_exists('\Mpdf\Mpdf')) {
+        require_once(SERVER_INCLUDE_PATH . 'mpdf/autoload.php');
+    }
+    $hotelDetail = fetchData('hotel', ['hCode'=>$_SESSION['HOTEL_ID']])[0];
+    $hotel_name = $hotelDetail['hotelName'];
+    $hotel_Email = $hotelDetail['hotelEmailId'];
+    $retrodEmail = RETROD_MAIL_ID;
     $data = 0;
 
-    if ($mail->send()) {
+    try {
+        $mail = new PHPMailer(true);
 
-        $data = 1;
+        $mail->SMTPDebug = 0;
+        $mail->isSMTP();
+        $mail->Host = 'smtp.zeptomail.in';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'emailapikey';
+        $mail->Password = 'PHtE6r0KRbjviWIvpxgJ5ae7HselZ4smqepvfwdD4o0RD/UAHE1Wqdp9xjCxqEssUqFAFPefyto5ueud5bqNJDu5PGsZX2qyqK3sx/VYSPOZsbq6x00cslsbd03VXIDocdBr0yDRstqX';
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
+        $mail->setFrom('noreply@retrod.in', $hotel_name);
+        $mail->addAddress($email, $gname);
+        $mail->addCC($hotel_Email);
+        $mail->addBCC($retrodEmail);
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body = $html;
 
-        if($subject == 'Your Booking Confirmed'){
-            $alert = "Reservation mail sent to <b>$email</b>";
-            setActivityFeed($hotelId, '5', $oid, '', '', '', get_IP_address(), '',$alert, $addBy);
+        // Attach invoice if provided
+        if ($invoice_html) {
+            $mpdf = new \Mpdf\Mpdf();
+            $mpdf->WriteHTML($invoice_html);
+            $pdf_content = $mpdf->Output('', 'S');
+            $temp_file = tempnam(sys_get_temp_dir(), 'invoice_');
+            file_put_contents($temp_file, $pdf_content);
+            $mail->addAttachment($temp_file, 'invoice.pdf');
+            register_shutdown_function(function () use ($temp_file) {
+                unlink($temp_file);
+            });
         }
 
-        if($subject == 'Thank you for check in.'){
-            $alert = "Check-in mail sent to <b>$email</b>";
-            setActivityFeed($hotelId, '5', $oid, '', '', '', get_IP_address(), '',$alert, $addBy);
-        }
+        $mail->SMTPOptions = array(
+            "ssl" => array(
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+                "allow_self_signed" => false,
+            ),
+        );
 
-        if($subject == "Thank you for choosing $hotelName."){
-            $alert = "Check-out mail sent to <b>$email</b>";
-            setActivityFeed($hotelId, '5', $oid, '', '', '', get_IP_address(), '',$alert, $addBy);
+        if ($mail->send()) {
+            $data = 1;
+        } else {
+            // Handle error
+            error_log("Email sending failed: " . $mail->ErrorInfo);
         }
-
-        
-    } else {
-        // echo $mail->ErrorInfo;
-        
+    } catch (Exception $e) {
+        // Handle exception
+        error_log("Email sending failed: " . $e->getMessage());
     }
 
     return $data;
 }
 
 
-function custom_number_format($n, $precision = 1)
-{
+function custom_number_format($n, $precision = 1){
     if ($n < 900) {
         $n_format = number_format($n);
     } else if ($n < 900000) {
@@ -11858,52 +11870,53 @@ function posReportMake($fDate='',$eDate=''){
     return $data;
 }
 
- function orderEmail2($oid){
+function orderEmail2Body($oid){
+    
+    $hotelDetailArray = fetchData('hotel', ['hCode'=>$_SESSION['HOTEL_ID']])[0];
+    $hotelprofileArray = fetchData('hotelprofile', ['hotelId'=>$_SESSION['HOTEL_ID']])[0];
+    $proLocarion = fetchData('propertylocation', ['hotelId'=>$_SESSION['HOTEL_ID']])[0];
+    $guestArray = (isset(fetchData('guest', ['bookId'=>$oid, 'groupadmin'=> 1])[0])) ? fetchData('guest', ['bookId'=>$oid, 'groupadmin'=> 1])[0] : array();
+    $onlyBookingArray = fetchData('booking', ['id'=>$oid])[0];
+    
+    $name = (isset($guestArray['name'])) ? $guestArray['name']: '';
+    $email = (isset($guestArray['email'])) ? $guestArray['email']: '';
+    $phoneNumber = (isset($guestArray['phone'])) ? $guestArray['phone'] : '';
+    $company_name = (isset($guestArray['company_name']))?$guestArray['company_name'] : '';
+    $gst = (isset($guestArray['comGst'])) ? $guestArray['comGst'] : '';
+    
+    $userPay = $onlyBookingArray['userPay'];
+    $grossCharge = $onlyBookingArray['totalPrice'];
+    $payStatus = $onlyBookingArray['payment_status'];
+    $add_on = date('d M, Y g:i A', strtotime($onlyBookingArray['add_on']));
+    $payment_id = $onlyBookingArray['payment_id'];
+    $bookingSource = $onlyBookingArray['bookingSource'];
 
-    $name = getGuestDetail($oid)[0]['name'];
-    $email = getGuestDetail($oid)[0]['email'];
-    $phoneNumber = getGuestDetail($oid)[0]['phone'];
-    $company_name = getGuestDetail($oid)[0]['company_name'];
-    $gst = getGuestDetail($oid)[0]['comGst'];
-    $bid = 1;
-    $userPay = getBookingDetailById($oid)['userPay'];
-    $grossCharge = getBookingDetailById($oid)['totalPrice'];
+    $payStatusArray = fetchData('payment_status', ['id'=>$payStatus])[0];
 
-    $payment_status = 'complete';
+    $payment_status = $payStatusArray['name'];
 
-    $payment_id = 'gg';
-    $add_on = date('d M, Y g:i A', strtotime(getBookingDetailById($oid)['addOn']));
-
-    $couponCode = getBookingDetailById(1)['couponCode'];
-    $pickUp = getBookingDetailById(1)['pickUp'];
-    $pickupHtml = '';
 
     $sitename = SITE_NAME;
     $bookingSite = FRONT_BOOKING_SITE;
 
-    $logo = getHotelImageData('','','','',hotelDetail()['favicon'])[0]['fullUrl'];
-
-
-    $hotelName = hotelDetail()['hotelName'];
+    $logo = (isset(getHotelImageData('','','','',$hotelprofileArray['darklogo'])[0]['fullUrl'])) ? getHotelImageData('','','','',$hotelprofileArray['darklogo'])[0]['fullUrl'] : 'https://retrod.in/asset/img/demo-hotel.png';
+    
+    $hotelName = $hotelDetailArray['hotelName'];
 
 
 
     $roomdetailsHtml='';
-
-    foreach (getOrderDetailArrByOrderId($oid) as $bidrow) {
-        $checkIn = date('d M, Y', strtotime($bidrow['checkIn']));
-        $checkOut = date('d M, Y', strtotime($bidrow['checkOut']));
-        // $totralPrice = $bidrow['total'];
-    };
+    
 
     $bookingDetailArry = getBookingDetailById($oid);
-
-
+    
     $total_price = $bookingDetailArry['totalPrice'];
     $gst_price = $bookingDetailArry['gstPrice'];;
     $couponBalance = 0;
     $paymentBackupHtml = '';
     $sn = 0;
+    $bookingStatus = '';
+    
     foreach ($bookingDetailArry['roomDetailArry'] as $bidrow) {
         $sn ++;
         $roomName = $bidrow['roomName'];
@@ -11973,10 +11986,10 @@ function posReportMake($fDate='',$eDate=''){
 
     $reservationNumber = printBooingId($oid);
     $date = date('Y-m-d');
-    $hotelMail=ucfirst(hotelDetail()['hotelEmailId']);
-    $hotelPhonenumber = ucfirst(hotelDetail()['hotelPhoneNum']);
-    $hotelAdd = ucfirst(hotelDetail()['address']);
-    $hotelWebsite = ucfirst(hotelDetail()['website']);
+    $hotelMail=ucfirst($hotelDetailArray['hotelEmailId']);
+    $hotelPhonenumber = ucfirst($hotelDetailArray['hotelPhoneNum']);
+    $hotelWebsite = ucfirst($hotelDetailArray['website']);
+    $hotelAdd = ucfirst($proLocarion['address']);
 
     $hotelDetails = '';
 
@@ -11986,19 +11999,13 @@ function posReportMake($fDate='',$eDate=''){
     $hotelDetails.='<p>'.$hotelWebsite.'</p>';
 
 
-
-
-
     $bookedOn = $add_on;
-
-    $arrivalDate = $checkIn;
-
-    $departureDate = $checkOut;
-
+    $arrivalDate = date('d-M', strtotime($bookingDetailArry['checkIn']));
+    $departureDate = date('d-M', strtotime($bookingDetailArry['checkOut']));
     $night = $bookingDetailArry['night'];
-
+    
     $totalRoom = 2;
-    $bookingType = getBookingSource($bookingDetailArry['bookingSource'])[0]['name'];
+    $bookingType = getBookingSource($bookingSource)[0]['name'];
 
 
 
@@ -12006,20 +12013,7 @@ function posReportMake($fDate='',$eDate=''){
     $paid = $userPay;
     $ToBePay = $total - $paid;
 
-    $html = '
-
-    <!DOCTYPE html>
-    <html lang="en">
-
-        <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title>demo</title>
-
-
-        </head>
-
-        <body>
+        $html = '
             <table style="width: 95%; border:2px solid black; margin: 0 auto;">
                 <tbody>
 
@@ -12059,6 +12053,7 @@ function posReportMake($fDate='',$eDate=''){
                                     </tr>
                                 </tbody>
                             </table>
+
                             <table style="width:100%; border-collapse:collapse;">
                                 <tbody>
                                     <tr>
@@ -12139,6 +12134,23 @@ function posReportMake($fDate='',$eDate=''){
                     </tr>
                 </tbody>
             </table>
+        ';
+    return  $html;
+
+}
+
+ function orderEmail2($oid){    
+    $body = orderEmail2Body($oid);
+    $html = '
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Voucher</title>
+        </head>
+        <body>
+            '.$body.'
         </body>
 
     </html>';
@@ -13586,6 +13598,32 @@ function updateData($tableName, $data=array(), $conditions=array()) {
         return insertData($tableName,array_merge($conditions,$data));
     }
     
+}
+
+
+
+
+function sendDataReservation($key,$url,$table,$data){
+    $target_url = 'https://retrod.in/api/insert.php';
+    $sendRequest = [
+        'key'=>$key,
+        'url'=>$url,
+        'table'=>$table,
+        'data'=>$data,
+    ];
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $target_url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($sendRequest));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    if ($response === false) {
+        echo 'Error: ' . curl_error($ch);
+    } else {
+        echo 'Response: ' . $response;
+    }
 }
 
  ?>

@@ -6,23 +6,21 @@ include('include/constant.php');
 include(SERVER_INCLUDE_PATH . 'db.php');
 include(SERVER_INCLUDE_PATH . 'ajaxFunction.php');
 include(SERVER_INCLUDE_PATH . 'add_to_kot.php');
-include(SERVER_INCLUDE_PATH . 'mpdf/autoload.php');
+
 
 include(SERVER_INCLUDE_PATH . 'add_to_stock.php');
 include(SERVER_INCLUDE_PATH . 'calendar.php');
 
 
-// pr(bookingDetailPopUpContent(5, 6, 'all'));
+echo $msg = generateInvoice('reservationGuest','Avinab',25);
 
-// pr(generateDownloadInvoice('invoice',20));
-// pr(fetchData('hotel',['pid'=>1]));
 
-$data = array();
 
-echo $hotelId;
-pr($_SESSION);
+// $genrateInvoce = orderEmail2Body(15);
 
-die();
+// send_email('avinabgiri7978@gmail.com', 'Avinab', 'avinabgiri7978@gmail.com', 'avinabgiri7978@gmail.com', 'test', 'For Test', $genrateInvoce);
+
+
 
 // $text = "1";
 // $encoded = customEncodeBase64($text);
