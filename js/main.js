@@ -103,6 +103,14 @@ function numberWithCommas(number) {
     return parts.join(".");
 }
 
+var statesInIndia = [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", 
+    "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", 
+    "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", 
+    "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", 
+    "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+  ];
+
 function ajax_request(data = '',json='') {
     // request_type
     const api_url = `${webUrl}api.php`;
@@ -328,13 +336,14 @@ function success($msg) {
     return $html;
 }
 
-function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingType = '', $currentDate = '') {
+function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingType = '', $currentDate = '', $page) {
 
     var rTab = $rTab;
     var search = $search;
     var reserveType = $reserveType;
     var bookingType = $bookingType;
     var currentDate = $currentDate;
+    var page = $page;
 
     if (rTab == '') {
         rTab = 'all';
@@ -346,7 +355,7 @@ function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingTy
     $.ajax({
         url: webUrl + 'include/ajax/resorvation.php',
         type: 'post',
-        data: { type: 'load_resorvation', rTab: rTab, search: search, reserveType: reserveType, bookingType: bookingType, currentDate: currentDate },
+        data: { type: 'load_resorvation', rTab: rTab, search: search, reserveType: reserveType, bookingType: bookingType, currentDate: currentDate,page: page },
         success: function (data) {
 
             $('#resorvationContent').html(data);
@@ -399,27 +408,34 @@ function convertArryToJSON($arry) {
     });
 }
 
-function loadGuest($page = '', $search = '', limit=15) {
-    var search = $search;
-    var page = $page;
+function loadGuest(page = '', limit=15,action='',form='',to='') {
+    var date = $('#filterWithDate').val();
+    var district = $('#filterWithDis').val();
+    var search = $('#filterWithSearch').val();
+    var loadTable = window.tableSkeleton;
+    $('#guestListTableContent').html(loadTable);
     $.ajax({
         url: webUrl + 'include/ajax/guest.php',
         type: 'post',
-        data: { type: 'loadGuest', search: search, page: page, limit: limit },
+        data: { type: 'loadGuest', search: search, page: page, limit: limit,date: date,district: district,action: action,form: form,to: to },
         success: function (data) {
             var response = JSON.parse(data);
             var data = response.data;
-            var pagination = response.pagination;
+            var totalPage = response.page;
             var paginationHtml = '';
             var paginationList = ''
 
-            if(pagination.length > 0){
-                $.each(paginationList,(key,val)=>{
-                    var active = (key == 0) ? 'active' : '';
-                    paginationList += `<li class="paginate_button ${active}"><a href="javascript:void(0)" aria-controls="example" data-dt-idx="1" tabindex="0">2</a></li>`;
-                })
+            page = (page == '') ? 1 : page;
+
+            if(totalPage > 0){
+                for (let i = 1; i <= totalPage; i++) {
+                    var active = (page == i) ? 'active' :'';
+                    paginationList += `<li class="paginate_button ${active}"><a href="javascript:void(0)" onclick='loadGuest(${i})'>${i}</a></li>`;
+                }
+
                 paginationHtml = `
                     <ul class="pagination">
+                        ${paginationList}
                     </ul>
                 `;
             }
@@ -433,19 +449,38 @@ function loadGuest($page = '', $search = '', limit=15) {
                     var name = val.name;
                     var email = val.email;
                     var phone = val.phone;
-                    var block = (val.block == null) ? '' : val.block;
+                    var state = (val.state == null) ? '' : val.state;
+                    var district = (val.district == null) ? '' : val.district;
                     var guestImg = val.guestImg;
-                    
-                    var deleteHtml = `<a data-gid="${gId}" class='tableIcon delete bg-gradient-warning guestDetailBtn'  href='javascript:void(0)' data-tooltip-top='Detail Log'><i class='fas fa-info'></i></a>`;
-                    var updateHtml = `<a class='tableIcon update bg-gradient-info editGuestOnGuestPage' data-gid="${gId}" data-page='guest' href='javascript:void(0)' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-original-title='Edit'><i class='far fa-edit'></i></a>`;
+                    var userAccess = val.userAccess;
+                    var userRole = val.userRole;
 
+                    var deleteHtml = '';
+                    var updateHtml = '';
+
+                    if(userRole != 1){
+                        if(userAccess == 'editor'){
+                            updateHtml = `<a class='tableIcon update bg-gradient-info editGuestOnGuestPage' data-gid="${gId}" data-page='guest' href='javascript:void(0)' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-original-title='Edit'><i class='far fa-edit'></i></a>`;
+                        }
+                        if(userAccess == 'full'){
+                            deleteHtml = `<a data-gid="${gId}" class='tableIcon delete bg-gradient-warning guestDetailBtn'  href='javascript:void(0)' data-tooltip-top='Detail Log'><i class='fas fa-info'></i></a>`;
+                            updateHtml = `<a class='tableIcon update bg-gradient-info editGuestOnGuestPage' data-gid="${gId}" data-page='guest' href='javascript:void(0)' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-original-title='Edit'><i class='far fa-edit'></i></a>`;
+                        }
+                    }else{
+                        deleteHtml = `<a data-gid="${gId}" class='tableIcon delete bg-gradient-warning guestDetailBtn'  href='javascript:void(0)' data-tooltip-top='Detail Log'><i class='fas fa-info'></i></a>`;
+                        updateHtml = `<a class='tableIcon update bg-gradient-info editGuestOnGuestPage' data-gid="${gId}" data-page='guest' href='javascript:void(0)' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-original-title='Edit'><i class='far fa-edit'></i></a>`;
+
+                    }
+                    
+                    
                     tableBody += `<tr id="guestNameCheckRow'.$si.'" class="guestCheckRow">
                                 <td class="text-center">${sn}</td>
                                 <td data-label="Image" class="text-left">
                                 <label for="guestNameCheck'.$si.'"><img class="guestImg"src="${guestImg}"> ${name} </label></td>
                                 <td data-label="Email" class="text-center">${email}</td>
                                 <td data-label="Phone" class="text-center">${phone}</td>
-                                <td data-label="Block" class="text-center">${block}</td>
+                                <td data-label="Block" class="text-center">${state}</td>
+                                <td data-label="Block" class="text-center">${district}</td>
                                 <td data-label="Action" class="iconCon ">
                                     <div class="tableCenter">
                                         <span class="tableHide"><i class="fas fa-ellipsis-h"></i></span>
@@ -458,34 +493,39 @@ function loadGuest($page = '', $search = '', limit=15) {
                             </tr>`;
                 })
             }else{
-
+                tableBody += '<tr><td colspan="100%">No Data</td></tr>'
             }
 
 
             var html = `
 
-                <table id="guestListTable" border="1" class="table align-items-center mb-0 tableLine">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="text-left">SN.</th>
-                            <th scope="col" class="text-left">Guest name</th>
-                            <th scope="col" class="text-center">Email</th>
-                            <th scope="col" class="text-center">Phone</th>
-                            <th scope="col" class="text-center">Block</th>
-                            <th scope="col" class="text-right"></th>
-                        </tr>
-                    </thead>
+                <div id="guestDataCon">
+                    <table id="guestListTable" border="1" class="table align-items-center mb-0 tableLine">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-left">SN.</th>
+                                <th scope="col" class="text-left">Guest name</th>
+                                <th scope="col" class="text-center">Email</th>
+                                <th scope="col" class="text-center">Phone</th>
+                                <th scope="col" class="text-center">State</th>
+                                <th scope="col" class="text-center">District</th>
+                                <th scope="col" class="text-right"></th>
+                            </tr>
+                        </thead>
 
-                    <tbody>
-                        ${tableBody}
-                    </tbody>
-                </table>
+                        <tbody>
+                            ${tableBody}
+                        </tbody>
+                    </table>
+                </div>
+
+
+                ${paginationHtml}
 
                 
 
             `;
             $('#guestListTableContent').html(html);
-            $('#guestListTable').DataTable();
         }
     });
 
@@ -616,7 +656,9 @@ function loadAddResorvation($bid = '', $page = '', $checkIn = '', $checkOut = ''
     });
 }
 
-
+$(document).on('submit','#addReservationForm', function(e){
+    e.preventDefault();
+});
 
 $(document).on('mouseover', '.reservationRateAreaIcon', function () {
     $(this).siblings('.overflowContent').addClass('show');
@@ -635,7 +677,7 @@ function loadReservationPreview() {
             type: 'post',
             data: formData,
             success: function (data) {
-                $('#loadAddResorvation .insertContrnt').html(data);
+                $('#loadAddResorvation .reservationContentPreview').html(data);
             }
         });
     },500) 
@@ -762,6 +804,18 @@ function loadAddGuestReservationForm($bId = '', $target, $bdid = '', $gid = '', 
             if (customFunction != '') {
                 window.localStorage.setItem('guestCustomFunction', JSON.stringify(customFunction))
             }
+
+            $('#guestBirthday').datepicker({
+                format: 'dd-mm',
+                autoclose: true,
+                todayHighlight: true,
+            });
+
+            $('#guestAnniversary').datepicker({
+                format: 'dd-mm',
+                autoclose: true,
+                todayHighlight: true,
+            });
 
         }
     });
@@ -947,12 +1001,15 @@ $(document).on('click', '#roomDetailIncBtnId', function (e) {
 $(document).on('change', '.selectRoomId', function (e) {
     e.preventDefault();
 
-    if (id == 0) {
+    loadReservationPreview();
 
-    } else {
-        loadReservationPreview();
+});
+
+$('#addReservationForm').on('keypress', 'input', function(e) {
+    if (e.which == 13) {
+        e.preventDefault();
+        return false;
     }
-
 });
 
 $(document).on('change', '.adultSelect', function () {
@@ -963,7 +1020,8 @@ $(document).on('change', '.rateTypeId', function () {
     loadReservationPreview();
 });
 
-$(document).on('change', '.totalPriceSection', function () {
+$(document).on('change', '.totalPriceSection', function (e) {
+    e.preventDefault();
     loadReservationPreview();
 });
 
@@ -1104,9 +1162,19 @@ $(document).on('click', '#addReservationSubmitBtn', function (e) {
     var page = window.filePath;
 
     var roomNumArray = $('.roomNumSelect').toArray();
+    var errorArray = $('.error').toArray();
 
-    
+    var hasError = false;
+
+    $.each(errorArray, (index, element) => {
+        var innerHTMLContent = $(element).html();
+        if(innerHTMLContent.trim() != ''){
+            hasError = true;
+        }
+    });
+
     var hasZeroValue = false;
+
     $.each(roomNumArray, (index, element) => {
         if (element.value === "0") {
             hasZeroValue = true;
@@ -1115,64 +1183,73 @@ $(document).on('click', '#addReservationSubmitBtn', function (e) {
     });
 
 
-    // $(this).html('Loading...');
-    // $(this).addClass('disabled');
+    if (hasError) {
+        event.preventDefault();
+        console.log('false');
+    }else{
+        console.log('true');
 
-    if (roomId == '') {
-        sweetAlert("Please select Room.", "error");
+        $(this).html('Loading...');
+        $(this).addClass('disabled');
 
-        $(this).html('Save');
-        $(this).removeClass('disabled');
-
-    } else if (hasZeroValue) {
-        sweetAlert("Please select Room.", "error");
-
-        $(this).html('Save');
-        $(this).removeClass('disabled');
-
-    } else if (roomNum == 0) {
-        sweetAlert("Please Select Room Number.", "error");
-
-        $(this).html('Save');
-        $(this).removeClass('disabled');
-
-    } else if (guestName == '') {
-        sweetAlert("Please Enter Guest Detail.", "error");
-
-        $(this).html('Save');
-        $(this).removeClass('disabled');
-
-    } else {
-        
-        $.ajax({
-            url: webUrl + 'include/ajax/resorvationSubmit.php',
-            type: 'post',
-            data: $('#addReservationForm').serialize(),
-            success: function (data) {
-                // $('#loadAddResorvation').html('').hide();
-                // $('#addReservationForm').trigger('reset');
-                sweetAlert("Successfull Add Reservation.");
-
-                // $(this).html('Save');
-                // $(this).removeClass('disabled');
-
-                // if (page == 'reservations') {
-                //     $('#loadReservationCountContent a').removeClass('active');
-                //     loadResorvation('all');
-                //     $('#loadReservationCountContent #all').addClass('active');
-                //     $('.nav-indicator').css({"width": "99px", "left": "45px"});
-                // }else if (page == 'walk-in'){
-                //     window.location.href = `${webUrl}reservations`;
-                // }else if (page == 'stay-view'){
-                //     var date = $('#currentDateStart').val();
-                //     loadStayView(date);
-                // }else if(page == 'room-view'){
-                //     loadRoomView();
-                // }
-
-            }
-        });
+        if (roomId == '') {
+            sweetAlert("Please select Room.", "error");
+    
+            $(this).html('Save');
+            $(this).removeClass('disabled');
+    
+        } else if (hasZeroValue) {
+            sweetAlert("Please select Room.", "error");
+    
+            $(this).html('Save');
+            $(this).removeClass('disabled');
+    
+        } else if (roomNum == 0) {
+            sweetAlert("Please Select Room Number.", "error");
+    
+            $(this).html('Save');
+            $(this).removeClass('disabled');
+    
+        } else if (guestName == '') {
+            sweetAlert("Please Enter Guest Detail.", "error");
+    
+            $(this).html('Save');
+            $(this).removeClass('disabled');
+    
+        } else {
+            
+            $.ajax({
+                url: webUrl + 'include/ajax/resorvationSubmit.php',
+                type: 'post',
+                data: $('#addReservationForm').serialize(),
+                success: function (data) {
+                    $('#loadAddResorvation').html('').hide();
+                    $('#addReservationForm').trigger('reset');
+                    sweetAlert("Successfull Add Reservation.");
+    
+                    $(this).html('Save');
+                    $(this).removeClass('disabled');
+    
+                    if (page == 'reservations') {
+                        $('#loadReservationCountContent a').removeClass('active');
+                        loadResorvation('all');
+                        $('#loadReservationCountContent #all').addClass('active');
+                        $('.nav-indicator').css({"width": "99px", "left": "45px"});
+                    }else if (page == 'walk-in'){
+                        window.location.href = `${webUrl}reservations`;
+                    }else if (page == 'stay-view'){
+                        var date = $('#currentDateStart').val();
+                        loadStayView(date);
+                    }else if(page == 'room-view'){
+                        loadRoomView();
+                    }
+    
+                }
+            });
+        }
     }
+
+    
 
 
 });
@@ -3307,6 +3384,7 @@ function loadPaymentLink($date = '') {
         var html = '';
         var count = 0;
 
+                                // ${sharePaymentLinkBtn}
         if (response.length > 0) {
             Promise.all(response.map(async (val) => {
                 count++;
@@ -3371,7 +3449,6 @@ function loadPaymentLink($date = '') {
                             <td>${paymentStatusHtml}</td>
                             <td>
                                 ${editPaymentLinkBtn}
-                                ${sharePaymentLinkBtn}
                                 ${copyPaymentLink}
                             </td>
                         </tr>`;
@@ -3565,12 +3642,20 @@ function paymentLinkSubmit(hid, pid, perName, perEmail, perPhone, paymentAmount,
             var status = data.status;
             var msg = data.msg;
             var link = data.link;
+            var paymentId = data.paymentId;
+            var returnData = `request_type=paymentLinkSubmit&link=${link}&hid=${hid}&pid=${pid}&perName=${perName}&perEmail=${perEmail}&perPhone=${perPhone}&paymentAmount=${paymentAmount}&paymentReason=${paymentReason}&paymentId=${paymentId}`;
+            console.log(returnData);
 
-            if (status == 'success') {
-                $('#popUpModal').modal('hide');
-                sweetAlert(msg);
-                loadPaymentLink();
-            }
+            ajax_request(returnData).done(function () {
+                if (status == 'success') {
+                    $('#popUpModal').modal('hide');
+                    sweetAlert(msg);
+                    loadPaymentLink();
+                }
+            });
+
+            
+
         }
     });
 }
@@ -3691,31 +3776,39 @@ $(document).on('change', '#userImgUpload', function () {
 $(document).on('click', '#submitPersonalDetailsBtn', function (e) {
     e.preventDefault;
     var formData = $('#personDetailForm').serialize() + `&request_type=pesonalDetailSubmit`;
+    var userName = $('#personDetailForm #name').val().trim();
+    var userId = $('#personDetailForm #userId').val().trim();
+    var password = $('#personDetailForm #password').val().trim();
 
-    ajax_request(formData).done((data) => {
-        var response = JSON.parse(data);
-        var status = response.status;
-        var msg = response.msg;
-        var uid = response.uid;
 
-        if (status == 'success') {
-            sweetAlert(msg);
-            var filePath = $(window.location.pathname.split('/')).last()[0];
-
-            // if(filePath == 'users'){
-            //     loadUserDetail(uid);
-            // }else{
-            //     loadUserDetailData(uid)
-            // }
-            loadUserDetail(uid);
-
-            $('#popUpModal').modal('hide');
-            $('#personDetailForm').trigger("reset");
-        }
-        if (status == 'error') {
-            sweetAlert(msg, 'error');
-        }
-    });
+    if(userName == ''){
+        sweetAlert('Name is required!', 'error');
+    }else if(userId == ''){
+        sweetAlert('User ID is required!', 'error');
+    }else if(password == ''){
+        sweetAlert('Password is required!', 'error');
+    }
+    else{
+        ajax_request(formData).done((data) => {
+            var response = JSON.parse(data);
+            var status = response.status;
+            var msg = response.msg;
+            var uid = response.uid;
+    
+            if (status == 'success') {
+                sweetAlert(msg);
+                var filePath = $(window.location.pathname.split('/')).last()[0];
+                loadUserDetail(uid);
+    
+                $('#popUpModal').modal('hide');
+                $('#personDetailForm').trigger("reset");
+            }
+            
+            if (status == 'error') {
+                sweetAlert(msg, 'error');
+            }
+        });
+    }
 });
 
 
@@ -4336,7 +4429,6 @@ $('.supportSec .content').on('click', function () {
 
 
 $(document).on('click', '#addOrganisation', function () {
-    $('#addOrganisationModal').modal('show');
     loadAddOrganisation();
 });
 $('.closeOrganisation').click(function () {
@@ -4348,17 +4440,173 @@ $('.closeTravelAgent').click(function () {
 });
 
 
-function loadAddOrganisation() {
-    $.ajax({
-        url: webUrl+"/include/ajax/resorvation.php",
-        type: 'post',
-        data: {
-            type: 'load_form_organisation'
-        },
-        success: function (data) {
-            $('#organisationbody').html(data);
-        }
-    });
+function loadAddOrganisation(id='') {
+    var data = `request_type=load_form_organisation&id=${id}`;
+    var title = (id == '') ? 'Add Organisation' : 'Update Organisation';
+    var rateList = '';
+
+    ajax_request(data).done(function(request) {
+        var response = JSON.parse(request);
+        var ratePlan = response.ratePlan;
+        var data = response.data;
+
+        $.each(ratePlan, (key,val)=>{
+            var name = val.srtcode;
+            var id = val.id;
+            rateList += `<option value="${id}">${name}</option>`;
+        })
+
+        html =`
+        <div class="organisation-modal-body">
+        <form action="" id="organisationForm">
+            <div class="row">
+                <input name="actionId" type="hidden" value="${id}"/>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">Name *</label>                     
+                        <input type="text" placeholder="Organisation Name" class="form-control" id="organisationname" name="organisationname">
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="orgConName">Contact Person Name *</label>                     
+                        <input type="text" placeholder="Contact Person Name" class="form-control" name="orgConName" id="orgConName">
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">Email *</label>                     
+                        <input type="text" placeholder="Organisation Email" class="form-control" name="organisationemail" id="organisationemail">
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Address</label>                     
+                        <input type="text" placeholder="Organisation Address" class="form-control" name="organisationaddress">
+
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">City</label>                     
+                        <input type="text" placeholder="City" class="form-control" name="organisationcity">
+
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">State</label>                     
+                        <input type="text" placeholder="State" class="form-control" name="organisationState">
+
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Country</label>                     
+                        <input type="text" placeholder="Country" class="form-control" name="organisationCountry">
+
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Post Code</label>                     
+                        <input type="text" placeholder="Post Code" class="form-control" name="organisationPostCode">
+
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Phone Number</label>                     
+                        <input type="text" placeholder="eg:+91 ***** *****" class="form-control" name="organisationNumber">
+
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="control-label">GST Number</label>                     
+                        <input type="text" id="gstNoField" placeholder="GST Number" class="form-control" name="organisationGstNo">
+
+                    </div>
+                </div>       
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Rate Plan</label>       
+
+                        <select class="form-control" name="rateplan" id="rateplan">                        
+                        
+                        <option value="0" select="selected">Select</option>   
+                        ${rateList}                          
+
+                        </select>
+                        
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Sales Manager</label>                  
+                        <input type="text" id="salesManager" placeholder="Sales Manager" class="form-control" name="salesManager">
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">Discount</label>     
+
+                        <input type="number" placeholder="eg:5%" class="form-control" name="organisationDiscount">
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label class="control-label">Notes</label>                    
+                        <input type="text" placeholder="note" class="form-control" name="organisationNote">
+                    </div>
+                </div>
+
+
+            </div>
+
+        </form>
+    </div>
+        `;
+
+        showModalBox(title, 'Save', html, 'submitOrganisation', 'modal-xl');
+        var myModal = new bootstrap.Modal(document.getElementById('popUpModal'));
+        myModal.show();
+    })
 }
 
 $(document).on('click', '#submitOrganisation', function () {
@@ -4367,24 +4615,47 @@ $(document).on('click', '#submitOrganisation', function () {
 
     formData += '&type=addNewOrganisation';
 
-    $.ajax({
-        url:  webUrl+"/include/ajax/resorvation.php",
-        type: 'post',
-        data: formData,
-        success: function (response) {
-            var res = JSON.parse(response);
-            if (res.status == 'ok') {
-                sweetAlert(res.msg);
-                $('#organisationForm')[0].reset();
-                $('#addOrganisationModal').modal('hide');
-                var page = $('#addReservationBtn').data('page');
-                loadAddResorvation('', page);
+    var organisationname = $('#organisationname').val();
+    var orgConName = $('#orgConName').val();
+    var organisationemail = $('#organisationemail').val();
 
-            } else {
-                sweetAlert('error', res.msg);
+
+    if(organisationname == ''){
+        sweetAlert('Name Is Required!', 'error');
+    }else if(orgConName == ''){
+        sweetAlert('Contact Person Name Is Required!', 'error');
+    }else if(organisationemail == ''){
+        sweetAlert('Email Id Is Required!', 'error');
+    }else{
+        $.ajax({
+            url:  webUrl+"/include/ajax/resorvation.php",
+            type: 'post',
+            data: formData,
+            success: function (response) {
+                var res = JSON.parse(response);
+                var id = res.id;
+                var status = res.status;
+                var name = res.name;
+                var msg = res.name;
+    
+                if (res.status == 'success') {
+                    sweetAlert(res.msg);
+                    $('#organisationForm')[0].reset();
+                    $('#popUpModal').modal('hide');
+                    
+                    
+                    if (window.filePath == 'company') {
+                        loadCompanyDataBase();
+                    }else if (window.filePath == 'walk-in'){
+                        var html = `<option seleted value="${id}" selected="">${name}</option>`;
+                        $('#organisation').append(html);
+                    }
+                } else {
+                    sweetAlert('error', res.msg);
+                }
             }
-        }
-    });
+        });
+    }
 });
 
 $(document).on('change', '#billingmode', function () {
@@ -4709,15 +4980,17 @@ $(document).on('click','#addBlockRoomSubmit', function(e){
     
 });
 
+$(document).on('change','#bookByOther',function(){
+    if($(this).is(':checked')) {
+        var data = `request_type=getStateInIndia`;
+        var stateHtml = '<option value="">Select _</option>';
+        ajax_request(data).done((returnData)=>{
+            returnData = JSON.parse(returnData);
+            $.each(returnData, (key,val)=>{
+                stateHtml += `<option value="${val}">${val}</option>`;
+            });
 
-
-
-
-
-$('#travelagent').on('click', function(){
-    var value = $(this).val();
-    if (value == 'other') {
-        var html = `
+            var html = `
             <div class="row">
 
                 <div class="col-md-6">
@@ -4783,40 +5056,90 @@ $('#travelagent').on('click', function(){
             </div>
 
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label for="">Pin Code</label>
+                        <label for="bookBypinCode">Pin Code</label>
                         <input onkeyup="pinChangeToFetch(event)" type="text" placeholder="Pin code" class="form-control" name="bookBypinCode">
                     </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label for="">Block</label>
-                        <input readonly="" disable="" type="text" placeholder="Block" class="form-control block" name="bookByblock">
+                        <label for="bookBydistrict">District</label>
+                        <input type="text" placeholder="District" class="form-control district" name="bookBydistrict">
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="bookBystate">State</label>
+                        <select class="customSelect" name="bookBystate" id="bookBystate">
+                            ${stateHtml}
+                        </select>
                     </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-12">
                     <div class="form-group">
-                        <label for="">District</label>
-                        <input readonly="" disable="" type="text" placeholder="District" class="form-control district" name="bookBydistrict">
+                        <label for="bookByAddress">Address</label>
+                        <input id="bookByAddress" type="text" placeholder="Address" class="form-control state" name="bookByAddress">
                     </div>
                 </div>
 
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="state">State</label>
-                        <input readonly="" disable="" type="text" placeholder="State" class="form-control state" name="bookBystate">
-                    </div>
-                </div>
             </div>
         `;
         $('#advanceFieldContent').html(html);
+        })
+        
     } else {
         $('#advanceFieldContent').html('');
+        console.log('false');
     }
-})
+});
+
+
+
+$(document).on('click', '.customDropdown .btnCD', function(e) {
+    e.preventDefault();
+    $(this).siblings('ul').toggleClass('show');
+});
+
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('.customDropdown').length) {
+        $('.customDropdown ul').removeClass('show');
+    }
+});
+
+$(document).on('click', '.propertyAreaList .propertyArea', function(e) {
+    e.preventDefault();
+    $(this).siblings('.propertyAreaList ul').toggleClass('show');
+});
+
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('.propertyAreaList').length) {
+        $('.propertyAreaList ul').removeClass('show');
+    }
+});
+
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('.dropdown').length) {
+        $('.dropdown-menu').removeClass('show');
+    }
+});
+
+
+$(document).on('keyup','#travelagentname', function(){
+    var name = $(this).val().trim();
+    getInputNameCheck('travel_agents',name,'travelDropDown','travelagentname');
+});
+
+$(document).on('keyup','#organisationName', function(){
+    var name = $(this).val().trim();
+    getInputNameCheck('organisations',name, 'organisationDropDown','organisationName');
+});
+
+
+
 
 
 

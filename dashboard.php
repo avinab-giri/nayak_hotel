@@ -9,11 +9,10 @@ checkLoginAuth();
 
 
 $hotelData = hotelDetail();
-$hotelName = ucfirst($hotelData['hotelName']);
-$hotelNum = $hotelData['retrodId'];
-$hotelSlug = $hotelData['slug'];
+$hotelDetailArray = fetchData('hotel', ['hCode'=> HOTEL_ID])[0];
 
-$beLink = $hotelSlug . '.' . DOMAIN;
+$hotelName = ucfirst($hotelDetailArray['hotelName']);
+
 
 ?>
 
@@ -33,7 +32,6 @@ $beLink = $hotelSlug . '.' . DOMAIN;
     </title>
 
     <?php include(FO_SERVER_SCREEN_PATH . 'link.php') ?>
-
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 
@@ -52,28 +50,14 @@ $beLink = $hotelSlug . '.' . DOMAIN;
         <div class="container py-2">
 
             <div class="row mb-2 justify-content-between dashboardHead">
-                <div class="col-md-5">
+                <div class="col-12">
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex flex-column h-100">
                                 <h2 class="font-weight-bolder mb-0">
-                                    <?= $hotelName . ' (<span class="pclr">' . $hotelNum . '</span>)' ?>
+                                    <?= $hotelName ?>
                                 </h2>
-                                <h4>BE Link:- <a class="pclr" href="<?= "https://$beLink" ?>" target="_blank"><?= $beLink ?></a> <a class="icon lunchIcon" href="<?= "https://$beLink" ?>" target="_blank"><?= getSysSvgIconData('', 'lunch')[0]['svg'] ?></a></h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="col-md-7 d-flex justify-content-end">
-                    <div class="card" style="width: 100%;">
-                        <div class="card-body dFlex aic jcc">
-                            <div class="homeBtnGroup">
-                                <a href="<?= FRONT_SITE . '/reservations' ?>"><button type="button" class="btn bg-gradient-primary mt-2 me-2">Reservation</button></a>
-                                <a href="<?= FRONT_SITE . '/stay-view' ?>"><button type="button" class="btn bg-gradient-info mt-2 me-2">Stay View</button></a>
-                                <a href="<?= FRONT_SITE . '/pos' ?>"> <button type="button" class="btn bg-gradient-warning mt-2 me-2">POS</button></a>
-                                <a href="<?= FRONT_SITE . '/be' ?>"> <button type="button" class="btn bg-gradient-secondary mt-2 me-2">BE</button> </a>
-                                <a href="<?= FRONT_SITE . '/wb' ?>"><button type="button" class="btn bg-gradient-success mt-2 me-2">Web Builder</button></a>
                             </div>
                         </div>
                     </div>
@@ -84,8 +68,28 @@ $beLink = $hotelSlug . '.' . DOMAIN;
             <div id="overviewSec">
                 <div class="row">
 
-                    <div class="col-xl-3 col-md-6 col-sm-12 mb-3">
+                    <div class="col-xl-4 col-md-6 col-sm-12 mb-3">
                         <div class="card overflow-hidden">
+                            <div style="height:85px" class="card-body p-3">
+                                <a href="<?= FRONT_SITE . '/report/rooms-status' ?>">
+                                    <div class="d-flex positionA">
+                                        <div class="icon icon-shape bg-gradient-success shadow text-center border-radius-md overviewIcon">
+                                            <?= getSysActivityStatusData(6)[0]['svg'] ?>
+                                        </div>
+                                        <div class="ms-3">
+                                            <p class="text-sm mb-0 text-capitalize font-weight-bold">Today's Occupied Rooms</p>
+                                            <h5 class="font-weight-bolder mb-0">
+                                                <?= custom_number_format(dailyBookingEarningByAddOnCount(date('Y-m-d'))) ?>
+                                            </h5>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-md-6 col-sm-12 mb-3">
+                        <div style="height:85px" class="card overflow-hidden">
                             <div class="card-body p-3">
                                 <a href="<?= FRONT_SITE . '/report/rooms-status' ?>">
                                     <div class="d-flex positionA">
@@ -93,29 +97,10 @@ $beLink = $hotelSlug . '.' . DOMAIN;
                                             <?= getSysActivityStatusData(2)[0]['svg'] ?>
                                         </div>
                                         <div class="ms-3">
-                                            <p class="text-sm mb-0 text-capitalize font-weight-bold">Today's Check In</p>
+                                            <p class="text-sm mb-0 text-capitalize font-weight-bold">Today's Arrival</p>
                                             <h5 class="font-weight-bolder mb-0">
                                                 <?= countCheckIn()['checkin'] ?>
                                             </h5>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="positionA top65f">
-                                                <span class="badge badge-dot d-block text-start pb-0 mt-3">
-                                                    <i class="bg-gradient-info"></i>
-                                                    <span class="clrBlack text-xs font-weight-bold"><?= countCheckIn()['checkin'] ?>Check In</span>
-                                                </span>
-                                                <span class="badge badge-dot d-block text-start">
-                                                    <i class="bg-gradient-secondary"></i>
-                                                    <span class="clrBlack text-xs font-weight-bold"><?= countCheckIn()['pending'] ?> Pendding</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6 my-auto">
-                                            <div class="chart ms-auto">
-                                                <canvas id="checkInBar" class="chart-canvas" height="150" width="145" style="display: block; box-sizing: border-box; height: 150px; width: 145.9px;"></canvas>
-                                            </div>
                                         </div>
                                     </div>
                                 </a>
@@ -123,8 +108,8 @@ $beLink = $hotelSlug . '.' . DOMAIN;
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-md-6 col-sm-12 mb-3">
-                        <div class="card overflow-hidden">
+                    <div class="col-xl-4 col-md-6 col-sm-12 mb-3">
+                        <div style="height:85px" class="card overflow-hidden">
                             <div class="card-body p-3">
                                 <a href="<?= FRONT_SITE . '/report/due-out-guests' ?>">
                                     <div class="d-flex positionA">
@@ -132,108 +117,10 @@ $beLink = $hotelSlug . '.' . DOMAIN;
                                             <?= getSysActivityStatusData(3)[0]['svg'] ?>
                                         </div>
                                         <div class="ms-3">
-                                            <p class="text-sm mb-0 text-capitalize font-weight-bold">Today's Check Out</p>
+                                            <p class="text-sm mb-0 text-capitalize font-weight-bold">Today's Departure</p>
                                             <h5 class="font-weight-bolder mb-0">
                                                 <?= countCheckOut()['checkOut'] ?>
                                             </h5>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="positionA top65f">
-                                                <span class="badge badge-dot d-block text-start pb-0 mt-3">
-                                                    <i class="bg-gradient-warning"></i>
-                                                    <span class="clrBlack text-xs font-weight-bold"><?= countCheckOut()['checkOut'] ?> Check Out</span>
-                                                </span>
-                                                <span class="badge badge-dot d-block text-start">
-                                                    <i class="bg-gradient-secondary"></i>
-                                                    <span class="clrBlack text-xs font-weight-bold"><?= countCheckOut()['pending'] ?> Pendding</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6 my-auto">
-                                            <div class="chart ms-auto">
-                                                <canvas id="checkOutBar" class="chart-canvas" height="150" width="145" style="display: block; box-sizing: border-box; height: 150px; width: 145.9px;"></canvas>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6 col-sm-12 mb-3">
-                        <div class="card overflow-hidden">
-                            <div class="card-body p-3">
-                                <a href="<?= FRONT_SITE . '/report/in-house' ?>">
-                                    <div class="d-flex positionA">
-                                        <div class="icon icon-shape bg-gradient-success shadow text-center border-radius-md overviewIcon">
-                                            <?= getSysActivityStatusData(1)[0]['svg'] ?>
-                                        </div>
-                                        <div class="ms-3">
-                                            <p class="text-sm mb-0 text-capitalize font-weight-bold">In House Guest</p>
-                                            <h5 class="font-weight-bolder mb-0">
-                                                <?= countInHouseAdultNChild()['adult'] + countInHouseAdultNChild()['child'] ?>
-                                            </h5>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="positionA top65f">
-                                                <span class="badge badge-dot d-block text-start pb-0 mt-3">
-                                                    <i class="bg-gradient-success"></i>
-                                                    <span class="clrBlack text-xs font-weight-bold"><?= countInHouseAdultNChild()['adult'] ?> Adult</span>
-                                                </span>
-                                                <span class="badge badge-dot d-block text-start">
-                                                    <i class="bg-gradient-secondary"></i>
-                                                    <span class="clrBlack text-xs font-weight-bold"><?= countInHouseAdultNChild()['child'] ?> Child</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6 my-auto">
-                                            <div class="chart ms-auto">
-                                                <canvas id="guestInHouseBar" class="chart-canvas" height="150" width="145" style="display: block; box-sizing: border-box; height: 150px; width: 145.9px;"></canvas>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6 col-sm-12 mb-3">
-                        <div class="card overflow-hidden">
-                            <div class="card-body p-3">
-                                <a href="<?= FRONT_SITE . '/report/rooms-status' ?>">
-                                    <div class="d-flex positionA">
-                                        <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md overviewIcon">
-                                            <svg><use xlink:href="#roomIcon"></use></svg>
-                                        </div>
-                                        <div class="ms-3">
-                                            <p class="text-sm mb-0 text-capitalize font-weight-bold">Room Status</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="positionA top65f">
-                                                <span class="badge badge-dot d-block text-start pb-0 mt-3">
-                                                    <i class="bg-gradient-info"></i>
-                                                    <span class="clrBlack text-xs font-weight-bold"><?= countRoomStatus()['book'] ?> Booked</span>
-                                                </span>
-                                                <span class="badge badge-dot d-block text-start pb-0">
-                                                    <i class="bg-gradient-danger"></i>
-                                                    <span class="clrBlack text-xs font-weight-bold "><?= countRoomStatus()['block'] ?> Blocked</span>
-                                                </span>
-                                                <span class="badge badge-dot d-block text-start ">
-                                                    <i class="bg-gradient-warning"></i>
-                                                    <span class="clrBlack text-xs font-weight-bold"><?= countRoomStatus()['vacant'] ?> Vacant</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6 my-auto">
-                                            <div class="chart ms-auto">
-                                                <canvas id="roomStatusBar" class="chart-canvas" height="150" width="145" style="display: block; box-sizing: border-box; height: 150px; width: 145.9px;"></canvas>
-                                            </div>
                                         </div>
                                     </div>
                                 </a>
@@ -262,14 +149,14 @@ $beLink = $hotelSlug . '.' . DOMAIN;
                                             <li><button data-value="year">Year</button></li>
                                             <li><button data-value="alltime">All Time</button></li>
                                         </ul>
-                                       <span  class="aroorwbtn" style="position: absolute; right: 10px; font-size:26px;"><i id="aroorwbtn" class='fas fa-angle-down'></i></span>
+                                        <span class="aroorwbtn" style="position: absolute; right: 10px; font-size:26px;"><i id="aroorwbtn" class='fas fa-angle-down'></i></span>
                                     </div>
 
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-6 mb-2">
+                                    <div class="col-md-8 mb-2">
                                         <div class="content">
                                             <h6><span id="action"><span class="dummystuf"></span></span> Revenue.</h6>
                                             <div class="d-flex align-items-center">
@@ -332,9 +219,9 @@ $beLink = $hotelSlug . '.' . DOMAIN;
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mb-2">
+                                    <div class="col-md-4 mb-2">
                                         <div class="row">
-                                            <div class="col-6 mb-3">
+                                            <div class="col-12 mb-4">
                                                 <a href="<?= FRONT_SITE . '/reservations' ?>">
                                                     <div class="content borderCon">
                                                         <div class="d-flex align-items-center mb-2">
@@ -449,122 +336,7 @@ $beLink = $hotelSlug . '.' . DOMAIN;
                                                     </div>
                                                 </a>
                                             </div>
-                                            <div class="col-6 mb-3">
-                                                <a href="<?= FRONT_SITE . '/pos' ?>">
-                                                    <div class="content borderCon">
-                                                        <div class="d-flex align-items-center mb-2">
-                                                            <div class="smallIcon">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 500 500" width="500" height="500" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 100%; transform: translate3d(0px, 0px, 0px); content-visibility: visible;">
-                                                                    <defs>
-                                                                        <clipPath id="__lottie_element_1869">
-                                                                            <rect width="500" height="500" x="0" y="0"></rect>
-                                                                        </clipPath>
-                                                                    </defs>
-                                                                    <g clip-path="url(#__lottie_element_1869)">
-                                                                        <g clip-path="url(#__lottie_element_1876)" transform="matrix(1,0,0,1,0,0)" opacity="1" style="display: block;">
-                                                                            <g class="primary design" transform="matrix(20.829999923706055,0,0,20.829999923706055,-4957.498046875,-4957.498046875)" opacity="1" style="display: block;">
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250,249.5)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M7.25,-7.5 C7.25,-7.5 4.75,-7.5 4.75,-7.5 C4.75,-7.5 4.75,-8.75 4.75,-8.75 C4.75,-9.15999984741211 4.409999847412109,-9.5 4,-9.5 C3.5899999141693115,-9.5 3.25,-9.15999984741211 3.25,-8.75 C3.25,-8.75 3.25,-7.5 3.25,-7.5 C3.25,-7.5 -3.25,-7.5 -3.25,-7.5 C-3.25,-7.5 -3.25,-8.75 -3.25,-8.75 C-3.25,-9.15999984741211 -3.5899999141693115,-9.5 -4,-9.5 C-4.409999847412109,-9.5 -4.75,-9.15999984741211 -4.75,-8.75 C-4.75,-8.75 -4.75,-7.5 -4.75,-7.5 C-4.75,-7.5 -7.25,-7.5 -7.25,-7.5 C-8.210000038146973,-7.5 -9,-6.710000038146973 -9,-5.75 C-9,-5.75 -9,7.75 -9,7.75 C-9,8.710000038146973 -8.210000038146973,9.5 -7.25,9.5 C-7.25,9.5 7.25,9.5 7.25,9.5 C8.210000038146973,9.5 9,8.710000038146973 9,7.75 C9,7.75 9,-5.75 9,-5.75 C9,-6.710000038146973 8.210000038146973,-7.5 7.25,-7.5z M-7.25,-6 C-7.25,-6 7.25,-6 7.25,-6 C7.389999866485596,-6 7.5,-5.889999866485596 7.5,-5.75 C7.5,-5.75 7.5,-3.5 7.5,-3.5 C7.5,-3.5 -7.5,-3.5 -7.5,-3.5 C-7.5,-3.5 -7.5,-5.75 -7.5,-5.75 C-7.5,-5.889999866485596 -7.389999866485596,-6 -7.25,-6z M7.25,8 C7.25,8 -7.25,8 -7.25,8 C-7.389999866485596,8 -7.5,7.889999866485596 -7.5,7.75 C-7.5,7.75 -7.5,-2 -7.5,-2 C-7.5,-2 7.5,-2 7.5,-2 C7.5,-2 7.5,7.75 7.5,7.75 C7.5,7.889999866485596 7.389999866485596,8 7.25,8z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,246.0050048828125,251)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.004999999888241291,-1 C-0.5550000071525574,-1 -1.0049999952316284,-0.550000011920929 -1.0049999952316284,0 C-1.0049999952316284,0.550000011920929 -0.5550000071525574,1 -0.004999999888241291,1 C-0.004999999888241291,1 0.004999999888241291,1 0.004999999888241291,1 C0.5550000071525574,1 1.0049999952316284,0.550000011920929 1.0049999952316284,0 C0.9950000047683716,-0.550000011920929 0.5450000166893005,-1 -0.004999999888241291,-1z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250,251)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M0,-1 C0,-1 0,-1 0,-1 C-0.5600000023841858,-1 -1,-0.550000011920929 -1,0 C-1,0.550000011920929 -0.550000011920929,1 0,1 C0.550000011920929,1 1,0.550000011920929 1,0 C1,-0.550000011920929 0.5600000023841858,-1 0,-1z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,254,251)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M0,-1 C0,-1 0,-1 0,-1 C-0.5600000023841858,-1 -1,-0.550000011920929 -1,0 C-1,0.550000011920929 -0.550000011920929,1 0,1 C0.550000011920929,1 1,0.550000011920929 1,0 C1,-0.550000011920929 0.550000011920929,-1 0,-1z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,246.0050048828125,254.5)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.004999999888241291,-1 C-0.5550000071525574,-1 -1.0049999952316284,-0.550000011920929 -1.0049999952316284,0 C-1.0049999952316284,0.550000011920929 -0.5550000071525574,1 -0.004999999888241291,1 C-0.004999999888241291,1 0.004999999888241291,1 0.004999999888241291,1 C0.5550000071525574,1 1.0049999952316284,0.550000011920929 1.0049999952316284,0 C0.9950000047683716,-0.550000011920929 0.5450000166893005,-1 -0.004999999888241291,-1z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250,254.5)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M0,-1 C0,-1 0,-1 0,-1 C-0.5600000023841858,-1 -1,-0.550000011920929 -1,0 C-1,0.550000011920929 -0.550000011920929,1 0,1 C0.550000011920929,1 1,0.550000011920929 1,0 C1,-0.550000011920929 0.5600000023841858,-1 0,-1z">
-                                                                                    </path>
-                                                                                </g>
-                                                                            </g>
-                                                                            <g class="primary design" transform="matrix(1,0,0,1,0,3.592987060546875)" opacity="1" style="display: none;">
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250.00399780273438,260.45001220703125)">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="31.3" d=" M-171.7519989013672,-78.12300109863281 C-171.7519989013672,-78.12300109863281 -171.77099609375,-45.007999420166016 -171.77999877929688,-21.917856216430664 C-171.81199645996094,56.673641204833984 -176.88185119628906,134.0803985595703 -176.88185119628906,134.0803985595703 C-178.9332733154297,147.5658416748047 -167.2821044921875,154.9154052734375 -155.4407501220703,154.9154052734375 C-155.4407501220703,154.9154052734375 155.43893432617188,154.9154052734375 155.43893432617188,154.9154052734375 C167.28228759765625,154.9154052734375 178.92672729492188,149.6107177734375 176.88185119628906,134.0803985595703 C176.88185119628906,134.0803985595703 171.93899536132812,58.530765533447266 171.9709930419922,-19.1313533782959 C171.9810028076172,-43.15005874633789 172,-78.12300109863281 172,-78.12300109863281 C172,-78.12300109863281 -171.7519989013672,-78.12300109863281 -171.7519989013672,-78.12300109863281z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250.00399780273438,182.29400634765625)">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="31.3" d=" M171.7519989013672,-0.37599998712539673 C171.7519989013672,-0.37599998712539673 171.8350067138672,-62.62300109863281 171.8350067138672,-62.62300109863281 C171.8350067138672,-74.13099670410156 162.5070037841797,-83.45899963378906 150.99899291992188,-83.45899963378906 C150.99899291992188,-83.45899963378906 -151.08200073242188,-83.45899963378906 -151.08200073242188,-83.45899963378906 C-162.58799743652344,-83.45899963378906 -171.91700744628906,-74.13099670410156 -171.91700744628906,-62.62300109863281 C-171.91700744628906,-62.62300109863281 -172,-0.12600000202655792 -172,-0.12600000202655792">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,0,0)">
-                                                                                    <g opacity="1" transform="matrix(1,0,0,1,166.7740020751953,270.83599853515625)">
-                                                                                        <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.9184366464614868,0 C-0.9184366464614868,0 -1.1264365911483765,0 -1.1264365911483765,0">
-                                                                                        </path>
-                                                                                        <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M-0.9184366464614868,0 C-0.9184366464614868,0 -1.1264365911483765,0 -1.1264365911483765,0">
-                                                                                        </path>
-                                                                                    </g>
-                                                                                    <g opacity="1" transform="matrix(1,0,0,1,250.00399780273438,270.83599853515625)">
-                                                                                        <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.10400000214576721,0 C-0.10400000214576721,0 0.10400000214576721,0 0.10400000214576721,0">
-                                                                                        </path>
-                                                                                        <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M-0.10400000214576721,0 C-0.10400000214576721,0 0.10400000214576721,0 0.10400000214576721,0">
-                                                                                        </path>
-                                                                                    </g>
-                                                                                    <g opacity="1" transform="matrix(1,0,0,1,333.2330017089844,270.83599853515625)">
-                                                                                        <path fill="rgb(18,19,49)" fill-opacity="1" d=" M0.9184366464614868,0 C0.9184366464614868,0 1.1264365911483765,0 1.1264365911483765,0">
-                                                                                        </path>
-                                                                                        <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M0.9184366464614868,0 C0.9184366464614868,0 1.1264365911483765,0 1.1264365911483765,0">
-                                                                                        </path>
-                                                                                    </g>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,166.7740020751953,343.86199951171875)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-2.9633097648620605,-1.0224366188049316 C-2.9633097648620605,-1.0224366188049316 -3.1713099479675293,-1.0224366188049316 -3.1713099479675293,-1.0224366188049316">
-                                                                                    </path>
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M-2.9633097648620605,-1.0224366188049316 C-2.9633097648620605,-1.0224366188049316 -3.1713099479675293,-1.0224366188049316 -3.1713099479675293,-1.0224366188049316">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250.00399780273438,343.86199951171875)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.10400000214576721,-1.0224366188049316 C-0.10400000214576721,-1.0224366188049316 0.10400000214576721,-1.0224366188049316 0.10400000214576721,-1.0224366188049316">
-                                                                                    </path>
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M-0.10400000214576721,-1.0224366188049316 C-0.10400000214576721,-1.0224366188049316 0.10400000214576721,-1.0224366188049316 0.10400000214576721,-1.0224366188049316">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="0" transform="matrix(1,0,0,1,250.00399780273438,343.86199951171875)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.3540000021457672,0 C-0.3540000021457672,0 83.35399627685547,0 83.35399627685547,0">
-                                                                                    </path>
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M-0.3540000021457672,0 C-0.3540000021457672,0 83.35399627685547,0 83.35399627685547,0">
-                                                                                    </path>
-                                                                                </g>
-                                                                            </g>
-                                                                            <g class="primary design" transform="matrix(1,0,0,1,0,3.592987060546875)" opacity="1" style="display: none;">
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,166.6699981689453,78.1259994506836)">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="31.3" d=" M0,-20.83300018310547 C0,-20.83300018310547 0,20.83300018310547 0,20.83300018310547"></path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,333.3370056152344,78.1259994506836)">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="31.3" d=" M0,-20.83300018310547 C0,-20.83300018310547 0,20.83300018310547 0,20.83300018310547"></path>
-                                                                                </g>
-                                                                            </g>
-                                                                            <g class="primary design" transform="matrix(1,0,0,1,250,507.2618408203125)" opacity="1" style="display: none;">
-                                                                                <path fill="rgb(18,19,49)" fill-opacity="1" d=" M169.5,-111 C169.5,-111 169.5,-111 169.5,-111 C169.5,-110.72 169.28,-110.5 169,-110.5 C169,-110.5 -171,-110.5 -171,-110.5 C-171.28,-110.5 -171.5,-110.72 -171.5,-111 C-171.5,-111 -171.5,-111 -171.5,-111 C-171.5,-111.28 -171.28,-111.5 -171,-111.5 C-171,-111.5 169,-111.5 169,-111.5 C169.28,-111.5 169.5,-111.28 169.5,-111z">
-                                                                                </path>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,-1,-111)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M170.5,0 C170.5,0 170.5,0 170.5,0 C170.5,0.27595001459121704 170.2759552001953,0.5 170,0.5 C170,0.5 -170,0.5 -170,0.5 C-170.2759552001953,0.5 -170.5,0.27595001459121704 -170.5,0 C-170.5,0 -170.5,0 -170.5,0 C-170.5,-0.27595001459121704 -170.2759552001953,-0.5 -170,-0.5 C-170,-0.5 170,-0.5 170,-0.5 C170.2759552001953,-0.5 170.5,-0.27595001459121704 170.5,0z">
-                                                                                    </path>
-                                                                                    <path stroke-linecap="butt" stroke-linejoin="miter" fill-opacity="0" stroke-miterlimit="4" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="32" d=" M170.5,0 C170.5,0 170.5,0 170.5,0 C170.5,0.27595001459121704 170.2759552001953,0.5 170,0.5 C170,0.5 -170,0.5 -170,0.5 C-170.2759552001953,0.5 -170.5,0.27595001459121704 -170.5,0 C-170.5,0 -170.5,0 -170.5,0 C-170.5,-0.27595001459121704 -170.2759552001953,-0.5 -170,-0.5 C-170,-0.5 170,-0.5 170,-0.5 C170.2759552001953,-0.5 170.5,-0.27595001459121704 170.5,0z">
-                                                                                    </path>
-                                                                                </g>
-                                                                            </g>
-                                                                        </g>
-                                                                    </g>
-                                                                </svg>
-                                                            </div>
-                                                            <h4>POS</h4>
-                                                        </div>
-                                                        <h5 id="kotRevDisplay"><span class="dummystuf"></span></h5>
-                                                    </div>
-                                                </a>
-                                            </div>
-                                            <div class="col-6 mb-3">
+                                            <div class="col-12 mb-3">
                                                 <a href="<?= FRONT_SITE . '/guest' ?>">
                                                     <div class="content borderCon">
                                                         <div class="d-flex align-items-center mb-2">
@@ -679,127 +451,6 @@ $beLink = $hotelSlug . '.' . DOMAIN;
                                                     </div>
                                                 </a>
                                             </div>
-                                            <div class="col-6 mb-3">
-                                                <a href="<?= FRONT_SITE . '/visitor' ?>" class="customToolTipTarget">
-                                                    <div class="content borderCon">
-                                                        <div class="d-flex align-items-center mb-2">
-                                                            <div class="smallIcon">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 500 500" width="500" height="500" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 100%; transform: translate3d(0px, 0px, 0px); content-visibility: visible;">
-                                                                    <defs>
-                                                                        <clipPath id="__lottie_element_1869">
-                                                                            <rect width="500" height="500" x="0" y="0"></rect>
-                                                                        </clipPath>
-                                                                    </defs>
-                                                                    <g clip-path="url(#__lottie_element_1869)">
-                                                                        <g clip-path="url(#__lottie_element_1876)" transform="matrix(1,0,0,1,0,0)" opacity="1" style="display: block;">
-                                                                            <g class="primary design" transform="matrix(20.829999923706055,0,0,20.829999923706055,-4957.498046875,-4957.498046875)" opacity="1" style="display: block;">
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250,249.5)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M7.25,-7.5 C7.25,-7.5 4.75,-7.5 4.75,-7.5 C4.75,-7.5 4.75,-8.75 4.75,-8.75 C4.75,-9.15999984741211 4.409999847412109,-9.5 4,-9.5 C3.5899999141693115,-9.5 3.25,-9.15999984741211 3.25,-8.75 C3.25,-8.75 3.25,-7.5 3.25,-7.5 C3.25,-7.5 -3.25,-7.5 -3.25,-7.5 C-3.25,-7.5 -3.25,-8.75 -3.25,-8.75 C-3.25,-9.15999984741211 -3.5899999141693115,-9.5 -4,-9.5 C-4.409999847412109,-9.5 -4.75,-9.15999984741211 -4.75,-8.75 C-4.75,-8.75 -4.75,-7.5 -4.75,-7.5 C-4.75,-7.5 -7.25,-7.5 -7.25,-7.5 C-8.210000038146973,-7.5 -9,-6.710000038146973 -9,-5.75 C-9,-5.75 -9,7.75 -9,7.75 C-9,8.710000038146973 -8.210000038146973,9.5 -7.25,9.5 C-7.25,9.5 7.25,9.5 7.25,9.5 C8.210000038146973,9.5 9,8.710000038146973 9,7.75 C9,7.75 9,-5.75 9,-5.75 C9,-6.710000038146973 8.210000038146973,-7.5 7.25,-7.5z M-7.25,-6 C-7.25,-6 7.25,-6 7.25,-6 C7.389999866485596,-6 7.5,-5.889999866485596 7.5,-5.75 C7.5,-5.75 7.5,-3.5 7.5,-3.5 C7.5,-3.5 -7.5,-3.5 -7.5,-3.5 C-7.5,-3.5 -7.5,-5.75 -7.5,-5.75 C-7.5,-5.889999866485596 -7.389999866485596,-6 -7.25,-6z M7.25,8 C7.25,8 -7.25,8 -7.25,8 C-7.389999866485596,8 -7.5,7.889999866485596 -7.5,7.75 C-7.5,7.75 -7.5,-2 -7.5,-2 C-7.5,-2 7.5,-2 7.5,-2 C7.5,-2 7.5,7.75 7.5,7.75 C7.5,7.889999866485596 7.389999866485596,8 7.25,8z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,246.0050048828125,251)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.004999999888241291,-1 C-0.5550000071525574,-1 -1.0049999952316284,-0.550000011920929 -1.0049999952316284,0 C-1.0049999952316284,0.550000011920929 -0.5550000071525574,1 -0.004999999888241291,1 C-0.004999999888241291,1 0.004999999888241291,1 0.004999999888241291,1 C0.5550000071525574,1 1.0049999952316284,0.550000011920929 1.0049999952316284,0 C0.9950000047683716,-0.550000011920929 0.5450000166893005,-1 -0.004999999888241291,-1z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250,251)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M0,-1 C0,-1 0,-1 0,-1 C-0.5600000023841858,-1 -1,-0.550000011920929 -1,0 C-1,0.550000011920929 -0.550000011920929,1 0,1 C0.550000011920929,1 1,0.550000011920929 1,0 C1,-0.550000011920929 0.5600000023841858,-1 0,-1z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,254,251)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M0,-1 C0,-1 0,-1 0,-1 C-0.5600000023841858,-1 -1,-0.550000011920929 -1,0 C-1,0.550000011920929 -0.550000011920929,1 0,1 C0.550000011920929,1 1,0.550000011920929 1,0 C1,-0.550000011920929 0.550000011920929,-1 0,-1z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,246.0050048828125,254.5)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.004999999888241291,-1 C-0.5550000071525574,-1 -1.0049999952316284,-0.550000011920929 -1.0049999952316284,0 C-1.0049999952316284,0.550000011920929 -0.5550000071525574,1 -0.004999999888241291,1 C-0.004999999888241291,1 0.004999999888241291,1 0.004999999888241291,1 C0.5550000071525574,1 1.0049999952316284,0.550000011920929 1.0049999952316284,0 C0.9950000047683716,-0.550000011920929 0.5450000166893005,-1 -0.004999999888241291,-1z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250,254.5)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M0,-1 C0,-1 0,-1 0,-1 C-0.5600000023841858,-1 -1,-0.550000011920929 -1,0 C-1,0.550000011920929 -0.550000011920929,1 0,1 C0.550000011920929,1 1,0.550000011920929 1,0 C1,-0.550000011920929 0.5600000023841858,-1 0,-1z">
-                                                                                    </path>
-                                                                                </g>
-                                                                            </g>
-                                                                            <g class="primary design" transform="matrix(1,0,0,1,0,3.592987060546875)" opacity="1" style="display: none;">
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250.00399780273438,260.45001220703125)">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="31.3" d=" M-171.7519989013672,-78.12300109863281 C-171.7519989013672,-78.12300109863281 -171.77099609375,-45.007999420166016 -171.77999877929688,-21.917856216430664 C-171.81199645996094,56.673641204833984 -176.88185119628906,134.0803985595703 -176.88185119628906,134.0803985595703 C-178.9332733154297,147.5658416748047 -167.2821044921875,154.9154052734375 -155.4407501220703,154.9154052734375 C-155.4407501220703,154.9154052734375 155.43893432617188,154.9154052734375 155.43893432617188,154.9154052734375 C167.28228759765625,154.9154052734375 178.92672729492188,149.6107177734375 176.88185119628906,134.0803985595703 C176.88185119628906,134.0803985595703 171.93899536132812,58.530765533447266 171.9709930419922,-19.1313533782959 C171.9810028076172,-43.15005874633789 172,-78.12300109863281 172,-78.12300109863281 C172,-78.12300109863281 -171.7519989013672,-78.12300109863281 -171.7519989013672,-78.12300109863281z">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250.00399780273438,182.29400634765625)">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="31.3" d=" M171.7519989013672,-0.37599998712539673 C171.7519989013672,-0.37599998712539673 171.8350067138672,-62.62300109863281 171.8350067138672,-62.62300109863281 C171.8350067138672,-74.13099670410156 162.5070037841797,-83.45899963378906 150.99899291992188,-83.45899963378906 C150.99899291992188,-83.45899963378906 -151.08200073242188,-83.45899963378906 -151.08200073242188,-83.45899963378906 C-162.58799743652344,-83.45899963378906 -171.91700744628906,-74.13099670410156 -171.91700744628906,-62.62300109863281 C-171.91700744628906,-62.62300109863281 -172,-0.12600000202655792 -172,-0.12600000202655792">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,0,0)">
-                                                                                    <g opacity="1" transform="matrix(1,0,0,1,166.7740020751953,270.83599853515625)">
-                                                                                        <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.9184366464614868,0 C-0.9184366464614868,0 -1.1264365911483765,0 -1.1264365911483765,0">
-                                                                                        </path>
-                                                                                        <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M-0.9184366464614868,0 C-0.9184366464614868,0 -1.1264365911483765,0 -1.1264365911483765,0">
-                                                                                        </path>
-                                                                                    </g>
-                                                                                    <g opacity="1" transform="matrix(1,0,0,1,250.00399780273438,270.83599853515625)">
-                                                                                        <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.10400000214576721,0 C-0.10400000214576721,0 0.10400000214576721,0 0.10400000214576721,0">
-                                                                                        </path>
-                                                                                        <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M-0.10400000214576721,0 C-0.10400000214576721,0 0.10400000214576721,0 0.10400000214576721,0">
-                                                                                        </path>
-                                                                                    </g>
-                                                                                    <g opacity="1" transform="matrix(1,0,0,1,333.2330017089844,270.83599853515625)">
-                                                                                        <path fill="rgb(18,19,49)" fill-opacity="1" d=" M0.9184366464614868,0 C0.9184366464614868,0 1.1264365911483765,0 1.1264365911483765,0">
-                                                                                        </path>
-                                                                                        <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M0.9184366464614868,0 C0.9184366464614868,0 1.1264365911483765,0 1.1264365911483765,0">
-                                                                                        </path>
-                                                                                    </g>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,166.7740020751953,343.86199951171875)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-2.9633097648620605,-1.0224366188049316 C-2.9633097648620605,-1.0224366188049316 -3.1713099479675293,-1.0224366188049316 -3.1713099479675293,-1.0224366188049316">
-                                                                                    </path>
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M-2.9633097648620605,-1.0224366188049316 C-2.9633097648620605,-1.0224366188049316 -3.1713099479675293,-1.0224366188049316 -3.1713099479675293,-1.0224366188049316">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,250.00399780273438,343.86199951171875)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.10400000214576721,-1.0224366188049316 C-0.10400000214576721,-1.0224366188049316 0.10400000214576721,-1.0224366188049316 0.10400000214576721,-1.0224366188049316">
-                                                                                    </path>
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M-0.10400000214576721,-1.0224366188049316 C-0.10400000214576721,-1.0224366188049316 0.10400000214576721,-1.0224366188049316 0.10400000214576721,-1.0224366188049316">
-                                                                                    </path>
-                                                                                </g>
-                                                                                <g opacity="0" transform="matrix(1,0,0,1,250.00399780273438,343.86199951171875)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M-0.3540000021457672,0 C-0.3540000021457672,0 83.35399627685547,0 83.35399627685547,0">
-                                                                                    </path>
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="41.73" d=" M-0.3540000021457672,0 C-0.3540000021457672,0 83.35399627685547,0 83.35399627685547,0">
-                                                                                    </path>
-                                                                                </g>
-                                                                            </g>
-                                                                            <g class="primary design" transform="matrix(1,0,0,1,0,3.592987060546875)" opacity="1" style="display: none;">
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,166.6699981689453,78.1259994506836)">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="31.3" d=" M0,-20.83300018310547 C0,-20.83300018310547 0,20.83300018310547 0,20.83300018310547"></path>
-                                                                                </g>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,333.3370056152344,78.1259994506836)">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="31.3" d=" M0,-20.83300018310547 C0,-20.83300018310547 0,20.83300018310547 0,20.83300018310547"></path>
-                                                                                </g>
-                                                                            </g>
-                                                                            <g class="primary design" transform="matrix(1,0,0,1,250,507.2618408203125)" opacity="1" style="display: none;">
-                                                                                <path fill="rgb(18,19,49)" fill-opacity="1" d=" M169.5,-111 C169.5,-111 169.5,-111 169.5,-111 C169.5,-110.72 169.28,-110.5 169,-110.5 C169,-110.5 -171,-110.5 -171,-110.5 C-171.28,-110.5 -171.5,-110.72 -171.5,-111 C-171.5,-111 -171.5,-111 -171.5,-111 C-171.5,-111.28 -171.28,-111.5 -171,-111.5 C-171,-111.5 169,-111.5 169,-111.5 C169.28,-111.5 169.5,-111.28 169.5,-111z">
-                                                                                </path>
-                                                                                <g opacity="1" transform="matrix(1,0,0,1,-1,-111)">
-                                                                                    <path fill="rgb(18,19,49)" fill-opacity="1" d=" M170.5,0 C170.5,0 170.5,0 170.5,0 C170.5,0.27595001459121704 170.2759552001953,0.5 170,0.5 C170,0.5 -170,0.5 -170,0.5 C-170.2759552001953,0.5 -170.5,0.27595001459121704 -170.5,0 C-170.5,0 -170.5,0 -170.5,0 C-170.5,-0.27595001459121704 -170.2759552001953,-0.5 -170,-0.5 C-170,-0.5 170,-0.5 170,-0.5 C170.2759552001953,-0.5 170.5,-0.27595001459121704 170.5,0z">
-                                                                                    </path>
-                                                                                    <path stroke-linecap="butt" stroke-linejoin="miter" fill-opacity="0" stroke-miterlimit="4" stroke="rgb(18,19,49)" stroke-opacity="1" stroke-width="32" d=" M170.5,0 C170.5,0 170.5,0 170.5,0 C170.5,0.27595001459121704 170.2759552001953,0.5 170,0.5 C170,0.5 -170,0.5 -170,0.5 C-170.2759552001953,0.5 -170.5,0.27595001459121704 -170.5,0 C-170.5,0 -170.5,0 -170.5,0 C-170.5,-0.27595001459121704 -170.2759552001953,-0.5 -170,-0.5 C-170,-0.5 170,-0.5 170,-0.5 C170.2759552001953,-0.5 170.5,-0.27595001459121704 170.5,0z">
-                                                                                    </path>
-                                                                                </g>
-                                                                            </g>
-                                                                        </g>
-                                                                    </g>
-                                                                </svg>
-                                                            </div>
-                                                            <h4>Visitor</h4>
-                                                        </div>
-                                                        <h5 id="visiterDisplay"><span class="dummystuf"></span></h5>
-                                                    </div>
-                                                    <div class="customToolTip">
-                                                        <ul>
-                                                            <li>Booking Engine:- 0</li>
-                                                            <li>Website:- 0</li>
-                                                        </ul>
-                                                    </div>
-                                                </a>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -876,15 +527,6 @@ $beLink = $hotelSlug . '.' . DOMAIN;
                                                     </g>
                                                 </g>
                                             </svg></button>
-                                        <div class="dropdownSec">
-                                            <button>All</button>
-                                            <ul>
-                                                <li><button data-value="newBooking">New Booking</button></li>
-                                                <li><button data-value="modificatio">Modification</button></li>
-                                                <li><button data-value="cancellation">Cancellation</button></li>
-                                                <li><button data-value="userAction">User Action</button></li>
-                                            </ul>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1019,233 +661,7 @@ $beLink = $hotelSlug . '.' . DOMAIN;
     <script>
         $('.linkBtn').removeClass('active');
         $('.homeLink').addClass('active');
-        var checkInBarChart = document.getElementById("checkInBar").getContext("2d");
-
-        new Chart(checkInBarChart, {
-            type: "doughnut",
-            data: {
-                labels: ['Check In', 'Pendding'],
-                datasets: [{
-                    label: "Projects",
-                    weight: 9,
-                    cutout: 50,
-                    tension: 0.9,
-                    pointRadius: 2,
-                    borderWidth: 2,
-                    backgroundColor: ['#2152ff', '#a8b8d8'],
-                    data: [<?= countCheckIn()['checkin'] ?>, <?= (countCheckIn()['pending'] == 0 && countCheckIn()['checkin'] == 0) ? 1 : countCheckIn()['pending'] ?>],
-                    fill: false
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false,
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index',
-                },
-                scales: {
-                    y: {
-                        grid: {
-                            drawBorder: false,
-                            display: false,
-                            drawOnChartArea: false,
-                            drawTicks: false,
-                        },
-                        ticks: {
-                            display: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            drawBorder: false,
-                            display: false,
-                            drawOnChartArea: false,
-                            drawTicks: false,
-                        },
-                        ticks: {
-                            display: false,
-                        }
-                    },
-                },
-            },
-        });
-
-        var checkOutBarChart = document.getElementById("checkOutBar").getContext("2d");
-
-        new Chart(checkOutBarChart, {
-            type: "doughnut",
-            data: {
-                labels: ['Check Out', 'Pendding'],
-                datasets: [{
-                    label: "Projects",
-                    weight: 9,
-                    cutout: 50,
-                    tension: 0.9,
-                    pointRadius: 2,
-                    borderWidth: 2,
-                    backgroundColor: ['#fd7e14', '#a8b8d8'],
-                    data: [<?= countCheckOut()['checkOut'] ?>, <?= (countCheckOut()['pending'] == 0 && countCheckOut()['checkOut'] == 0) ? '1' : countCheckOut()['pending'] ?>],
-                    fill: false
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false,
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index',
-                },
-                scales: {
-                    y: {
-                        grid: {
-                            drawBorder: false,
-                            display: false,
-                            drawOnChartArea: false,
-                            drawTicks: false,
-                        },
-                        ticks: {
-                            display: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            drawBorder: false,
-                            display: false,
-                            drawOnChartArea: false,
-                            drawTicks: false,
-                        },
-                        ticks: {
-                            display: false,
-                        }
-                    },
-                },
-            },
-        });
-
-        var guestInHouseBarChart = document.getElementById("guestInHouseBar").getContext("2d");
-
-        new Chart(guestInHouseBarChart, {
-            type: "doughnut",
-            data: {
-                labels: ['Adult', 'Child'],
-                datasets: [{
-                    label: "Guest In House",
-                    weight: 9,
-                    cutout: 50,
-                    tension: 0.9,
-                    pointRadius: 2,
-                    borderWidth: 2,
-                    backgroundColor: ['#17ad37', '#a8b8d8'],
-                    data: [<?= countInHouseAdultNChild()['adult'] ?>, <?= (countInHouseAdultNChild()['child'] == 0 && countInHouseAdultNChild()['adult'] == 0) ? 1 : countInHouseAdultNChild()['child'] ?>],
-                    fill: false
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false,
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index',
-                },
-                scales: {
-                    y: {
-                        grid: {
-                            drawBorder: false,
-                            display: false,
-                            drawOnChartArea: false,
-                            drawTicks: false,
-                        },
-                        ticks: {
-                            display: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            drawBorder: false,
-                            display: false,
-                            drawOnChartArea: false,
-                            drawTicks: false,
-                        },
-                        ticks: {
-                            display: false,
-                        }
-                    },
-                },
-            },
-        });
-
-        var roomStatusBarChart = document.getElementById("roomStatusBar").getContext("2d");
-
-        new Chart(roomStatusBarChart, {
-            type: "doughnut",
-            data: {
-                labels: ['Booked', 'Blocked', 'Vacant'],
-                datasets: [{
-                    label: "Room Status",
-                    weight: 9,
-                    cutout: 50,
-                    tension: 0.9,
-                    pointRadius: 2,
-                    borderWidth: 2,
-                    backgroundColor: ['#2152ff', '#e13f33', '#f0b505'],
-                    data: [<?= countRoomStatus()['book'] ?>, <?= countRoomStatus()['block'] ?>, <?= countRoomStatus()['vacant'] ?>],
-                    fill: false
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false,
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index',
-                },
-                scales: {
-                    y: {
-                        grid: {
-                            drawBorder: false,
-                            display: false,
-                            drawOnChartArea: false,
-                            drawTicks: false,
-                        },
-                        ticks: {
-                            display: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            drawBorder: false,
-                            display: false,
-                            drawOnChartArea: false,
-                            drawTicks: false,
-                        },
-                        ticks: {
-                            display: false,
-                        }
-                    },
-                },
-            },
-        });
+        
 
 
         function loadRevenueOverviewSec($action = '') {
@@ -1341,7 +757,7 @@ $beLink = $hotelSlug . '.' . DOMAIN;
             });
 
             $(document).on('click', '.aroorwbtn', function() {
-               
+
                 $(this).siblings('ul').toggleClass('show');
             });
             $(document).on('click', '.perDayLeftArrow', function() {

@@ -18,43 +18,80 @@ if($type == 'loadGuest'){
     $pagination = '';
     $search = safeData($_POST['search']);
     $page = safeData($_POST['page']);
+    $limit = ($_POST['limit'] == '') ? 15 : $_POST['limit'];
+    $date = safeData($_POST['date']);
+    $district = safeData($_POST['district']);
+    $action = safeData($_POST['action']);
+    $form = $_POST['form'];
+    $to = $_POST['to'];
+
     $hotelId = $_SESSION['HOTEL_ID'];
     
     $sql = "select * from guest where  hotelId = '$hotelId'";
         
-    $sql .= " and name != ''";
+    $sql .= " and 1=1  ";
+
+    if($date != ''){
+        $sql .= " and addOn Like '%$date%'";
+    }
+
+    if($district != ''){
+        $sql .= " and state Like '%$district%'";
+    }
+
+    if($action == 'birthday'){
+        if($form != ''){
+            $sql .= " and birthday Like '%$form%'";
+        }
+    }
+
+    if($action == 'anniversay'){
+        if($form != ''){
+            $sql .= " and anniversary Like '%$form%'";
+        }
+    }
+
     if($search != ''){
         $sql .= " and name  LIKE '%$search%' OR email LIKE '%$search%' OR phone LIKE '%$search%' " ;
     }
-    $limit_per_page = 15;
+    
+    $limit_per_page = $limit;
     
     $page = '';
+
     if(isset($_POST['page_no'])){
         $page = $_POST['page_no'];
     }else{
         $page = 1;
     }
     
-    
+    $totalPage = ceil(mysqli_num_rows(mysqli_query($conDB, $sql)) / $limit_per_page);
     
     $offset = ($page -1) * $limit_per_page;
     
-    $sql .= " ORDER BY id DESC ";
-    
-    // $sql .= " ORDER BY id DESC limit {$offset}, {$limit_per_page}";
-    
+    $sql .= " ORDER BY id DESC limit {$offset}, {$limit_per_page}";
+
     $html = '';
     $data =array();
 
     $query = mysqli_query($conDB, $sql);
+
     $si = $si + ($limit_per_page *  $page) - $limit_per_page;
+
+    $userId = $_SESSION['ADMIN_ID'];
+    $userArry = fetchData('hoteluser', ['id'=>$userId])[0];
+    $userRole = $userArry['role'];
+    $userAccess = (isset(fetchData('user_access', ['userId'=>$userId, 'pageId'=>5])[0])) ? fetchData('user_access', ['userId'=>$userId, 'pageId'=>5])[0]['activityRole'] :'';
+    
     if(mysqli_num_rows($query) > 0){
         while($row = mysqli_fetch_assoc($query)){
             $gid = $row['id'];
             $getGuestDetail = getGuestDetail('','',$gid)[0];
             $guestImg = $getGuestDetail['profileImgFull'];
             $advance = [
-                'guestImg'=>$guestImg
+                'guestImg'=>$guestImg,
+                'userRole'=>$userRole,
+                'userAccess'=>$userAccess
             ];
             $data[] = array_merge($row, $advance);            
 
@@ -63,7 +100,15 @@ if($type == 'loadGuest'){
        
     }
 
-    echo json_encode(['data'=>$data, 'pagination'=>'']);
+
+
+    $paginationHtml = '';
+
+    for($i=0; $i <= $totalPage; $i++){
+        $paginationHtml .= "<li><a href='javascript:void(0)' onclick='loadGuest($i)'>$i</a></li>";
+    }
+
+    echo json_encode(['data'=>$data, 'page'=>$totalPage]);
 }
 
 if($type == 'load_add_guest'){
@@ -287,6 +332,7 @@ if($type == 'loadAddGuestReservationForm'){
         
         $birthdayDate = $guestArray['birthday'];
         $anniversaryDate = $guestArray['anniversary'];
+        $full_address = $guestArray['full_address'];
         
     }
 
@@ -300,8 +346,10 @@ if($type == 'loadAddGuestReservationForm'){
             $idProofHtml .= "<option value='$id'>$name</option>";
         }
     }
-
     
+    $guestImgHtml = "<span style='display: flex;align-items: center;justify-content: center;height: 100%;color: black;opacity: .6;'>Select Guest Image</span>";
+    $guestPImgHtml = "<span style='display: flex;align-items: center;justify-content: center;height: 100%;color: black;opacity: .6;'>Select ID V Image</span>";
+
     if(!empty($guestArray) || $gustImg != '' || $guestProofImg != ''){
 
         ($gustImg == '') ? '' : $guestImage = $gustImg;
@@ -328,6 +376,12 @@ if($type == 'loadAddGuestReservationForm'){
             $genderHtml .= "<input type='radio' name='gender' value='$genderList' id='$genderList'><label class='mr5' for='$genderList'>$genderName</label>";
         }
         
+    }
+    
+    $stateHtml = '';
+    foreach (getStatesOfIndia() as $item) {
+        $select = ($guestState == $item) ? 'selected' : '';
+        $stateHtml .=  "<option $select value='$item'>$item</option>";
     }
 
     $html = '
@@ -371,47 +425,50 @@ if($type == 'loadAddGuestReservationForm'){
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row" style="align-items: end;">
 
-                    <div class="col-md-3 col-sm-6 col-xs-12">
-                        <div class="form-group">
-                            <label for="">Block</label>
-                            <input type="text" name="guestBlock" class="form-control" placeholder="Enter Block" value="'.$guestBlock.'">
-                        </div>
-                    </div>
-
-                    <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="col-md-4 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label for="">District</label>
                             <input type="text" name="guestDistrict" class="form-control" placeholder="Enter District" value="'.$guestDistrict.'">
                         </div>
                     </div>
 
-                    <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="col-md-4 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label for="">State</label>
-                            <input type="text" name="guestState" class="form-control" placeholder="Enter State" value="'.$guestState.'">
+                            <select style="width:100%" class="customInput" name="guestState" id="guestState">
+                                <option value="">---</option>
+                                '.$stateHtml.'
+                            </select>
                         </div>
                     </div>
 
-                    <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="col-md-4 col-sm-6 col-xs-12">
                         <div class="form-group">
                             <label for="">Zip</label>
-                            <input type="text" name="guestZip" class="form-control" placeholder="Enter Address" value="'.$guestZip.'">
+                            <input type="text" name="guestZip" class="form-control" placeholder="Enter Pin code" value="'.$guestZip.'">
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="">Address</label>
+                            <textarea type="text" name="guestAddress" class="form-control" placeholder="Enter Address">'.$full_address.'</textarea>
                         </div>
                     </div>
 
                     <div class="col-6">
                         <div class="form-group">
-                            <label for="">Birthday</label>
-                            <input type="date" name="guestBirthday" class="form-control" placeholder="Enter Address" value="'.$birthdayDate.'">
+                            <label for="guestBirthday">Birthday</label>
+                            <input type="text" id="guestBirthday" name="guestBirthday" class="form-control" placeholder="Enter Address" value="'.$birthdayDate.'">
                         </div>
                     </div>
 
                     <div class="col-6">
                         <div class="form-group">
-                            <label for="">Anniversary</label>
-                            <input type="date" name="guestAnniversary" class="form-control" placeholder="Enter Anniversary" value="'.$anniversaryDate.'">
+                            <label for="guestAnniversary">Anniversary</label>
+                            <input type="text" id="guestAnniversary"  name="guestAnniversary" class="form-control" placeholder="Enter Anniversary" value="'.$anniversaryDate.'">
                         </div>
                     </div>
 
@@ -474,6 +531,7 @@ if($type == 'loadAddGuestReservationFormSubmit'){
     $guestZip = safeData($_POST['guestZip']);
     $guestIdNumber = safeData($_POST['guestIdNumber']);
     $guestIdType = safeData($_POST['guestIdType']);
+    $guestAddress = safeData($_POST['guestAddress']);
 
     $guestIdState = safeData($_POST['guestState']);
 
@@ -536,11 +594,11 @@ if($type == 'loadAddGuestReservationFormSubmit'){
     }
 
 
-    $sql = "insert into guest(hotelId,bookId,bookingdId,name,email,phone,state,zip,image,kyc_file,kyc_number,kyc_type,addBy,serial,birthday,anniversary) values('$hotelId','$bookId','$bookingDId','$guestName','$guestEmail','$guestPhone','$guestIdState','$guestZip','$guestImgSec','$guestProofImgSec','$guestIdNumber','$guestIdType','$addBy','$serialNo','$guestBirthday','$guestAnniversary')";
+    $sql = "insert into guest(hotelId,bookId,bookingdId,name,email,phone,state,zip,image,kyc_file,kyc_number,kyc_type,addBy,serial,birthday,anniversary,full_address) values('$hotelId','$bookId','$bookingDId','$guestName','$guestEmail','$guestPhone','$guestIdState','$guestZip','$guestImgSec','$guestProofImgSec','$guestIdNumber','$guestIdType','$addBy','$serialNo','$guestBirthday','$guestAnniversary','$guestAddress')";
 
     if($_POST['guestId'] != ''){
         
-        $sql = "update guest set name='$guestName',email='$guestEmail',phone='$guestPhone',state='$guestIdState',zip='$guestZip',kyc_number='$guestIdNumber',kyc_type='$guestIdType',addBy='$addBy',birthday='$guestBirthday',anniversary='$guestAnniversary' $guestImgStrSql $guestProofStrSql where id = '$gId'";
+        $sql = "update guest set name='$guestName',email='$guestEmail',phone='$guestPhone',state='$guestIdState',zip='$guestZip',kyc_number='$guestIdNumber',kyc_type='$guestIdType',addBy='$addBy',birthday='$guestBirthday',full_address='$guestAddress',anniversary='$guestAnniversary' $guestImgStrSql $guestProofStrSql where id = '$gId'";
     }
     
 

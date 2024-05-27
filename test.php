@@ -7,13 +7,22 @@ include(SERVER_INCLUDE_PATH . 'db.php');
 include(SERVER_INCLUDE_PATH . 'ajaxFunction.php');
 include(SERVER_INCLUDE_PATH . 'add_to_kot.php');
 
+// send_email('avinabgiri7978@gmail.com', 'Avinab Giri', 'avinabgiri7978@gmail.com','avinabgiri7978@gmail.com', 'Fjsd', 'test');
 
-include(SERVER_INCLUDE_PATH . 'add_to_stock.php');
-include(SERVER_INCLUDE_PATH . 'calendar.php');
+$from = '01-05-2024';
+$to = '31-05-2024';
+
+// Convert from and to dates to DateTime objects
+$fromDate = DateTime::createFromFormat('d-m-Y', $from);
+$toDate = DateTime::createFromFormat('d-m-Y', $to);
+
+for ($date = clone $fromDate; $date <= $toDate; $date->modify('+1 day')) {
+        echo $currentDate = $date->format('d-m');
+        
+    }
 
 
-echo $msg = generateInvoice('reservationGuest','Avinab',25);
-
+// pr(send_email('avinabgiri7978@gmail.com', 'Avinab Giri', 'avinabgiri7978@gmail.com', 'avinabgiri7978@gmail.com','test','test'));
 
 
 // $genrateInvoce = orderEmail2Body(15);

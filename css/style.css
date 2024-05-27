@@ -1197,7 +1197,6 @@ table.dummystuf tr:nth-child(even) {
 }
 #topNavBar li:not(.toggleNav),
 #topNavBar li:not(#userSecrion) {
-  padding: 5px 5px !important;
   border-radius: 50px;
   transition: 0.3s ease-in-out;
 }
@@ -1268,11 +1267,8 @@ table.dummystuf tr:nth-child(even) {
 .reservationContent,
 .reservationContentPreview {
   position: relative;
-  background: rgba(255, 255, 255, 0.7803921569);
-  padding: 20px 20px 0 20px;
-  border-radius: 8px;
+  padding: 10px 10px 0 10px;
   margin-bottom: 25px;
-  border: 1px solid #e5e7f2;
   transition: 0.2s ease-in-out;
 }
 .reservationContent ul,
@@ -1502,10 +1498,6 @@ table.dummystuf tr:nth-child(even) {
   transform-origin: 50% 50% -20px;
   opacity: 0;
 }
-.reservationContent:hover,
-.reservationContentPreview:hover {
-  box-shadow: 0px 20px 44px 0px rgba(95, 102, 173, 0.16);
-}
 .reservationContent:hover .resevationFooter .withOutHover,
 .reservationContentPreview:hover .resevationFooter .withOutHover {
   color: transparent;
@@ -1693,7 +1685,10 @@ table.dummystuf tr:nth-child(even) {
 }
 #loadAddResorvation .form-area {
   position: sticky;
-  top: 64px;
+  top: 5px;
+  background: #e7e7e7;
+  padding: 5px;
+  border-radius: 3px;
 }
 #loadAddResorvation .inputLabel input{
   padding-left: 50px;
@@ -1851,9 +1846,26 @@ table.dummystuf tr:nth-child(even) {
 .reservationNav li:last-child {
   margin-right: 0;
 }
+.reservationNav li a{
+  position: relative;
+}
+.reservationNav li a::before{
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: #cb0c9f;
+  left: 0;
+  bottom: 0;
+  opacity: 0;
+  border-radius: 50px;
+}
 .reservationNav li .active {
   color: #cb0c9f;
   font-weight: 700;
+}
+.reservationNav li .active::before{
+  opacity: 1;
 }
 .reservationNav .right {
   position: relative;
@@ -10776,7 +10788,7 @@ footer {
   align-items: center;
   justify-content: space-between;
   width: 215px;
-  background: #dddddd;
+  background: #e10d55;
   border-radius: 3px;
   height: 35px;
   padding: 0 10px !important;
@@ -10788,6 +10800,238 @@ footer {
   font-weight: 700;
   letter-spacing: .05em;
   margin: 0;
+  color: #fff;
 }
+
+.propertyArea svg path{
+  fill: #fff;
+}
+
+.customDropdown{
+  z-index: 15;
+}
+
+.customDropdown ul {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  width: max-content;
+  height: auto;
+  z-index: 15;
+  background: white;
+  padding: 10px 0;
+  display: none;
+  border: 1px solid #d7d7d7;
+  border-radius: 5px;
+  box-shadow: 0 0 10px #d7d7d7;
+}
+
+.customDropdown ul li {
+  display: block;
+  text-align: left;
+}
+
+.customDropdown ul button {
+  border: none;
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 5px 15px;
+  font-size: 14px;
+  font-weight: 700;
+  background: white;
+  opacity: .9;
+}
+
+.customDropdown ul.show {
+  display: block;
+}
+
+.customDropdown li button:hover {
+  background: #ededed;
+  opacity: 1;
+}
+
+.linkBtn.active svg{
+  fill: white;
+}
+
+
+.propertyAreaList {
+  position: relative;
+}
+
+.propertyAreaList ul {
+  position: absolute;
+  width: 100%;
+  height: auto;
+  left: 0;
+  top: calc(100% + 10px);
+  background: #f7f7f7;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 6px 0 rgba(0,0,0,0.1);
+  display: none;
+}
+
+.propertyAreaList ul.show{
+  display: block;
+}
+
+.propertyAreaList ul:before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  height: 12px;
+  width: 100%;
+  background-color: transparent;
+}
+
+.propertyAreaList ul:after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  top: -16px;
+  height: 0;
+  width: 0;
+  border: 8px solid transparent;
+  border-bottom-color: #cccccc;
+}
+
+.propertyAreaList li {
+  padding: 0 !important;
+}
+
+.propertyAreaList ul li {
+  display: block;
+}
+
+.propertyAreaList li a {
+  border-radius: 3px;
+}
+
+#userDropdownContent h6 {
+  margin-bottom: 0 !important;
+}
+
+.propertyAreaList .dropdown-item:hover {
+  color: #000;
+  background-color: #f6f6f6;
+}
+
+#guestDatabaseContent {
+  height: 81vh;
+}
+#guestDatabaseContent .card-head {
+  border-bottom: 1px solid #dfdfdf;
+  padding: .8em 1em;
+}
+.customInput {
+  height: 35px;
+  border-radius: 3px;
+  border: 1px solid #c5c5c5;
+  padding: 0 10px;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+  font-weight: 600;
+  height: 20px;
+  line-height: 20px;
+}
+
+.rightSideAddReservation .content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.reservationContent {
+  border: 1px solid #bfbfbf;
+  border-radius: 3px;
+}
+
+
+
+#guestListTableContent {
+  height: 100%;
+}
+
+#guestListTableContent #guestDataCon {
+  max-height: calc(100% - 50px);
+}
+
+#guestListTableContent #pagination {
+  height: 50px;
+}
+
+.pagination {
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: #f1f1f1;
+  margin-top: 10px;
+}
+
+.paginate_button a {
+  width: 25px;
+  height: 25px;
+  border: 1px solid black;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: black;
+}
+
+.paginate_button.active a{
+  background: black;
+  color: white;
+}
+
+
+.inputDropDown {
+    position: absolute;
+    background: #ffc9c9;
+    z-index: 2;
+    border: 1px solid #ff8e8e;
+    width: 100%;
+    border-radius: 3px;
+    margin-top: 2px;
+    box-shadow: 0 0 20px #d9d9d9;
+    transform: translateY(15px);
+    opacity: 0;
+    visibility: hidden;
+}
+
+.inputDropDown.show{
+    transform: translateY(0px);
+    opacity: 1;
+    visibility: visible;
+}
+
+.inputDropDown li {
+    display: block;
+    padding: 5px 10px 5px;
+    border-bottom: 1px solid #e3e3e3;
+    cursor: pointer;
+    color: black;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .03em;
+}
+
+.inputDropDown li:last-child {
+    border-bottom: none;
+}
+
+.inputDropDown li:hover {
+    background: #ff9090;
+}
+
 
 

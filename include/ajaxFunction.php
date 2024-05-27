@@ -714,9 +714,28 @@
         $perPhone = $_POST['perPhone'];
         $paymentAmount = $_POST['paymentAmount'];
         $paymentReason = $_POST['paymentReason'];
+        $link = $_POST['link'];
+        $hid = HOTEL_ID;
+        $paymentId = $_POST['paymentId'];
+
+        $paymentArray = [
+            'hotelId'=>$hid,
+            'paymentId'=>$paymentId,
+            'accessId'=>$pid,
+            'transactionId'=>$hid,
+            'paymentSrtLink'=>'',
+            'paymentLink'=>$link,
+            'name'=>$perName,
+            'email'=>$perEmail,
+            'phone'=>$perPhone,
+            'amount'=>$paymentAmount,
+            'reason'=>$paymentReason,
+            'addOn'=>date('Y-m-d'),
+        ];
        
-              
-        return setPaymentLinkGenerate($pid,'','',$perName,$perEmail,$perPhone,$paymentAmount,$paymentReason);
+        insertData('payment_link', $paymentArray);
+        return 1;
+        // return setPaymentLinkGenerate($pid,'','',$perName,$perEmail,$perPhone,$paymentAmount,$paymentReason);
 
     }
 
@@ -3127,10 +3146,33 @@
 
     function makeNoShowReservation(){
         global $conDB;
-        $bdid = $_POST['bdid'];
-        $sql = "update bookingdetail set checkinstatus = '6' where id = '$bdid'";
+        global $time;
+        $bid = $_POST['bid'];
+        
+        $sql = "update booking set status = '5', actionOn = '$time' where id = '$bid'";
         $data = '';
         if(mysqli_query($conDB, $sql)){
+            foreach(fetchData('bookingdetail',['bid'=>$bid]) as $item){
+                updateData('bookingdetail', ['checkinstatus'=> 6], ['id'=>$item['id']]);
+            }
+            $data = 1;
+        }else{
+            $data = 0;
+        }
+
+        return $data;
+    }
+
+    function makeCancelReservation(){
+        global $conDB;
+        global $time;
+        $bid = $_POST['bid'];
+        $sql = "update booking set status = '6', actionOn = '$time' where id = '$bid'";
+        $data = '';
+        if(mysqli_query($conDB, $sql)){
+            foreach(fetchData('bookingdetail',['bid'=>$bid]) as $item){
+                updateData('bookingdetail', ['checkinstatus'=> 7], ['id'=>$item['id']]);
+            }
             $data = 1;
         }else{
             $data = 0;
@@ -3506,22 +3548,41 @@ function addLostAndFoundFormSubmit(){
 
 
 function loadTravelAgent(){
-    return getTravelagent();
+    $search = $_POST['search'];
+    $state = $_POST['state'];
+    return getTravelagent('',$search,$state);
 }
 
 function addTravelAgentForm(){
-    $data = array();
+    $id = $_POST['id'];
+    $data = [
+            'data'=> ($id != '')?  getTravelagent($id)[0] : [],
+            'states'=>getStatesOfIndia(),
+            'group'=>fetchData('travelAgentGroup')
+        ];
 
 
     return $data;
 }
 
 
-function addCompanyForm(){}
+function addCompanyForm(){
+    $id = $_POST['id'];
+    $data = [
+            'data'=> ($id != '')? getOrganisationData($id)[0] : [],
+            'states'=>getStatesOfIndia(),
+            'ratePlan'=>getSysPropertyRatePlaneList(),
+        ];
+
+
+    return $data;
+}
 
 
 function loadCompanyDataBase(){
-    return getOrganisationListData();
+    $search = $_POST['search'];
+    $state = $_POST['state'];
+    return getOrganisationListData('',$search,$state);
 }
 
 
@@ -3598,12 +3659,29 @@ function loadCackinReport(){
 }
 
 function loadCancelReservationReport(){
-    $date = ($_POST['date'] == '')? date('Y-m-d') : date('Y-m-d', strtotime($_POST['date']));
-    $data = array();
+    global $conDB;
     
-    foreach(getBookingData('','',$date,'','','','','','','','','','','','','','','','',5) as $item){
-        $bid = $item['bid'];       
-        $data[] = $item;
+    $date = (!empty($_POST['from']) && strtotime($_POST['from'])) ? date('Y-m-d', strtotime($_POST['from'])) : date('Y-m-d');
+    $toDate = (!empty($_POST['to']) && strtotime($_POST['to'])) ? date('Y-m-d', strtotime($_POST['to'])) : date('Y-m-d', strtotime('+1 day', strtotime($date)));
+
+    if ($date >= $toDate) {
+        $toDate = date('Y-m-d', strtotime('+1 day', strtotime($date)));
+    }
+
+    $sql = "SELECT * FROM booking WHERE status = '5' AND actionOn BETWEEN '$date' AND '$toDate'";
+    $stmt = mysqli_query($conDB, $sql);
+    $data = array();
+    while ($row = mysqli_fetch_assoc($stmt)) {
+        $bid = $row['id'];
+        $bookingArray = getBookingData($bid)[0];
+        $advanceArr = [
+            'rooms'=>$bookingArray['rooms'],
+            'guestName'=>$bookingArray['guestName'],
+            'totalAdult'=>$bookingArray['totalAdult'],
+            'totalChild'=>$bookingArray['totalChild'],
+            'totalPrice'=>$bookingArray['totalPrice'],
+        ];
+        $data[] = array_merge($row, $advanceArr);
     }
 
     return $data;
@@ -3647,15 +3725,33 @@ function loadReservationReport(){
 }
 
 function loadVoidReport(){
-    $date = ($_POST['date'] == '')? date('Y-m-d') : date('Y-m-d', strtotime($_POST['date']));
-    $data = array();
+    global $conDB;
     
-    foreach(getBookingData('','',$date,'','','','','','','','','','','','','','','','',7) as $item){
-        $bid = $item['bid'];       
-        $data[] = $item;
+    $date = (!empty($_POST['from']) && strtotime($_POST['from'])) ? date('Y-m-d', strtotime($_POST['from'])) : date('Y-m-d');
+    $toDate = (!empty($_POST['to']) && strtotime($_POST['to'])) ? date('Y-m-d', strtotime($_POST['to'])) : date('Y-m-d', strtotime('+1 day', strtotime($date)));
+
+    if ($date >= $toDate) {
+        $toDate = date('Y-m-d', strtotime('+1 day', strtotime($date)));
+    }
+
+    $sql = "SELECT * FROM booking WHERE status = '6' AND actionOn BETWEEN '$date' AND '$toDate'";
+    $stmt = mysqli_query($conDB, $sql);
+    $data = array();
+    while ($row = mysqli_fetch_assoc($stmt)) {
+        $bid = $row['id'];
+        $bookingArray = getBookingData($bid)[0];
+        $advanceArr = [
+            'rooms'=>$bookingArray['rooms'],
+            'guestName'=>$bookingArray['guestName'],
+            'totalAdult'=>$bookingArray['totalAdult'],
+            'totalChild'=>$bookingArray['totalChild'],
+            'totalPrice'=>$bookingArray['totalPrice'],
+        ];
+        $data[] = array_merge($row, $advanceArr);
     }
 
     return $data;
+
 }
 
 function loadGuestCeckinReport(){
@@ -3970,6 +4066,169 @@ function pinChangeToFetch(){
 
     return $data;
 }
+
+
+function load_form_organisation(){
+
+    $rateplanList =  getSysPropertyRatePlaneList();
+    
+    $data = [
+        'ratePlan'=>$rateplanList,
+        'data'=>''
+    ];
+    
+    
+    return $data;
+}
+
+
+function userAccessChange(){
+    $userId = $_POST['userId'];
+    $pageId = $_POST['pageId'];
+    $role = $_POST['role'];
+    $addBy = dataAddBy();
+    global $time;
+    $userName = fetchData('hoteluser', ['id'=> $userId])[0]['name'];
+    $data = '';
+    if(count(fetchData('user_access', ['userId'=>$userId, 'pageId'=>$pageId])) > 0){
+        $data = updateData('user_access', ['activityRole'=> $role], ['userId'=>$userId, 'pageId'=>$pageId]);
+        $alert = "Update $userName Role to $role";
+        insertData('activityfeed',['hotelId'=> HOTEL_ID, 'type'=> 32, 'reason'=> $alert]);
+    }else{
+        $data = insertData('user_access',['hotelId'=> HOTEL_ID, 'userId'=> $userId, 'pageId'=> $pageId, 'activityRole'=> $role,'addBy'=> $addBy,'addOn'=> $time]);
+        $alert = "Add $userName Role to $role";
+        insertData('activityfeed',['hotelId'=> HOTEL_ID, 'type'=> 32, 'reason'=> $alert]);
+    }
+
+    return $data;
+}
+
+
+function getStateInIndia(){
+    return getStatesOfIndia();
+}
+
+function getInputNameCheck(){
+    global $conDB;
+    $name = $_POST['name'];
+    $type = $_POST['type'];
+    
+    if($type == 'travel_agents'){
+        $sql = "select * from travel_agents where agentName like '%$name%' GROUP BY agentName";
+    }
+    if($type == 'organisations'){
+        $sql = "select * from organisations where name like '%$name%' GROUP BY name";
+    }
+    $query = mysqli_query($conDB, $sql);
+    $data = array();
+    while($row = mysqli_fetch_assoc($query)){
+        $data[] = $row;
+    }
+    return $data;
+}
+
+
+function loadGuesAniReport(){
+    global $conDB;
+    $hotelId = $_SESSION['HOTEL_ID'];
+    
+    $date = (!empty($_POST['from']) && strtotime($_POST['from'])) ? date('d-m-Y', strtotime($_POST['from'])) : date('d-m-Y');
+    $toDate = (!empty($_POST['to']) && strtotime($_POST['to'])) ? date('d-m-Y', strtotime($_POST['to'])) : date('d-m-Y', strtotime('+1 day', strtotime($date)));
+
+    if ($date >= $toDate) {
+        $toDate = date('Y-m-d', strtotime('+1 day', strtotime($date)));
+    }
+    
+    $fromDate = DateTime::createFromFormat('d-m-Y', $date);
+    $toDate = DateTime::createFromFormat('d-m-Y', $toDate);
+    
+    $data = array();
+    
+    for ($date = clone $fromDate; $date <= $toDate; $date->modify('+1 day')) {
+        $currentDate = $date->format('m-d');
+        $sql = "SELECT * FROM guest WHERE hotelId = '$hotelId' and anniversary like '%$currentDate%'";
+        
+        $stmt = mysqli_query($conDB, $sql);
+        while ($row = mysqli_fetch_assoc($stmt)) {
+            $bid = $row['bookId'];
+            $bookingArray = getBookingData($bid)[0];
+            $advanceArr = [
+                'recipt'=>$bookingArray['reciptNo']
+            ];
+            $data[] = array_merge($row, $advanceArr);
+        }
+    }
+
+    
+
+    return $data;
+}
+
+function loadGuesBirthReport(){
+    global $conDB;
+    $hotelId = $_SESSION['HOTEL_ID'];
+    
+    $date = (!empty($_POST['from']) && strtotime($_POST['from'])) ? date('d-m-Y', strtotime($_POST['from'])) : date('d-m-Y');
+    $toDate = (!empty($_POST['to']) && strtotime($_POST['to'])) ? date('d-m-Y', strtotime($_POST['to'])) : date('d-m-Y', strtotime('+1 day', strtotime($date)));
+
+    if ($date >= $toDate) {
+        $toDate = date('Y-m-d', strtotime('+1 day', strtotime($date)));
+    }
+    
+    $fromDate = DateTime::createFromFormat('d-m-Y', $date);
+    $toDate = DateTime::createFromFormat('d-m-Y', $toDate);
+    
+    $data = array();
+    
+    for ($date = clone $fromDate; $date <= $toDate; $date->modify('+1 day')) {
+        $currentDate = $date->format('m-d');
+        $sql = "SELECT * FROM guest WHERE hotelId = '$hotelId' and birthday like '%$currentDate%'";
+        
+        $stmt = mysqli_query($conDB, $sql);
+        while ($row = mysqli_fetch_assoc($stmt)) {
+            $bid = $row['bookId'];
+            $bookingArray = getBookingData($bid)[0];
+            $advanceArr = [
+                'recipt'=>$bookingArray['reciptNo']
+            ];
+            $data[] = array_merge($row, $advanceArr);
+        }
+    }
+
+    
+
+    return $data;
+}
+
+function loadGuestDataReport(){
+    global $conDB;
+    
+    $date = (!empty($_POST['from']) && strtotime($_POST['from'])) ? date('Y-m-d', strtotime($_POST['from'])) : date('Y-m-d');
+    $toDate = (!empty($_POST['to']) && strtotime($_POST['to'])) ? date('Y-m-d', strtotime($_POST['to'])) : date('Y-m-d', strtotime('+1 day', strtotime($date)));
+
+    if ($date >= $toDate) {
+        $toDate = date('Y-m-d', strtotime('+1 day', strtotime($date)));
+    }
+
+    $sql = "SELECT * FROM guest WHERE addOn BETWEEN '$date' AND '$toDate'";
+    $stmt = mysqli_query($conDB, $sql);
+    $data = array();
+    while ($row = mysqli_fetch_assoc($stmt)) {
+        $bid = $row['bookId'];
+        $bookingArray = getBookingData($bid)[0];
+        $advanceArr = [
+            'recipt'=>$bookingArray['reciptNo'],
+        ];
+        $data[] = array_merge($row, $advanceArr);
+    }
+
+    return $data;
+}
+
+
+
+
+
 
 
 ?>

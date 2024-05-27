@@ -143,6 +143,24 @@ function generateUserInfo($uid, $label = '', $active = ''){
     $imgName = $imgArry['image'];
     $img = getImgPath('private', $imgName);
 
+    $accessArrayList = ['viewer','editor','full'];
+    $reservationAccessHtml = '';
+    $guestAccessHtml = '';
+
+    foreach($accessArrayList as $item){
+        $itemName = ucfirst($item);
+        $selectAccess = (isset(fetchData('user_access', ['userId'=>$userId, 'pageId'=>2])[0])) ? fetchData('user_access', ['userId'=>$userId, 'pageId'=>2])[0]['activityRole'] : '';
+        $active = ( $selectAccess == $item) ? 'selected' : '';
+        $reservationAccessHtml .= "<option $active value='$item'>$itemName</option>";
+    }
+
+    foreach($accessArrayList as $item){
+        $itemName = ucfirst($item);
+        $selectAccess = (isset(fetchData('user_access', ['userId'=>$userId, 'pageId'=>5])[0])) ? fetchData('user_access', ['userId'=>$userId, 'pageId'=>5])[0]['activityRole'] : '';
+        $active = ( $selectAccess == $item) ? 'selected' : '';
+        $guestAccessHtml .= "<option $active value='$item'>$itemName</option>";
+    }
+
     $advanceHtml = '';
     $userDeleteHtml = '';
     if ($role == 1) {
@@ -155,8 +173,21 @@ function generateUserInfo($uid, $label = '', $active = ''){
                             </div>';
         $advanceHtml = '
             <div>
-                <h4>Permission <button onclick="userPermission(' . $userId . ')"><svg class="w20 h20"> <use href="#editfilledIcon"></use> </svg></button></h4>
-                ' . $dataArray . '
+                <h4>Permission </h4>
+                <ul>
+                    <li>
+                        <h6 class="dib">Reservation</h6>
+                        <select name="reservationAccess" id="reservationAccess" onchange="userAccessChange(\'' . htmlspecialchars($uid) . '\',2,this)">
+                            '.$reservationAccessHtml.'
+                        </select>
+                    </li>
+                    <li>
+                        <h6 class="dib">Guest</h6>
+                        <select name="guestAccess" id="guestAccess" onchange="userAccessChange('.$uid.',5,this)">
+                            '.$guestAccessHtml.'
+                        </select>
+                    </li>
+                </ul>
             </div>
         ';
     }
@@ -360,6 +391,13 @@ function generatePriceBreakup($roomPrice = '', $roomGst = '', $roomTotal = '', $
 
 
 function reservationContentView($bid, $reciptNo, $gname, $checkIn, $checkOut, $bDate, $nAdult, $nChild, $total, $paid, $preview = '', $rTab = '', $BDId = '', $clickBtn = '', $bookingSource = '', $reportview = '', $bidCode = '', $status = []){
+    $onlyBookingArray = fetchData('booking', ['id'=>$bid])[0];
+    $userId = $_SESSION['ADMIN_ID'];
+    $userArry = fetchData('hoteluser', ['id'=>$userId])[0];
+    $userRole = $userArry['role'];
+    
+
+    $resType = $onlyBookingArray['status'];
 
     $totlaRoom = count(getBookingDetailTableData('', $bid));
     if ($checkIn == '') {
@@ -398,9 +436,11 @@ function reservationContentView($bid, $reciptNo, $gname, $checkIn, $checkOut, $b
         $nChild = 0;
     }
 
-    $statusName = $status['name'];
-    $statusBg = $status['bg'];
-    $statusClr = $status['clr'];
+    $resStatusArray = fetchData('sys_reservationtype', ['id'=>$resType])[0];
+
+    $statusName = $resStatusArray['name'];
+    $statusBg = $resStatusArray['bg'];
+    $statusClr = $resStatusArray['clr'];
 
     $statusHtml = "<span style='background: $statusBg;color: $statusClr;'>$statusName</span>";
 
@@ -418,6 +458,7 @@ function reservationContentView($bid, $reciptNo, $gname, $checkIn, $checkOut, $b
     $bDate = date('d-M', strtotime($bDate));
     $hotelVoucerLink = FRONT_SITE . '/voucher?vid=' . $bid;
     $guestVoucerLink = FRONT_SITE . '/view-voucher?id=' . $bid;
+    $grcLink = FRONT_SITE . '/grc?id=' . $bid;
     $emailLink = FRONT_SITE . '/email_send?oid=' . $bid;
     $actionBtn = '';
 
@@ -448,37 +489,56 @@ function reservationContentView($bid, $reciptNo, $gname, $checkIn, $checkOut, $b
                     </div>
                     <div class='dFlex aic jcsb item withHover'>
                         <ul>                        
-                            <li><a href='javascript:void(0)' class='sendMailToGuest' data-oid='".$bid."' data-tooltip-top='Email'><i class='far fa-envelope-open'></i></a></li>
+                            <li><a href='$grcLink' target='_blank' data-oid='".$bid."' data-tooltip-top='GRC'><i class='fas fa-print'></i></a></li>
                             <li><a href='$guestVoucerLink' target='_blank' data-tooltip-top='Guest Voucher'><i class='far fa-file-alt'></i></a></li>
                         </ul>
                         $viewDetailBtn
                     </div>
                 </div>        
         ";
-
-        $actionBtn = 
-            "<a onclick=\"reservationDetailPopUp($bid, $BDId,'$rTab')\" href='javascript:void(0)' class='reservationDetailActionBtn'><span></span><span></span><span></span>
-                        
-            </a>";
+        if($userRole != 1){
+            $userAccess = (isset(fetchData('user_access', ['userId'=>$userId, 'pageId'=>2])[0])) ? fetchData('user_access', ['userId'=>$userId, 'pageId'=>2])[0]['activityRole'] :'';
+            if($userAccess == 'editor' || $userAccess == 'full'){
+                $actionBtn = 
+            '
+                <div class="customDropdown">
+                    <button class="btnCD reservationDetailActionBtn">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <ul>
+                        <li><button onclick="makeNoShowReservation('.$bid.')">Mark As No Show</button></li>
+                        <li><button onclick="makeCancelReservation('.$bid.')">Cancel Reservation</button></li>
+                    </ul>
+                </div>
+            ';
+            }else{
+                $actionBtn = '';
+            }
+        }else{
+            $actionBtn = 
+            '
+                <div class="customDropdown">
+                    <button class="btnCD reservationDetailActionBtn">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <ul>
+                        <li><button onclick="makeNoShowReservation('.$bid.')">Mark As No Show</button></li>
+                        <li><button onclick="makeCancelReservation('.$bid.')">Cancel Reservation</button></li>
+                    </ul>
+                </div>
+            ';
+        }        
 
     }
-
-    // <div class='reservationQuickAction'>
-    //                 <ul>
-    //                     <li><button>Edit Reservation</button></li>
-    //                     <li><button>Edit Reservation</button></li>
-    //                     <li><button>Edit Reservation</button></li>
-    //                     <li><button>Edit Reservation</button></li>
-    //                     <li><button>Edit Reservation</button></li>
-    //                     <li><button>Edit Reservation</button></li>
-    //                 </ul>
-    //             </div>
 
     $reservationBtn = 'reservationContent';
     if ($clickBtn != '') {
         $reservationBtn = 'reservationContentPreview';
     }
 
+    if($onlyBookingArray['status'] == 5 || $onlyBookingArray['status'] == 6){
+        $actionBtn = '';
+    }
 
 
     $html = "

@@ -79,14 +79,19 @@ function viewBookingReport($bid = '', $bdid = '') {
         var bookinId = response.bookinId;
         var bookingSource = response.bookingSource;
         var addByName = response.addByName;
+        var exBd = response.exBd;
+        var checkInDetail = response.checkInDetail;
+        var checkOutDetail = response.checkOutDetail;
 
         var checkIn = response.checkIn;
+        var checkInTime = moment(response.checkInTime, "HH:mm:ss").format("hh:mm A");
         var checkInYr = moment(checkIn).format('YYYY');
         var checkInMonth = moment(checkIn).format('MMM');
         var checkInDay = moment(checkIn).format('DD');
         var checkInDayStr = moment(checkIn).format('ddd');
-
+        
         var checkOut = response.checkOut;
+        var checkOutTime = moment(response.checkOutTime, "HH:mm:ss").format("hh:mm A");
         var checkOutYr = moment(checkOut).format('YYYY');
         var checkOutMonth = moment(checkOut).format('MMM');
         var checkOutDay = moment(checkOut).format('DD');
@@ -108,6 +113,7 @@ function viewBookingReport($bid = '', $bdid = '') {
         
 
         var generateInvoiceLink = getInvoiceLink(bid);
+        var voucherLink = `${webUrl}voucher.php?oid=${bid}`;
         
         var bSourceHtml = '';
         if (bussinessSource == 1) {
@@ -137,7 +143,7 @@ function viewBookingReport($bid = '', $bdid = '') {
                     <li class="list-group-item">
                         <div class="row row-flex">
                             <div class="col col-info col-info-first">
-                                <strong class="db clrBlack fs20">${room_number}</strong>
+                                <span class="dFlex aic"><small class="mR5">Ex Bed's</small> <strong class="db clrBlack fs20"> ${exBd}</strong></span>
                                 <span class="dib clrBlack">Adult <strong class="dib clrBlack">${adult}</strong> | Child <strong class="dib clrBlack">${child}</strong></span>
                                 <span class="m-t-xs badge  badge-arrived">Check In</span></div>
                             <div class="col col-info col-info-second">
@@ -246,9 +252,15 @@ function viewBookingReport($bid = '', $bdid = '') {
                                         <div class="row">
                                             <label class="col-sm-12">GST : <span></span></label>
                                         </div>
+
                                         <div class="row">
                                             <label class="col-sm-12" style="font-weight:bold;font-size:15px;">Night(s) : <span>${night}</span></label>
                                         </div>
+
+                                        <div class="row">
+                                            <label class="col-sm-12" style="font-weight:bold;font-size:15px;">Arrival Details : <span style="font-weight:bold;font-size:12px;">${checkInDetail}</span></label>
+                                        </div>
+
                                     </div>
 
                                     <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5 detail-side-panel">
@@ -265,11 +277,11 @@ function viewBookingReport($bid = '', $bdid = '') {
                                                 </div>
                                                 <div class="dFlex aic">
                                                     <label>Arrival Date :</label>
-                                                    <label><strong class="fs15">${checkIn}</strong></label>
+                                                    <label><strong class="fs15">${checkIn}, ${checkInTime}</strong></label>
                                                 </div>
                                                 <div class="dFlex aic">
                                                     <label>Departure Date :</label>
-                                                    <label><strong class="fs15">${checkOut}</strong></label>
+                                                    <label><strong class="fs15">${checkOut}, ${checkOutTime}</strong></label>
                                                 </div>
                                                 <div class="dFlex aic">
                                                     <label>Booking Source :</label>
@@ -283,6 +295,12 @@ function viewBookingReport($bid = '', $bdid = '') {
                                                     <label>User :</label>
                                                     <label><strong class="fs15 clrYellow">${addByName}</strong></label>
                                                 </div>
+
+                                                <div class="dFlex aic">
+                                                    <label>Departure details :</label>
+                                                    <label><strong class="fs12">${checkOutDetail}</strong></label>
+                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -308,8 +326,7 @@ function viewBookingReport($bid = '', $bdid = '') {
                         <div class="form-group text-center m0 py-2">
                             <div class="col-sm-12">
                                 <button class="btn btn-info m0" onclick="generateEmailSent(${bid})">Email Booking Voucher</button>
-                                <button class="btn btn-danger m0"><a class="text-white" target="_blank" href="https://login.retrod.in/voucher.php?oid=${bid}">Download Booking Voucher</a></button>
-                                <a target="_blank" href="${generateInvoiceLink}" class="btn btn-info m0">Print Invoice</a>
+                                <button class="btn btn-danger m0"><a class="text-white" target="_blank" href="${voucherLink}">Download Booking Voucher</a></button>
                             </div>
                         </div>
                     </div>
@@ -3834,8 +3851,24 @@ function userPermission(uid) {
 }
 
 
-function makeNoShowReservation(bdid) {
-    var data = `request_type=makeNoShowReservation&bdid=${bdid}`;
+function makeNoShowReservation(bid) {
+    var data = `request_type=makeNoShowReservation&bid=${bid}`;
+    ajax_request(data).done(function (response) {
+        if (response == 1) {
+            sweetAlert('done');
+            $('#bookindDetail').removeClass('show');
+            loadResorvation('all');
+            loadRoomView();
+        } else {
+            sweetAlert('Sorry Something Went Wrong!', 'error')
+        }
+
+
+    });
+}
+
+function makeCancelReservation(bid) {
+    var data = `request_type=makeCancelReservation&bid=${bid}`;
     ajax_request(data).done(function (response) {
         if (response == 1) {
             sweetAlert('done');
@@ -3989,14 +4022,14 @@ function userDelete(uid) {
 
 
 function reservationDetailPopUp(bookingId='', bdid='', rTab='', roomNumber='') {
-    $('#bookindDetail').addClass('show');
-    if(bookingId == ''){
-        $('#bookindDetail').removeClass('show');
-        $('#loadAddResorvation').show();
-        loadAddResorvation('', 'roomView','','',roomNumber);
-    }else{
-        showGuestDetailPopUp('', bookingId, '', '', rTab, bdid, '');
-    }
+    // $('#bookindDetail').addClass('show');
+    // if(bookingId == ''){
+    //     $('#bookindDetail').removeClass('show');
+    //     $('#loadAddResorvation').show();
+    //     loadAddResorvation('', 'roomView','','',roomNumber);
+    // }else{
+    //     showGuestDetailPopUp('', bookingId, '', '', rTab, bdid, '');
+    // }
     
 }
 
@@ -4574,11 +4607,15 @@ function submitTravelAgent(){
     
     var name = $("#travelagentname").val();
     var travelagentPhoneno = $('#travelagentPhoneno').val();
+    var taConPerson = $('#taConPerson').val();
+
     
     if(name == ''){
         sweetAlert('Name is required','error');
     }else if(travelagentPhoneno == ''){
         sweetAlert('Phone no is required','error');
+    }else if(taConPerson == ''){
+        sweetAlert('Person name is required','error');
     }else{
         var formData = $('#travelagent-add-form').serialize();
         formData += '&type=add_travelagent';
@@ -4597,16 +4634,27 @@ function submitTravelAgent(){
             }
             return response.text();
         }).then(data => {
-            if (data.trim() === 'ok') {
+            var responce = JSON.parse(data);
+            var lastId = responce.id;
+            var name = responce.name;
+            
+            if (responce.status === 'success') {
                 sweetAlert('Travel Agent Details Updated');
                 $('#travelagent-add-form')[0].reset();
-                $('#addTravelAgentModal').modal('hide');
-                var page = $('#addReservationBtn').data('page');
-                loadAddResorvation('', page);
-            }
-            else {
+                $('#popUpModal').modal('hide');
+                
+                
+                if (window.filePath == 'travel-agent') {
+                    loadTravelAgent();
+                }else if (window.filePath == 'walk-in'){
+                    var html = `<option selected value="${lastId}">${name}</option>`;
+                    $('#travelagent').append(html);
+                }
+                
+            }else {
                 sweetAlert('error', 'Sorry Something Went Wrong!')
             }
+            
         }).catch(error => {
             console.log('Error:', error);
         });
@@ -4620,23 +4668,64 @@ function addTravelAgentForm(id=''){
     var data = `request_type=addTravelAgentForm&id=${id}`;
     var title = (id == '') ? 'Add Travel Agent' : 'Update Travel Agent';
     ajax_request(data).done(function(request) {
-
+        var response = JSON.parse(request);
+        var states = response.states;
+        var data = response.data;
+        
+        var agentName = (data.agentName) ? data.agentName : '';
+        var travelagentname = (data.travelagentname) ? data.travelagentname : '';
+        var travelagentemail = (data.travelagentemail) ? data.travelagentemail : '';
+        var travelagentAddress = (data.travelagentAddress) ? data.travelagentAddress : '';
+        var travelagrntCity = (data.travelagrntCity) ? data.travelagrntCity : '';
+        var travelagentCountry = (data.travelagentCountry) ? data.travelagentCountry : '';
+        var travelagentPostCode = (data.travelagentPostCode) ? data.travelagentPostCode : '';
+        var travelagentPhoneno = (data.travelagentPhoneno) ? data.travelagentPhoneno : '';
+        var travelagentGstNo = (data.travelagentGstNo) ? data.travelagentGstNo : '';
+        var travelagentcommission = (data.travelagentcommission) ? data.travelagentcommission : 0; 
+        var travelaaagentGstonCommision = (data.travelaaagentGstonCommision) ? data.travelaaagentGstonCommision : 0;
+        var travelaaagentTcs = (data.travelaaagentTcs) ? data.travelaaagentTcs : 0; 
+        var travelaaagentTds = (data.travelaaagentTds) ? data.travelaaagentTds : 0; 
+        var travelagentNote = (data.travelagentNote) ? data.travelagentNote : '';
+        var travelagentState = (data.travelagentState) ? data.travelagentState : '';
+        
+        var statesHtml = '<option value="">Select ...</option>';
+        let travelagentGroupHtml = '';
+        
+        $.each(states, (index,val)=>{
+            var active = (val == travelagentState) ? 'selected' : '';
+            statesHtml += `<option ${active} value="${val}">${val}</option>`;
+        })
+        
+        $.each(response.group, (key,val)=>{
+            var active = (val.id == response.group) ? 'selected' : '';
+            travelagentGroupHtml += `<option ${active} value="${val.id}">${val.name}</option>`;
+        })
+        
+        
+        
         html =`
-            <form action="" id="travelagent-add-form">
+            <form action="" id="travelagent-add-form" autocomplete="off">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label class="control-label">Name <span class="requireSym">*</span></label>
-                            <input type="text" placeholder="Travel Agent Name" class="form-control" name="travelagentname" id="travelagentname">
+                            <input type="text" placeholder="Travel Agent Name" class="form-control" name="travelagentname" id="travelagentname" value="${agentName}">
+                            <input name="actionId" type="hidden" value="${id}"/>
+                            <ul id="travelDropDown" class="inputDropDown"></ul >
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label" for="taConPerson">Contact person Name<span class="requireSym">*</span></label>
+                            <input type="text" placeholder="Contact person Name" class="form-control" name="taConPerson" id="taConPerson" value="${travelagentname}">
 
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label class="control-label">Email</label>
-                            <input type="text" placeholder="Travel Agent Email" class="form-control" name="travelagentemail">
-
+                            <input type="text" placeholder="Travel Agent Email" class="form-control" name="travelagentemail" value="${travelagentemail}">
                         </div>
                     </div>
 
@@ -4644,16 +4733,28 @@ function addTravelAgentForm(id=''){
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6">
+                
+                    <div class="col-md-4">
                         <div class="form-group">
-                            <label for="" class="control-label">Address</label>
-                            <input type="text" placeholder="Address" name="travelagentAddress" class="form-control">
+                            <label for="" class="control-label">Group</label>
+                            <select class="customSelect" name="travelagentGroup" id="travelagentGroup">
+                                <option value="">Select Group</option>
+                                ${travelagentGroupHtml}
+                            </select>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="" class="control-label">Address</label>
+                            <input type="text" placeholder="Address" name="travelagentAddress" class="form-control" value="${travelagentAddress}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label for="" class="control-label">City</label>
-                            <input type="text" placeholder="City" name="travelagrntCity" class="form-control">
+                            <input type="text" placeholder="City" name="travelagrntCity" class="form-control" value="${travelagrntCity}">
                         </div>
                     </div>
                 </div>
@@ -4663,13 +4764,15 @@ function addTravelAgentForm(id=''){
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="" class="control-label">State</label>
-                            <input type="text" placeholder="State" name="travelagentState" class="form-control">
+                            <select name="travelagentState" class="customSelect">
+                                ${statesHtml}
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="" class="control-label">Country</label>
-                            <input type="text" name="travelagentCountry" placeholder="Country" class="form-control">
+                            <input type="text" name="travelagentCountry" placeholder="Country" class="form-control" value="${travelagentCountry}">
                         </div>   
                     </div>
                 </div>
@@ -4677,13 +4780,13 @@ function addTravelAgentForm(id=''){
                     <div class="col-md-6">
                         <div class="form-group">
                             <laabel class="control-label">Post Code</laabel>
-                            <input type="text" name="travelagentPostCode" placeholder="Post Code" class="form-control">
+                            <input type="text" name="travelagentPostCode" placeholder="Post Code" class="form-control" value="${travelagentPostCode}">
                         </div>   
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="" class="control-label">Phone Number <span class="requireSym">*</span></label>
-                            <input type="text" name="travelagentPhoneno" id="travelagentPhoneno" placeholder="eg:+91 ***** *****" class="form-control">
+                            <input type="text" name="travelagentPhoneno" id="travelagentPhoneno" placeholder="eg:+91 ***** *****" class="form-control" value="${travelagentPhoneno}">
                         </div>
                     </div>
                 
@@ -4692,7 +4795,7 @@ function addTravelAgentForm(id=''){
                 <div class="row">
                     <div class="form-group">
                         <label for="" class="control-label">GST Number</label>
-                        <input type="text" class="form-control" placeholder="Enter Your Gst Number" name="travelagentGstNo">
+                        <input type="text" class="form-control" placeholder="Enter Your Gst Number" name="travelagentGstNo" value="${travelagentGstNo}">
                     </div>
                 </div>
 
@@ -4700,13 +4803,13 @@ function addTravelAgentForm(id=''){
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="" class="control-label">Commission</label>
-                            <input type="number" name="travelagentcommission" value="0" class="form-control">
+                            <input type="number" name="travelagentcommission" value="0" class="form-control" value="${travelagentcommission}">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="" class="control-label">GST On Commission</label>
-                            <input type="number" class="form-control" value="0" name="travelaaagentGstonCommision">
+                            <input type="number" class="form-control" value="0" name="travelaaagentGstonCommision" value="${travelaaagentGstonCommision}">
                         </div>
                     </div>
                 </div>
@@ -4715,20 +4818,20 @@ function addTravelAgentForm(id=''){
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="" class="control-label">TCS</label>
-                            <input type="number" class="form-control" value="0" name="travelaaagentTcs">
+                            <input type="number" class="form-control" value="0" name="travelaaagentTcs" value="${travelaaagentTcs}">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="" class="control-label">TDS</label>
-                            <input type="number" class="form-control" value="0" name="travelaaagentTds">
+                            <input type="number" class="form-control" value="0" name="travelaaagentTds" value="${travelaaagentTds}">
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group">
                         <label for="" class="control-label">Notes</label>
-                        <input type="text" class="form-control" placeholder="Enter Note" name="travelagentNote">
+                        <input type="text" class="form-control" placeholder="Enter Note" name="travelagentNote" value="${travelagentNote}">
                     </div>
                 </div>
 
@@ -4746,22 +4849,66 @@ function addCompanyForm(id=''){
     var data = `request_type=addCompanyForm&id=${id}`;
     var title = (id == '') ? 'Add Company' : 'Update Company';
     ajax_request(data).done(function(request) {
+        
+        var response = JSON.parse(request);
+        var states = response.states;
+        var data = response.data;
+        
+        var orgId = (data.id) ? data.id : '';
+        var name = (data.name) ? data.name : '';
+        var orgConName = (data.orgConName) ? data.orgConName : '';
+        var organisationAddress = (data.organisationAddress) ? data.organisationAddress : '';
+        var organisationCity = (data.organisationCity) ? data.organisationCity : '';
+        var organisationCountry = (data.organisationCountry) ? data.organisationCountry : '';
+        var organisationDiscount = (data.organisationDiscount) ? data.organisationDiscount : 0; // assuming discount is numeric
+        var organisationEmail = (data.organisationEmail) ? data.organisationEmail : '';
+        var organisationGstNo = (data.organisationGstNo) ? data.organisationGstNo : '';
+        var organisationNote = (data.organisationNote) ? data.organisationNote : '';
+        var organisationNumber = (data.organisationNumber) ? data.organisationNumber : '';
+        var organisationPostCode = (data.organisationPostCode) ? data.organisationPostCode : '';
+        var organisationState = (data.organisationState) ? data.organisationState : '';
+        var ratePlan = (data.ratePlan) ? data.ratePlan : '';
+        var salesManager = (data.salesManager) ? data.salesManager : '';
+        
+        var rateList = '';
+        var ratePlan = response.ratePlan;
+        
+        $.each(ratePlan, (key,val)=>{
+            var name = val.srtcode;
+            var id = val.id;
+            rateList += `<option value="${id}">${name}</option>`;
+        })
+        
+        var statesHtml = '<option value="">Select ...</option>';
+        
+        $.each(states, (index,val)=>{
+            var active = (val == organisationState) ? 'selected' : '';
+            statesHtml += `<option ${active} value="${val}">${val}</option>`;
+        })
 
-        html =`
-        <form action="" id="organisationForm">
+    html =`
+        <form action="" id="organisationForm" autocomplete="off">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label class="control-label">Name</label>                     
-                        <input type="text" placeholder="Organisation Name" class="form-control" name="organisationname">
+                        <label for="organisationName" class="control-label">Name</label>                     
+                        <input type="text" placeholder="Organisation Name" class="form-control" name="organisationname" value="${name}" id="organisationName">
+                        <input name="actionId" type="hidden" value="${id}"/>
+                        <ul id="organisationDropDown" class="inputDropDown"></ul >
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">Contact person Name</label>                     
+                        <input type="text" placeholder="Contact person Name" class="form-control" name="oConPerName" value="${orgConName}">
             
                     </div>
                 </div>
             
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="control-label">Email</label>                     
-                        <input type="text" placeholder="Organisation Email" class="form-control" name="organisationemail">
+                        <input type="text" placeholder="Organisation Email" class="form-control" name="organisationemail" value="${organisationEmail}">
             
                     </div>
                 </div>           
@@ -4773,7 +4920,7 @@ function addCompanyForm(id=''){
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="control-label">Address</label>                     
-                        <input type="text" placeholder="Organisation Address" class="form-control" name="organisationaddress">
+                        <input type="text" placeholder="Organisation Address" class="form-control" name="organisationaddress" value="${organisationAddress}">
             
                     </div>
                 </div>
@@ -4781,7 +4928,7 @@ function addCompanyForm(id=''){
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="control-label">City</label>                     
-                        <input type="text" placeholder="City" class="form-control" name="organisationcity">
+                        <input type="text" placeholder="City" class="form-control" name="organisationcity" value="${organisationCity}">
             
                     </div>
                 </div>
@@ -4794,15 +4941,16 @@ function addCompanyForm(id=''){
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="control-label">State</label>                     
-                        <input type="text" placeholder="State" class="form-control" name="organisationState">
-            
+                        <select name="organisationState" class="customSelect">
+                                ${statesHtml}
+                        </select>
                     </div>
                 </div>
             
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="control-label">Country</label>                     
-                        <input type="text" placeholder="Country" class="form-control" name="organisationCountry">
+                        <input type="text" placeholder="Country" class="form-control" name="organisationCountry" value="${organisationCountry}">
             
                     </div>
                 </div>
@@ -4815,7 +4963,7 @@ function addCompanyForm(id=''){
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="control-label">Post Code</label>                     
-                        <input type="text" placeholder="Post Code" class="form-control" name="organisationPostCode">
+                        <input type="text" placeholder="Post Code" class="form-control" name="organisationPostCode" value="${organisationPostCode}">
             
                     </div>
                 </div>
@@ -4823,7 +4971,7 @@ function addCompanyForm(id=''){
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="control-label">Phone Number</label>                     
-                        <input type="text" placeholder="eg:+91 ***** *****" class="form-control" name="organisationNumber">
+                        <input type="text" placeholder="eg:+91 ***** *****" class="form-control" name="organisationNumber" value="${organisationNumber}">
             
                     </div>
                 </div>
@@ -4836,7 +4984,7 @@ function addCompanyForm(id=''){
                 <div class="col-md-12">
                     <div class="form-group">
                         <label class="control-label">GST Number</label>                     
-                        <input type="text" id="gstNoField" placeholder="GST Number" class="form-control" name="organisationGstNo">
+                        <input type="text" id="gstNoField" placeholder="GST Number" class="form-control" name="organisationGstNo" value="${organisationGstNo}">
             
                     </div>
                 </div>       
@@ -4862,7 +5010,7 @@ function addCompanyForm(id=''){
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="control-label">Sales Manager</label>                  
-                        <input type="text" id="salesManager" placeholder="Sales Manager" class="form-control" name="salesManager">
+                        <input type="text" id="salesManager" placeholder="Sales Manager" class="form-control" name="salesManager" value="${salesManager}">
                     </div>
                 </div>
             
@@ -4877,8 +5025,7 @@ function addCompanyForm(id=''){
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="control-label">Discount</label>       
-            
-                        <input type="number" placeholder="eg:5%" class="form-control" name="organisationDiscount">
+                        <input type="number" placeholder="eg:5%" class="form-control" name="organisationDiscount" value="${organisationDiscount}">
                     </div>
                 </div>
             
@@ -4886,7 +5033,7 @@ function addCompanyForm(id=''){
                     <div class="form-group">
                         <label class="control-label">Notes</label>                     
                                         
-                        <input type="text" placeholder="note" class="form-control" name="organisationNote">
+                        <input type="text" placeholder="note" class="form-control" name="organisationNote" value="${organisationNote}">
                                                     
             
                     
@@ -4904,7 +5051,7 @@ function addCompanyForm(id=''){
             </form>
         `;
 
-        showModalBox(title, 'Save', html, 'addTravelAgentFormSubmit', 'modal-xl');
+        showModalBox(title, 'Save', html, 'submitOrganisation', 'modal-xl');
         var myModal = new bootstrap.Modal(document.getElementById('popUpModal'));
         myModal.show();
     })
@@ -5318,39 +5465,46 @@ function activeProperty(hid){
 }
 
 function pinChangeToFetch(e){
-    var parentDiv = e.target.closest('.row');
-    var blockDiv = parentDiv.querySelector('.block');
-    var districtDiv = parentDiv.querySelector('.district');
-    var stateDiv = parentDiv.querySelector('.state');
+    e.preventDefault();
+    // var parentDiv = e.target.closest('.row');
+    // var blockDiv = parentDiv.querySelector('.block');
+    // var districtDiv = parentDiv.querySelector('.district');
+    // var stateDiv = parentDiv.querySelector('.state');
     
-    var value = e.target.value;
-    var numericInput = /^[0-9]+$/;
+    // var value = e.target.value;
+    // var numericInput = /^[0-9]+$/;
 
-    if (!numericInput.test(value)) {
-        console.log('true');
-        sweetAlert('Pin code should contain only digits.','error')
-        e.target.value = ''; 
-    }else if(value.length > 6){
-        sweetAlert('Pin code should be exactly 6 characters.','error')
-    } else {
-        if (value.length === 6) {
-            var data = `request_type=pinChangeToFetch&pinCode=${value}`;
-            blockDiv.value = 'Loading...';
-            districtDiv.value =  'Loading...';
-            stateDiv.value = 'Loading...';
+    // if (!numericInput.test(value)) {
+    //     console.log('true');
+    //     sweetAlert('Pin code should contain only digits.','error')
+    //     e.target.value = ''; 
+    //     blockDiv.value ='';
+    //     districtDiv.value ='';
+    //     stateDiv.value ='';
+    // }else if(value.length > 6){
+    //     sweetAlert('Pin code should be exactly 6 characters.','error');
+    //     blockDiv.value ='';
+    //     districtDiv.value ='';
+    //     stateDiv.value ='';
+    // } else {
+    //     if (value.length === 6) {
+    //         var data = `request_type=pinChangeToFetch&pinCode=${value}`;
+    //         blockDiv.value = 'Loading...';
+    //         districtDiv.value =  'Loading...';
+    //         stateDiv.value = 'Loading...';
 
-            ajax_request(data).done(function(request){
-                var response = JSON.parse(request);
-                var block = response.block;
-                var district = response.district;
-                var state = response.state;
+    //         ajax_request(data).done(function(request){
+    //             var response = JSON.parse(request);
+    //             var block = response.block;
+    //             var district = response.district;
+    //             var state = response.state;
 
-                blockDiv.value =block;
-                districtDiv.value =district;
-                stateDiv.value =state;
-            })
-        }
-    }
+    //             blockDiv.value =block;
+    //             districtDiv.value =district;
+    //             stateDiv.value =state;
+    //         })
+    //     }
+    // }
 
 
 }
@@ -5367,3 +5521,99 @@ function calculateTotal() {
         $(this).find(".totalPriceWithGst").val(totalPriceWithGst.toFixed(2));
     });
 }
+
+
+function validateNumberField(inputField,num=10) {
+    var mobileNumber = inputField.value.trim();
+    var error = '';
+    var counterDiv = inputField.parentElement.parentElement.querySelector('.charCount');
+    var errorDiv = inputField.parentElement.parentElement.querySelector('.error');
+    counterDiv.textContent = mobileNumber.length;
+
+    if (mobileNumber === '') {
+        error = 'Mobile number is required.';
+    } else {
+        if (!/^\d+$/.test(mobileNumber)) {
+            error = 'Only numeric input is allowed.';
+        } else {
+            if (mobileNumber.length > num) {
+                error = `Mobile number should be exactly ${num} digits.`;
+            }
+        }
+    }
+    errorDiv.textContent = error;
+}
+
+
+function checkNumber(inputField,num=10) {
+    var mobileNumber = inputField.value.trim();
+    var error = '';
+    var counterDiv = inputField.parentElement.parentElement.querySelector('.charCount');
+    var errorDiv = inputField.parentElement.parentElement.querySelector('.error');
+    counterDiv.textContent = mobileNumber.length;
+
+    if (mobileNumber === '') {
+        error = 'Mobile number is required.';
+    } else {
+        if (!/^\d+$/.test(mobileNumber)) {
+            error = 'Only numeric input is allowed.';
+        } else {
+            if (mobileNumber.length !== num) {
+                error = `Mobile number should be exactly ${num} digits.`;
+            }
+        }
+    }
+    errorDiv.textContent = error;
+}
+
+
+function userAccessChange(userId,pageId,element){
+    var value = element.value;
+    var data = `request_type=userAccessChange&userId=${userId}&pageId=${pageId}&role=${value}`;
+
+    ajax_request(data).done(function(request){
+        var response = JSON.parse(request);
+        
+        if(response){
+            sweetAlert('Successfully Update');
+        }else{
+            sweetAlert('Something went wrong!', 'error');
+        }
+    })
+}
+
+function getInputNameCheck(type,name,targetId,returnTargetId=''){
+    
+    if(name.length > 3){
+        var data = `request_type=getInputNameCheck&name=${name}&type=${type}`;
+        ajax_request(data).done(function(request) {
+            var response = JSON.parse(request);
+            let listHtml = '';
+            
+            if(response.length > 0){
+                $.each(response, (key,val)=>{
+                    const agentName = val.agentName;
+                    const onClickAction = (returnTargetId == '') ? '' : `onclick="setValue('${returnTargetId}','${agentName}', '${targetId}')"`;
+                    listHtml += `<li ${onClickAction} >${agentName}</li>`;
+                });
+                $(`#${targetId}`).addClass('show');
+            }else{
+                $(`#${targetId}`).removeClass('show');
+            }
+            
+            $(`#${targetId}`).html(listHtml);
+            
+        })
+    }else{
+        $(`#${targetId}`).removeClass('show');
+    }
+}
+
+function setValue(targetId, setValue,actionId=''){
+    $(`#${targetId}`).val(`${setValue}`);
+    if(actionId != ''){
+        $(`#${actionId}`).removeClass('show');
+    }
+}
+
+

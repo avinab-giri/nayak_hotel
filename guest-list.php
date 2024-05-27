@@ -61,16 +61,50 @@ if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != '') {
 
                     <div class="card" id="guestDatabaseContent">
                         <div class="card-head">
-                            <div class="dFlex jcsb aic">
-                                <div class="left dFlex" style="width:50%">
-                                    <h4 class="mr10">Guest Database</h4>
+                            <div class="table_nav">
+                                <div class="dFlex">
+                                    <div class="leftSide">
+                                        <ul>
+                                            <li class="dib">
+                                                <label for="filterWithDate">Date</label>
+                                                <input class="customInput" type="date" id="filterWithDate">
+                                            </li>
+                                            <li class="dib">
+                                                <label for="filterWithDis">State</label>
+                                                <select class="customInput" name="filterWithDis" id="filterWithDis">
+                                                    <option value="">---</option>
+                                                    <?php
+                                                    foreach (getStatesOfIndia() as $item) {
+                                                        echo "<option value='$item'>$item</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </li>
+                                            <li class="dib">
+                                                <label for="filterWithSearch">Search</label>
+                                                <input class="customInput" type="text" placeholder="Enter name, email or phone" id="filterWithSearch">
+                                            </li>
 
+                                            <li class="dib">
+                                                <label for="filterWithBirthday">Birthday</label>
+                                                <input class="customInput" type="text" id="filterWithBirthday">
+                                            </li>
+                                            <li class="dib">
+                                                <label for="filterWithAnniversary">Anniversary</label>
+                                                <input class="customInput" type="text" id="filterWithAnniversary">
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="rightSide">
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body">
+
                             <div id="guestListTableContent" class="table table-responsive">
-                                
+                                <?= loadTableSkeleton() ?>
                             </div>
                             <div class="s25"></div>
                             <ul id="pagination" class="pagination pagination-sm pagination-primary"></ul>
@@ -267,6 +301,18 @@ if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != '') {
 
             loadGuest();
 
+            $('#filterWithBirthday').datepicker({
+                autoclose: true,
+                format: 'dd-mm',
+                todayHighlight: true,
+            });
+
+            $('#filterWithAnniversary').datepicker({
+                autoclose: true,
+                format: 'dd-mm',
+                todayHighlight: true,
+            });
+
 
             $('#addGuestDataBtn').click(function() {
                 loadAddGuestReservationForm('', '#addGestOnReservation .content', '', '', '', '', '', '',
@@ -300,6 +346,16 @@ if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != '') {
                 loadGuest('', search);
             });
 
+            $(document).on('change', '#filterWithBirthday', function() {
+                var birthday = $("#filterWithBirthday").val();
+                loadGuest('', '', 'birthday',birthday);
+            });
+
+            $(document).on('change', '#filterWithAnniversary', function() {
+                var anniversay = $("#filterWithAnniversary").val();
+                loadGuest('', '', 'anniversay',anniversay);
+            });
+
         });
 
         function exportFile() {
@@ -315,9 +371,25 @@ if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != '') {
             });
         }
 
-      $(document).on('click','#exportData',function(){
-        exportFile();
-      });
+        $(document).on('click', '#exportData', function() {
+            exportFile();
+        });
+
+
+        $(document).on('change', '#filterWithDate', function(e) {
+            e.preventDefault();
+            loadGuest();
+        });
+
+        $(document).on('change', '#filterWithDis', function(e) {
+            e.preventDefault();
+            loadGuest();
+        });
+
+        $(document).on('change', '#filterWithSearch', function(e) {
+            e.preventDefault();
+            loadGuest();
+        });
     </script>
 
 </body>

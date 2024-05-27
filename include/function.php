@@ -39,17 +39,22 @@ if (isset($_SESSION['HOTEL_ID'])) {
 }
 
 
-function orginalHotelId($hotelId){    
-    $hotelArray = fetchData('hotel', ['hCode' => "$hotelId"])[0];
-    $pid = $hotelArray['pid'];
-    if($pid != 0){
-        $hotelArginalArray = fetchData('hotel', ['id' => "$pid"])[0];
-        $data =  $hotelArginalArray['hCode'];
-    }else{
-        $data = $hotelId;
+function orginalHotelId($hotelId){   
+    
+    if(isset($_SESSION['HOTEL_ID'])){
+        
+        $hotelArray = fetchData('hotel', ['hCode' => "$hotelId"])[0];
+        $pid = $hotelArray['pid'];
+        if($pid != 0){
+            $hotelArginalArray = fetchData('hotel', ['id' => "$pid"])[0];
+            $data =  $hotelArginalArray['hCode'];
+        }else{
+            $data = $hotelId;
+        }
+    
+        return $data;
     }
-
-    return $data;
+    
     
 }
 
@@ -109,8 +114,7 @@ function websiteLink(){
 }
 
 function websiteNav(){
-    // $logo = FRONT_SITE_IMG."logo/".LOGO('',1);
-    $logo = '';
+    $logo = getHotelImageData('','','','',LOGO('',1))[0]['fullUrl'];
     $deshboardLink = FO_FRONT_SITE.'/dashboard';
     $pmsLink = FO_FRONT_SITE.'/pms';
     $posLink = POS_FRONT_SITE;
@@ -129,8 +133,10 @@ function websiteNav(){
     $paymentLink = FRONT_SITE.'/payment-link';
     $roomViewLink = FRONT_SITE.'/room-view';
     $channelManagerLink = FRONT_SITE.'/channel-manager';
-    $userImg = userImg();
-    $userName = getHotelUserDetail($_SESSION['ADMIN_ID'])[0]['name'];
+    $hotelDetailArray = hotelDetail();
+    
+    $userImg = $hotelDetailArray['fullImgUrl'];
+    $userName = $hotelDetailArray['name'];
 
     $personalSettingLink = FRONT_SITE.'/settings/personal-settings';
     $basicDetailLink = FRONT_SITE.'/settings/basic-details';
@@ -230,6 +236,8 @@ function websiteNav(){
 
     $propertyList = genLinkPropertyList();
 
+    $paymentSvg = getSysActivityStatusData(4)[0]['svg'];
+
     $proListItem = '';
     $proListCon = '';
     foreach($propertyList as $key => $proList){
@@ -273,64 +281,88 @@ function websiteNav(){
                             <li><a class="cashingLink linkBtn" href="'.$cashingLink.'">Cashiering</a></li>
                             <li><a class="guestLink linkBtn" href="'.$guestLink.'">Guest</a></li>                          
                             <li> <a class="reportLink linkBtn" href="'.$reportLink.'">Reports</a></li>
+                            <li> <a class="paymentLink linkBtn" href="'.$paymentLink.'"> <span style="margin-right: 5px;display: inline-block; width: 20px;height: 20px;">'.$paymentSvg.'</span> Payment</a></li>
                         </ul>
                     </div>
 
-                    <ul class="navbar-nav  justify-content-end align-items-center">
+                    <ul class="d-flex justify-content-end align-items-center propertyAreaList">
 
-                        <li id="quickLinkSecrion" class="nav-item dropdown pe-2 d-flex align-items-center">
-                            <a href="javascript:void(0);" class="nav-link text-body p-0 dropdownBtn" id="quickMenuBtn">
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M6,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM16,6c0,1.1 0.9,2 2,2s2,-0.9 2,-2 -0.9,-2 -2,-2 -2,0.9 -2,2zM12,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM18,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM18,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2z"></path></svg>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end me-sm-n4" id="quickMenuBtnContent">
-                                <div class="row">
-
-                                    '.$reservationLinkHtml.'
-
-                                    '.$stayViewLinkHtml.'
-
-                                    '.$inventoryLinkHtml.'
-
-                                    <div class="col-md-6">
-                                        <a href="'.$deshboardLink.'">Dashboard</a>
-                                    </div>
-
-                                    '.$guestDataHtml.'
-
-                                    <div class="col-md-6">
-                                        <a href="'.$paymentLink.'">Payment Link</a>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <a href="'.$cashieringLink.'">Cashiering</a>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <a href="'.$reportLink.'">Instalytics</a>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <a href="'.$roomViewLink.'">Room View</a>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <a href="'.$channelManagerLink.'">Channel Manager</a>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </li>
-
-                        <li id="supportSection" class="nav-item dropdown pe-2 d-flex align-items-center">
-                            <a href="'.$paymentLink.'" class="nav-link text-body p-0 dropdownBtn" id="supportBtn">
-                                <svg class="w28 h28"><use xlink:href="#paymentClrIcon"></use></svg>
-                            </a>
-                        </li>
-
-                        <li class="nav-item dropdown pe-2 d-flex align-items-center">
+                        <li class="d-flex align-items-center mR5" style="position: relative;">
                             '.$proListCon.'                
-                            <ul class="dropdown-menu dropdown-menu-end me-sm-n4" id="userDropdownContent">
+                            <ul class="" id="userDropdownContent">
                                 '.$proListItem.'
+                            </ul>
+                        </li>
+
+                        <li id="userSecrion" class="nav-item dropdown pe-2 d-flex align-items-center">
+                            <a href="javascript:void(0);" class="nav-link text-body p-0 userImg dropdownBtn" id="userDropdownBtn">
+                                <img src="'.$userImg.'">
+                            </a>
+                        
+                            <ul class="dropdown-menu dropdown-menu-end me-sm-n4" id="userDropdownContent">
+                                <li class="mb-2">
+                                    <a class="dropdown-item border-radius-md" href="'.$personalSettingLink.'">
+                                        <div class="d-flex justify-content-between align-items-center py-1 px-1">
+                                            <h6 class="text-sm font-weight-normal mb-1 maxWidth">
+                                                <span class="font-weight-bold">'.$userName.'</span>
+                                            </h6>
+                                            <i class="bi bi-pencil"></i>
+                                        </div>
+                                    </a>
+                                </li>
+                        
+                                <li class="mb-2">
+                                    <a class="dropdown-item border-radius-md" href="'.$basicDetailLink.'">
+                                        <div class="d-flex py-1">
+                                            <div class="my-auto mr-4">
+                                                <svg>
+                                                    <use xlink:href="#hotelSetupSvgIcon"></use>
+                                                </svg>
+                                            </div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="text-sm font-weight-normal mb-1">
+                                                    <span class="font-weight-bold">Hotel Setup</span>
+                                                </h6>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                        
+                                <li class="mb-2">
+                                    <a class="dropdown-item border-radius-md" href="'.$logoutLink.'">
+                                        <div class="d-flex py-1">
+                                            <div class="my-auto mr-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                    viewBox="0 0 500 500" width="30" height="30" preserveAspectRatio="xMidYMid meet"
+                                                    style="width: 100%; height: 100%; transform: translate3d(0px, 0px, 0px); content-visibility: visible;">
+                                                    <defs>
+                                                        <clipPath id="__lottie_element_3751">
+                                                            <rect width="500" height="500" x="0" y="0"></rect>
+                                                        </clipPath>
+                                                    </defs>
+                                                    <g clip-path="url(#__lottie_element_3751)">
+                                                        <g opacity="1" transform="matrix(1,0,0,1,302.0849914550781,250.0030059814453)">
+                                                            <path fill="rgb(18,19,49)" fill-opacity="1"
+                                                                d=" M131.89300537109375,9.930999755859375 C132.05599975585938,9.732999801635742 132.197998046875,9.52400016784668 132.35000610351562,9.319999694824219 C132.5030059814453,9.11400032043457 132.66200256347656,8.913999557495117 132.80499267578125,8.701000213623047 C132.96099853515625,8.468000411987305 133.0970001220703,8.22599983215332 133.23899841308594,7.986999988555908 C133.35800170898438,7.7870001792907715 133.48300170898438,7.5920000076293945 133.59300231933594,7.38700008392334 C133.7209930419922,7.1479997634887695 133.82899475097656,6.9029998779296875 133.94400024414062,6.658999919891357 C134.04800415039062,6.439000129699707 134.15699768066406,6.2230000495910645 134.25100708007812,5.998000144958496 C134.3470001220703,5.764999866485596 134.4250030517578,5.526000022888184 134.50999450683594,5.289000034332275 C134.59800720214844,5.043000221252441 134.6929931640625,4.801000118255615 134.7689971923828,4.550000190734863 C134.83999633789062,4.316999912261963 134.89100646972656,4.080999851226807 134.9499969482422,3.8450000286102295 C135.01600646972656,3.5850000381469727 135.08900451660156,3.3289999961853027 135.14100646972656,3.063999891281128 C135.1929931640625,2.7990000247955322 135.2239990234375,2.5320000648498535 135.26300048828125,2.265000104904175 C135.29800415039062,2.0260000228881836 135.3419952392578,1.7899999618530273 135.36599731445312,1.5479999780654907 C135.41099548339844,1.093000054359436 135.43099975585938,0.6370000243186951 135.43600463867188,0.18000000715255737 C135.43699645996094,0.12200000137090683 135.44400024414062,0.06599999964237213 135.44400024414062,0.00800000037997961 C135.44400024414062,-0.05000000074505806 135.43699645996094,-0.10599999874830246 135.43600463867188,-0.164000004529953 C135.43099975585938,-0.6209999918937683 135.41200256347656,-1.0770000219345093 135.36700439453125,-1.531999945640564 C135.3419952392578,-1.7829999923706055 135.2949981689453,-2.0269999504089355 135.25900268554688,-2.2750000953674316 C135.2209930419922,-2.5320000648498535 135.1929931640625,-2.7909998893737793 135.14199829101562,-3.0460000038146973 C135.08799743652344,-3.319999933242798 135.01199340820312,-3.5859999656677246 134.94400024414062,-3.8550000190734863 C134.88699340820312,-4.080999851226807 134.83799743652344,-4.308000087738037 134.77000427246094,-4.5320000648498535 C134.6909942626953,-4.793000221252441 134.59300231933594,-5.046000003814697 134.50100708007812,-5.301000118255615 C134.4199981689453,-5.5269999504089355 134.34500122070312,-5.755000114440918 134.2530059814453,-5.978000164031982 C134.15499877929688,-6.215000152587891 134.0399932861328,-6.442999839782715 133.92999267578125,-6.673999786376953 C133.8209991455078,-6.906000137329102 133.71800231933594,-7.139999866485596 133.5959930419922,-7.367000102996826 C133.47799682617188,-7.5879998207092285 133.34300231933594,-7.797999858856201 133.21499633789062,-8.01200008392334 C133.08099365234375,-8.236000061035156 132.9550018310547,-8.461999893188477 132.8090057373047,-8.680000305175781 C132.6510009765625,-8.916000366210938 132.47500610351562,-9.138999938964844 132.30499267578125,-9.366000175476074 C132.16900634765625,-9.54800033569336 132.04299926757812,-9.734000205993652 131.8979949951172,-9.91100025177002 C131.57000732421875,-10.3100004196167 131.22500610351562,-10.694000244140625 130.86000061035156,-11.059000015258789 C130.86000061035156,-11.059000015258789 42.316001892089844,-99.60800170898438 42.316001892089844,-99.60800170898438 C36.20500183105469,-105.72000122070312 26.29400062561035,-105.72100067138672 20.184999465942383,-99.60900115966797 C14.072999954223633,-93.49800109863281 14.072999954223633,-83.58799743652344 20.18400001525879,-77.47599792480469 C20.18400001525879,-77.47599792480469 82.01300048828125,-15.644000053405762 82.01300048828125,-15.644000053405762 C82.01300048828125,-15.644000053405762 -119.79399871826172,-15.649999618530273 -119.79399871826172,-15.649999618530273 C-128.43699645996094,-15.649999618530273 -135.4429931640625,-8.642999649047852 -135.44400024414062,0 C-135.44400024414062,8.642999649047852 -128.43800354003906,15.649999618530273 -119.79399871826172,15.649999618530273 C-119.79399871826172,15.649999618530273 82.01300048828125,15.656000137329102 82.01300048828125,15.656000137329102 C82.01300048828125,15.656000137329102 20.19300079345703,77.47599792480469 20.19300079345703,77.47599792480469 C14.081999778747559,83.58799743652344 14.081999778747559,93.49700164794922 20.19300079345703,99.60900115966797 C23.249000549316406,102.66500091552734 27.2549991607666,104.19200134277344 31.260000228881836,104.19200134277344 C35.26499938964844,104.19200134277344 39.27000045776367,102.66400146484375 42.32600021362305,99.60800170898438 C42.32600021362305,99.60800170898438 130.86000061035156,11.074000358581543 130.86000061035156,11.074000358581543 C130.91200256347656,11.022000312805176 130.95599365234375,10.96399974822998 131.0070037841797,10.91100025177002 C131.31399536132812,10.595000267028809 131.61300659179688,10.272000312805176 131.89300537109375,9.930999755859375z">
+                                                            </path>
+                                                        </g>
+                                                        <g opacity="1" transform="matrix(1,0,0,1,177.08099365234375,250)">
+                                                            <path fill="rgb(18,19,49)" fill-opacity="1"
+                                                                d=" M98.95800018310547,156.22300720214844 C98.95800018310547,156.22300720214844 -57.29100036621094,156.22300720214844 -57.29100036621094,156.22300720214844 C-71.63700103759766,156.22300720214844 -83.30799865722656,144.552001953125 -83.30799865722656,130.20599365234375 C-83.30799865722656,130.20599365234375 -83.30799865722656,-130.20700073242188 -83.30799865722656,-130.20700073242188 C-83.30799865722656,-144.55299377441406 -71.63700103759766,-156.22300720214844 -57.29100036621094,-156.22300720214844 C-57.29100036621094,-156.22300720214844 98.95800018310547,-156.22300720214844 98.95800018310547,-156.22300720214844 C107.60199737548828,-156.22300720214844 114.60800170898438,-163.22999572753906 114.60800170898438,-171.8730010986328 C114.60800170898438,-180.51600646972656 107.60199737548828,-187.5229949951172 98.95800018310547,-187.5229949951172 C98.95800018310547,-187.5229949951172 -57.29100036621094,-187.5229949951172 -57.29100036621094,-187.5229949951172 C-88.8949966430664,-187.5229949951172 -114.60800170898438,-161.81100463867188 -114.60800170898438,-130.20700073242188 C-114.60800170898438,-130.20700073242188 -114.60800170898438,130.20599365234375 -114.60800170898438,130.20599365234375 C-114.60800170898438,161.80999755859375 -88.8949966430664,187.5229949951172 -57.29100036621094,187.5229949951172 C-57.29100036621094,187.5229949951172 98.95800018310547,187.5229949951172 98.95800018310547,187.5229949951172 C107.60199737548828,187.5229949951172 114.60800170898438,180.51600646972656 114.60800170898438,171.8730010986328 C114.60800170898438,163.22999572753906 107.60199737548828,156.22300720214844 98.95800018310547,156.22300720214844z">
+                                                            </path>
+                                                        </g>
+                                                    </g>
+                                                </svg>
+                                            </div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="text-sm font-weight-normal mb-1">
+                                                    <span class="font-weight-bold">Logout</span>
+                                                </h6>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                        
                             </ul>
                         </li>
                         
@@ -498,11 +530,6 @@ function websiteScript(){
 function cashNavHtml($active=''){
     $array = [
         [
-            'slug'=>'wi',
-            'link'=> FRONT_SITE.'/cashiering',
-            'name'=>'Walk In',
-        ],
-        [
             'slug'=>'travel-agent',
             'link'=> FRONT_SITE.'/cashiering/travel-agent',
             'name'=>'Travel Agent',
@@ -511,12 +538,7 @@ function cashNavHtml($active=''){
             'slug'=>'company',
             'link'=> FRONT_SITE.'/cashiering/company',
             'name'=>'Company',
-        ],
-        [
-            'slug'=>'pos',
-            'link'=> FRONT_SITE.'/cashiering/pos',
-            'name'=>'POS',
-        ],
+        ]
     ];
     
     $body = '';
@@ -546,8 +568,8 @@ function reservationLeftNav($active){
     $links = [
         ['id' => 'New', 'text' => 'New', 'link' => FRONT_SITE.'/walk-in'],
         ['id' => 'all', 'text' => 'All Reservations', 'link' => FRONT_SITE.'/reservations'],
-        ['id' => 'noShow', 'text' => 'No Show', 'link' => 'javascript:void(0)'],
-        ['id' => 'void', 'text' => 'Void', 'link' => 'javascript:void(0)']
+        ['id' => 'noShow', 'text' => 'No Show', 'link' => FRONT_SITE.'/no-show'],
+        ['id' => 'void', 'text' => 'Void', 'link' => FRONT_SITE.'/void']
     ];
 
     $leftNav = '<div class="mainNavContent">
@@ -558,9 +580,7 @@ function reservationLeftNav($active){
         $leftNav .= '<li><a id="'.$link['id'].'" href="'.$link['link'].'" class="reservationTab py-3 '.$isActive.'">'.$link['text'].'</a></li>';
     }
 
-    $leftNav .= '</ul>
-        <span class="nav-indicator"></span>
-    </div>';
+    $leftNav .= '</ul></div>';
 
     return $leftNav;
 }
@@ -582,14 +602,23 @@ function reservationRightNav(){
     return $rightNav;
 }
 
-function clrPreviewHtml(){
+function clrPreviewHtml($type=''){
 
     $clrHtml = '';
-    foreach (checkGuestCheckInStatus() as $checkInStatusList) {
-        $name = $checkInStatusList['name'];
-        $clr = $checkInStatusList['bg'];
-        $clrHtml .= "<li><span>$name</span> <span style='background:$clr' class='clrRev'></span></li>";
+    if($type == 'resType'){
+        foreach (fetchData('sys_reservationtype',array(),'id','ASC') as $checkInStatusList) {
+            $name = $checkInStatusList['name'];
+            $clr = $checkInStatusList['bg'];
+            $clrHtml .= "<li><span>$name</span> <span style='background:$clr' class='clrRev'></span></li>";
+        }
+    }else{
+        foreach (checkGuestCheckInStatus() as $checkInStatusList) {
+            $name = $checkInStatusList['name'];
+            $clr = $checkInStatusList['bg'];
+            $clrHtml .= "<li><span>$name</span> <span style='background:$clr' class='clrRev'></span></li>";
+        }
     }
+    
 
     $html = "<div class='reverenceClr dFlex jce'>
                 <ul>
@@ -637,7 +666,7 @@ function deleteCookie($key, $val){
 
 function QueryGen($db, $array = array(), $order = ''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from $db where id != ''";
 
     foreach (array_filter($array) as $key => $val) {
@@ -743,8 +772,7 @@ function genLinkPropertyList(){
     return $data;
 }
 
-function size_as_kb($fileSize)
-{
+function size_as_kb($fileSize){
     if ($fileSize < 1024) {
         return "{$fileSize} bytes";
     } elseif ($fileSize < 1048576) {
@@ -756,12 +784,11 @@ function size_as_kb($fileSize)
     }
 }
 
-function hotelDetail($id = "", $email = '', $phone = '', $withOutUser = '', $hotelCode = '')
-{
+function hotelDetail($id = "", $email = '', $phone = '', $withOutUser = '', $hotelCode = ''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     ($hotelId == '') ? $hotelIdSql = 'hotel.hCode' : $hotelIdSql = "'$hotelId'";
-    $data = '';
+    $data = array();
     $query = "select hotelprofile.*,hotel.*,hotel.id as hotelMainId, propertylocation.* , propertylocation.id as propertylocationId, propertysetting.* , propertysetting.id as propertysettingId from hotelprofile,hotel,propertylocation,propertysetting where hotel.hCode = hotelprofile.hotelId and hotel.hCode=propertylocation.hotelId and hotel.hCode=propertysetting.hotelId and  hotelprofile.hotelId = $hotelIdSql ";
     if ($id != '') {
         $query .= " and hotel.id = '$id'";
@@ -775,6 +802,7 @@ function hotelDetail($id = "", $email = '', $phone = '', $withOutUser = '', $hot
     if ($hotelCode != '') {
         $query .= " and hotel.hCode = '$hotelCode'";
     }
+    
     $sql = mysqli_query($conDB, $query);
 
     if ($email != '' || $phone != '') {
@@ -784,14 +812,24 @@ function hotelDetail($id = "", $email = '', $phone = '', $withOutUser = '', $hot
         if ($row === null) {
         } else {
             if ($id == '' && $withOutUser == '') {
-                $otherDetail = (count(getHotelUserDetail()) > 0) ? getHotelUserDetail()[0] : array();
+                $otherDetail = getHotelUserDetail($_SESSION['ADMIN_ID'])[0];
+                $userDetailArry = array();
+                if(isset($otherDetail)){
+                    $userDetailArry = [
+                        'displayName'=>$otherDetail['displayName'],
+                        'name'=>$otherDetail['name'],
+                        'email'=>$otherDetail['email'],
+                        'phone'=>$otherDetail['phone'],
+                        'fullImgUrl'=>$otherDetail['fullImgUrl'],
+                    ];
+                }
                 $logos = [
                     'fullLightlogoUrl' => getHotelImgDataById($row['lightlogo'])['fullUrl'],
                     'fullDarklogoUrl' => getHotelImgDataById($row['darklogo'])['fullUrl'],
                     'fullFaviconUrl' => getHotelImgDataById($row['favicon'])['fullUrl'],
                     'fullKotLogoUrl' => getHotelImgDataById($row['kotLogo'])['fullUrl'],
                 ];
-                $data = array_merge($row, $otherDetail, $logos);
+                $data = array_merge($row, $logos, $userDetailArry);
             } else {
                 $data = $row;
             }
@@ -950,7 +988,7 @@ function getStysReportType($id = '', $satus = '')
 }
 
 function getRoomData($id = ''){
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $array = array();
 
     if ($id != '') {
@@ -963,7 +1001,7 @@ function getRoomData($id = ''){
 }
 
 function getLostAndFoundData($id = ''){
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     global $conDB;
     $sql = "select * from lost_found where hotelId = '$hotelId'";
 
@@ -1049,7 +1087,7 @@ function getRoomDetailData($id = '', $rid = '')
 
 function getBookingDetail($id = '', $bid = '', $rid = '', $rnum = '', $checkIn = '', $checkOut = '', $checkinStatus = '', $totalPrice = '', $addBy = '', $checkinBy = '', $checkOutBy = '', $addOn = '', $folio=''){
    
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     global $conDB;
 
     $sql = "select * from bookingdetail where hotelId = '$hotelId'";
@@ -1117,7 +1155,7 @@ function getBookingDetail($id = '', $bid = '', $rid = '', $rnum = '', $checkIn =
 
 function getPaymentLink($id = '', $paymentId = '', $transactionId = '', $paymentStatus = '', $status = '1', $deletRec = '1', $addOn = '')
 {
-    $array = array();
+    $array = ['hotelId' => HOTEL_ID];
 
     if ($id != '') {
         $array[] = ['id' => $id];
@@ -1322,7 +1360,7 @@ function SuccessMsg()
 
 function setActivityFeed($hId = '', $type = '', $bid = '', $bdid = '', $oldData = '', $changedata = '', $ipaddres = '', $result = '', $reason = '', $addBy = ''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     global $time;
     $hotelId = ($hId == '') ? $hotelId : $hId;
     $bid = ($bid == '') ? 0 : $bid;
@@ -1411,27 +1449,6 @@ function checkLoginAuth(){
         redirect($url);
         die();
     }
-
-    if(isset($_SESSION['ADMIN_ID'])){
-        $userId = $_SESSION['ADMIN_ID'];
-        $userRole = getHotelUserDetail($userId)[0]['role'];
-        $pathArry = array_filter(explode("/",$_SERVER['REQUEST_URI']));
-        $lastVal = end($pathArry);
-        if($userRole != 1){
-            if(isset(getSysPageData('',$lastVal)[0])){
-                $pageId = getSysPageData('',$lastVal)[0]['id'];
-                if(count(getUserAccess($userId,$pageId)) > 0){
-                    
-                }else{
-                    echo genNotFoundScreen('Page not found.');
-                    die();
-                }
-            }
-        }else{
-            
-        }
-        
-    }
     
 }
 
@@ -1444,7 +1461,7 @@ function convertArryToJSON($arry)
 
 function reservationReturnQuery($tab, $currentDate = '', $search = '', $paymentStatus = '', $roomNum = ''){
 
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $tab = ($tab == '') ? 'all' : $tab;
     $roomNumQuery = ($roomNum != '') ? "and bookingdetail.room_number = '$roomNum'" : '';
 
@@ -1542,7 +1559,7 @@ function checkPageBySupperAdmin($pg = '', $title = '', $ttext = '')
 
 function checkProductExistOrNot($proId, $mainProId = '', $onlyArry = '')
 {
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $data = array();
 
     return $data;
@@ -1645,7 +1662,7 @@ function getImgPath($type, $name = '', $server = '', $parentPath = '',$source=''
 function imgUploadWithData($img = '', $accessValue='', $oldImg = '', $compress = '', $newName = '', $value = '', $private = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $data = array();
     global $HotelSlug;
     $hotelSlug = $HotelSlug;
@@ -1743,7 +1760,7 @@ function setImage($item, $accessKey = '')
 
 function generateRecipt(){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select MAX(reciptNo) as recipt from booking where hotelId = '$hotelId'";
     $query = mysqli_query($conDB, $sql);
 
@@ -1756,7 +1773,7 @@ function generateRecipt(){
 
 function generateBillNo(){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select MAX(billingNo) as maxBillingNo from payment_timeline where hotelId = '$hotelId'";
     $query = mysqli_query($conDB, $sql);
 
@@ -1852,7 +1869,7 @@ function getNumberFormat($num, $letter = '')
 function setRoomNumerByData($action, $roomNum, $roomId, $id = "")
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $existRoomNum = count(getRoomNumber($roomNum, '', '', '', '', '', '', '', '', '', '', 'yes'));
     $existRoomData = getRoomNumber($roomNum, '', '', '', '', '', '', '', '', '', '', 'yes')[0];
 
@@ -1890,7 +1907,7 @@ function setRoomNumerByData($action, $roomNum, $roomId, $id = "")
 function getRoomNumber($rNo = '', $status = '', $rid = '', $checkIn = '', $checkOut = '', $ridRes = '', $rnid = '', $bdid = '', $searchData = '', $kotSearch = '', $onlyRoom = '', $delete = '', $date = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     if ($status != '') {
         $sql = "select * from roomnumber where status = '1' and hotelId = '$hotelId'";
@@ -1980,7 +1997,7 @@ function getRoomNumber($rNo = '', $status = '', $rid = '', $checkIn = '', $check
 function getHousekeepingData($id = '', $roomNum = '', $addBy = '', $addOn = '', $delete = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * from housekeeping where hotelId = '$hotelId'";
 
@@ -2022,7 +2039,7 @@ function getHousekeepingData($id = '', $roomNum = '', $addBy = '', $addOn = '', 
 function getRoomNumberWithFilter($rid = '', $rtab = '', $date = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from roomnumber where hotelId = '$hotelId'";
 
     if ($rid != '') {
@@ -2069,7 +2086,7 @@ function getRoomNumberWithFilter($rid = '', $rtab = '', $date = '')
 function getRoomList($status = '', $rid = '', $header = '', $exceptrid = '', $slug = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from room where hotelId = '$hotelId' and deleteRec = '1'";
 
     if ($status != '') {
@@ -2107,7 +2124,7 @@ function getRoomList($status = '', $rid = '', $header = '', $exceptrid = '', $sl
 
 function getBookingFolio($id='',$gName='',$bid='',$bdId='',$posId='',$addOn='',$groupBy='',$filterByDate='',$getDate='',$particulars='',$type=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $currentDate = date('Y-m-d', time());
     $sql = "select * from booking_folio where hotelId = '$hotelId' and deleteRec = '1'";
 
@@ -2228,7 +2245,7 @@ function filterBookingFolio($bid='',$bdId='',$type=''){
 }
 
 function setBookingFolio($id = '', $gName = '', $bid = '', $bdId = '', $posId = '', $recived = '', $charged = '', $balance = '', $gst = '', $particulars = '', $ref = '', $remark = '', $discount = '',$chargeDate='', $chargeType = ''){
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     global $conDB;
     global $time;
     $chargeDate = ($chargeDate == '') ? date('Y-m-d', strtotime($time)) : $chargeDate;
@@ -2366,7 +2383,7 @@ function getGuestIdProofData($status = '', $gip = '')
 function getSysPropertyRatePlaneList($id = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from sys_rate_plan where id != ''";
 
     if ($id != '') {
@@ -2387,7 +2404,7 @@ function getSysPropertyRatePlaneList($id = '')
 function getPropertyRatePlaneList($id = '', $hid = '', $str = '', $systmData = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from propertyrateplan where id != ''";
 
     if ($id != '') {
@@ -2419,7 +2436,7 @@ function getPropertyRatePlaneList($id = '', $hid = '', $str = '', $systmData = '
 
 function getRatePlanTitleData($id = '')
 {
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     foreach (getSysPropertyRatePlaneList($id) as $item) {
         $str = $item['srtcode'];
         if (count(getPropertyRatePlaneList('', $hotelId, $str)) > 0) {
@@ -2435,7 +2452,7 @@ function getRatePlanTitleData($id = '')
 function getCouponList($status = '', $hid = '', $cid = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     if ($status != '') {
         $sql = "select * from couponcode where status = '1'";
     } else {
@@ -2484,7 +2501,7 @@ function getExpenseTypeData($eid = '')
 function getExpenseData($eid = '', $monthly = '', $date = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from expense where hotelId = '$hotelId'";
 
     if ($eid != '') {
@@ -2541,7 +2558,7 @@ function getExpensePrice($date = '', $monthly = '')
 function getBookingDetailTableData($id = '', $bid = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from bookingdetail where id != ''";
 
     if ($id != '') {
@@ -2674,7 +2691,7 @@ function getBookingData($bid = '', $rNum = '', $checkIn = '', $id = '', $onlyChe
     if (mysqli_num_rows($sql) > 0) {
         while ($row = mysqli_fetch_assoc($sql)) {
             $couponCode = $row['couponCode'];
-            $roomDetailArry = getRoomDetailData($row['roomDId'])[0];
+            $roomDetailArry = getSysPropertyRatePlaneList($row['roomDId'])[0];
             $addByArray = getAddByData($row['addBy'],'yes');
             $coompanyArray = isset(getOrganisationData($row['organisation'], 'yes')[0]) ? getOrganisationData($row['organisation'],'yes')[0] : array();
             $totalAdult = 0;
@@ -2716,8 +2733,8 @@ function getBookingData($bid = '', $rNum = '', $checkIn = '', $id = '', $onlyChe
                 'totalRoomPrice' => $totalRoomPrice,
                 'totalCouponPrice' => $totalCouponPrice,
                 'roomType' => (isset(getRoomData($row['roomId'])[0])) ? getRoomData($row['roomId'])[0]['header'] : '',
-                'roomPlanSrt' => (isset($roomDetailArry)) ? getSysPropertyRatePlaneList($roomDetailArry['title'])[0]['srtcode'] : '',
-                'roomPlanFull' => (isset($roomDetailArry)) ? getSysPropertyRatePlaneList($roomDetailArry['title'])[0]['fullForm'] : '',
+                'roomPlanSrt' => (isset($roomDetailArry)) ? $roomDetailArry['srtcode'] : '',
+                'roomPlanFull' => (isset($roomDetailArry)) ? $roomDetailArry['fullForm'] : '',
             ];
             $data[] = array_merge($row, $advance);
         }
@@ -2728,7 +2745,7 @@ function getBookingData($bid = '', $rNum = '', $checkIn = '', $id = '', $onlyChe
 function getAllBooingData($page = '', $paymentStatus = '', $date = '', $type = '', $search = '', $folio='',$travelAgent='',$company='',$addOn='',$billingMode='')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from booking where hotelId = '$hotelId'";
 
     if ($paymentStatus != '') {
@@ -2789,7 +2806,7 @@ function getAllBooingData($page = '', $paymentStatus = '', $date = '', $type = '
 function getGuestDetail($bId = '', $sno = '', $gid = '', $bdid = '', $order = 'desc', $date = '', $delete = '', $kotId = '', $type = '', $accessId = '', $searchName = '', $searchCity = ''){
 
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $data =  array();
     $query = "select * from guest where hotelId = '$hotelId'";
 
@@ -2858,7 +2875,7 @@ function getGuestDetail($bId = '', $sno = '', $gid = '', $bdid = '', $order = 'd
 function totalGuestCount()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from guest where hotelId = '$hotelId'";
     $query = mysqli_query($conDB, $sql);
     if (mysqli_num_rows($query) > 0) {
@@ -2889,6 +2906,7 @@ function getBookingDetailById($bid = '', $roomNo = '', $bdid = '', $date = ''){
 
     if (isset(getBookingData($bid)[0])) {
         $bookingArray = getBookingData($bid)[0];
+        
         $checkIn = $bookingArray['checkIn'];
         $checkOut = $bookingArray['checkOut'];
         $bookinId = $bookingArray['bookinId'];
@@ -2939,6 +2957,7 @@ function getBookingDetailById($bid = '', $roomNo = '', $bdid = '', $date = ''){
 
     if (mysqli_num_rows($bookingSql) > 0) {
         while ($row = mysqli_fetch_assoc($bookingSql)) {
+            
             $subTotalPrice = 0;
             $checkInDate = $row['checkIn'];
             $checkOutDate = $row['checkOut'];
@@ -2957,14 +2976,15 @@ function getBookingDetailById($bid = '', $roomNo = '', $bdid = '', $date = ''){
                 $kotTax += $kotArryVal['tax'];
             }
             $roomId = $row['roomId'];
+            $exBD = $row['exBd'];
             $roomDId = $row['roomDId'];
             $roomNum[] = $row['room_number'];
 
-            $roomPrice = getRoomPriceById($roomId, $roomDId, $adult, $checkIn);
-            $adultPrice = getAdultPriceByNoAdult($adult, $roomId, $roomDId, $checkIn);
-            $childPrice = getChildPriceByNoChild($child, $roomId, $roomDId, $checkIn);
-            $couponPrice = couponActualPrice($couponCode, $roomPrice);
-            $totalCouponPrice = $totalCouponPrice + $couponPrice;
+            $roomPrice = $row['roomPrice'];
+            $adultPrice = 0;
+            $childPrice = 0;
+            $couponPrice = 0;
+            $totalCouponPrice = 0;
             $roomWithCoupon = $roomPrice - $couponPrice;
             $totalRoomPrice += $roomPrice;
             $totalDiscount += $couponPrice;
@@ -2977,12 +2997,14 @@ function getBookingDetailById($bid = '', $roomNo = '', $bdid = '', $date = ''){
 
             $sumSubTotalPrice += $subTotalPrice;
 
-            $gstPer = 12;
+            $gstPer = $row['gstPer'];
             $gst = getPercentageValu($roomPrice, $gstPer);
             $totalGst += $gst * $night;
-            $rateTypeS = getRatePlanTitleData('', $roomDId)[0]['srtcode'];
-            $rateTypeF = getRatePlanTitleData('', $roomDId)[0]['fullForm'];
-            $totalPrice = $subTotalPrice + $gst;
+
+            $rateTypeS = getSysPropertyRatePlaneList($roomDId)[0]['srtcode'];
+            $rateTypeF = getSysPropertyRatePlaneList($roomDId)[0]['fullForm'];
+
+            $totalPrice = $sumSubTotalPrice + $totalGst;
 
             $roomDetailArry[] = [
                 'rdid' => $roomDId,
@@ -3005,6 +3027,7 @@ function getBookingDetailById($bid = '', $roomNo = '', $bdid = '', $date = ''){
                 'bookngDId' => $bookngDId,
                 'bookingStatus' => $bookingStatus,
                 'bStatusBy' => $bStatusBy,
+                'exBD' => $exBD,
             ];
         }
     }
@@ -3076,7 +3099,7 @@ function getBookingDetailById($bid = '', $roomNo = '', $bdid = '', $date = ''){
 function getGuestReviewById($gid = '', $pid = '', $firstReview = '', $date = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $data = array();
     $pidData = array();
     $sql = "select * from guest_review where hotelId = '$hotelId'";
@@ -3269,7 +3292,7 @@ function getSalesType($sid = '')
 function getCashiering($tpe = '', $bs = '', $cid = '', $status = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from cashiering where hotelId = '$hotelId'";
     if ($status != '') {
         $sql .= " and status = '1'";
@@ -3298,7 +3321,7 @@ function getCashiering($tpe = '', $bs = '', $cid = '', $status = '')
 function getRoomType($rid = '', $status = '', $slug = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     if ($status != '') {
         $sql = "select * from room where deleteRec = '1' and hotelId = '$hotelId'";
@@ -3570,17 +3593,17 @@ function getRoomChildCountById($rid)
 
 function getRoomExtraAdultPriceById($rdid, $date = '')
 {
-    global $conDB;
-    $invenSql = mysqli_query($conDB, "select eAdult from inventory where room_detail_id = '$rdid' and add_date = '$date' and eAdult != '0'");
-    if (mysqli_num_rows($invenSql) > 0) {
-        $row = mysqli_fetch_assoc($invenSql);
-        $price = $row['eAdult'];
-    } else {
-        $sql = mysqli_fetch_assoc(mysqli_query($conDB, "select extra_adult from roomratetype where id = '$rdid'"));
-        $price = $sql['extra_adult'];
-    }
+    // global $conDB;
+    // $invenSql = mysqli_query($conDB, "select eAdult from inventory where room_detail_id = '$rdid' and add_date = '$date' and eAdult != '0'");
+    // if (mysqli_num_rows($invenSql) > 0) {
+    //     $row = mysqli_fetch_assoc($invenSql);
+    //     $price = $row['eAdult'];
+    // } else {
+    //     $sql = mysqli_fetch_assoc(mysqli_query($conDB, "select extra_adult from roomratetype where id = '$rdid'"));
+    //     $price = $sql['extra_adult'];
+    // }
 
-    return $price;
+    return 0;
 }
 
 function getAdultPriceByNoAdult($n, $rid, $rdid, $date = '')
@@ -3760,7 +3783,7 @@ function getPercentageValu($amount, $value)
 
 function checkRoomNumberExiist($rId, $checkIn = '', $checkOut = '', $rnum = ''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $checkOut = ($checkOut == '') ? date('Y-m-d', strtotime('+1 day', strtotime($checkIn))) : $checkOut;
 
     $sql = "SELECT  bookingdetail.roomId,bookingdetail.hotelId, bookingdetail.checkIn, bookingdetail.checkOut, bookingdetail.room_number FROM booking, bookingdetail
@@ -3794,7 +3817,7 @@ function countBookingRow($rTab = '', $currentDate = '', $search = '', $paymentSt
         $currentDate = date('Y-m-d');
     }
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = reservationReturnQuery($rTab, $currentDate, $search, $paymentStatus, $roomNum);
 
@@ -3844,9 +3867,10 @@ function roomMoveOptionByRoomId($roomId, $opType, $bdid, $roomNum=''){
 
 // Reservation
 
-function reservationContent($bid, $reciptNo, $gname, $checkIn, $checkOut, $bDate, $nAdult, $nChild, $total, $paid, $preview = '', $rTab = '', $BDId = '', $clickBtn = '', $couponCode = '',$couponPrice='',$couponType='',$couponPer='')
+function reservationContent($bid, $reciptNo, $gname, $checkIn, $checkOut, $bDate, $nAdult, $nChild, $total, $paid, $preview = '', $rTab = '', $BDId = '', $clickBtn = '', $couponCode = '',$couponPrice='',$couponType='',$couponPer='',$resType='')
 {
     // pr($paid);
+    
     if ($checkIn == '') {
         $checkIn = date('Y-m-d');
     }
@@ -3910,6 +3934,14 @@ function reservationContent($bid, $reciptNo, $gname, $checkIn, $checkOut, $bDate
         <strong>Rs $pending</strong>";
     }
 
+    $resStatusArray = fetchData('sys_reservationtype', ['id'=>$resType])[0];
+
+    $statusName = $resStatusArray['name'];
+    $statusBg = $resStatusArray['bg'];
+    $statusClr = $resStatusArray['clr'];
+
+    $statusHtml = '<div class="checkinStatus center"><span style="background: '.$statusBg.';color: '.$statusClr.';">'.$statusName.'</span></div>';
+
     $viewDetailBtn = '<a class="reservationViewBtn" data-bookingId="' . $bid . '" data-reservationTab="' . $rTab . '" data-bdid="' . $BDId . '" href="javascript:void(0)"><button>View Booking</button></a>';
 
     if ($preview == 'yes') {
@@ -3951,7 +3983,7 @@ function reservationContent($bid, $reciptNo, $gname, $checkIn, $checkOut, $bDate
                             <span> $reciptNo / $bidCode </span>
                         </div>
                     </div>
-                    <div class='rightSide'>$actionBtn</div>
+                    <div class='rightSide'>$statusHtml</div>
                 </div>
 
                 <div class='body'>
@@ -4464,7 +4496,7 @@ function bookingDetailGuestHtml($bid, $bdid, $rTab = '', $room_number = '', $che
 function getSlider($sid = '', $limit = '', $delete = '', $order = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sidStatus = '';
     $limitSql = '';
     $deleteSql = " and deleteRec='1'";
@@ -4507,7 +4539,7 @@ function getSlider($sid = '', $limit = '', $delete = '', $order = '')
 function getWbBlogData($bid = '', $limit = '', $delete = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * from wb_blog where hotelId='$hotelId' ";
 
@@ -4542,7 +4574,7 @@ function getWbBlogData($bid = '', $limit = '', $delete = '')
 function getWbBlogCategoryData($bid = '', $limit = '', $delete = '', $orderBy = '', $orderIn = '', $checkName = '', $notId = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * from wb_blog_category where hotelId='$hotelId' ";
 
@@ -4627,7 +4659,7 @@ function getSysBlogCategoryData($bid = '', $limit = '', $orderBy = '', $orderIn 
 function getWbGalleryCategory($gid = '', $limit = '', $delete = '', $orderBy = '', $orderIn = '', $checkName = '', $notId = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * from wb_gallery_category where hotelId='$hotelId' ";
 
@@ -4675,7 +4707,7 @@ function getWbGalleryCategory($gid = '', $limit = '', $delete = '', $orderBy = '
 
 function getWbGalleryData($gid = '', $limit = '', $delete = '', $cat = '',$img=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * from wb_gallery where hotelId='$hotelId' ";
 
@@ -4723,7 +4755,7 @@ function getWbGalleryData($gid = '', $limit = '', $delete = '', $cat = '',$img='
 function getWbOfferData($gid = '', $delete = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * from wb_offersection where hotelId='$hotelId' ";
 
@@ -4754,7 +4786,7 @@ function getWbOfferData($gid = '', $delete = '')
 function getWbFeedbackData($gid = '', $limit = '', $delete = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * from wb_feedback where hotelId='$hotelId' ";
 
@@ -4895,7 +4927,7 @@ function getRatePlanArrById($rid, $bdid = '')
 function inventoryCheck($date, $rid = '', $rdid = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $data = 1;
     $rdidStatus = '';
     if ($rdid != '') {
@@ -4914,7 +4946,7 @@ function inventoryCheck($date, $rid = '', $rdid = '')
 function inventoryRoomUpdate($updateId, $room, $date, $status)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $oneDay = strtotime('1 day 30 second', 0);
     $nxtDate = date('Y-m-d', strtotime($date) + $oneDay);
     $countTotalBooking = countTotalBooking($updateId, $date, $nxtDate);
@@ -4945,7 +4977,7 @@ function inventoryRoomUpdate($updateId, $room, $date, $status)
 function inventoryRateUpdate($updateId, $updateDId='', $price = '', $price2 = '', $date='', $child='', $adult='')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $oneDay = strtotime('1 day 30 second', 0);
     $addBy = dataAddBy();
 
@@ -4981,7 +5013,7 @@ function inventoryRateUpdate($updateId, $updateDId='', $price = '', $price2 = ''
 function buildRatePlanView($rid)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "SELECT room.*,roomratetype.id as roomDetailID,roomratetype.room_id FROM room, roomratetype where hotelId='$hotelId' and roomratetype.room_id = '$rid' and room.id = roomratetype.room_id";
     $query = mysqli_query($conDB, $sql);
     $data = array();
@@ -5001,7 +5033,7 @@ function buildRatePlanView($rid)
 function roomExist($rid, $date = "", $date2 = '', $rdid = '', $onlyRoom = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "SELECT * FROM room where id = '$rid'";
     $status = mysqli_fetch_assoc(mysqli_query($conDB, $sql));
@@ -5043,7 +5075,7 @@ function roomExist($rid, $date = "", $date2 = '', $rdid = '', $onlyRoom = '')
 
 function totalRoomExist()
 {
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $roomListArry = getRoomList();
     $totalRoom = 0;
     $currentDate = date('Y-m-d');
@@ -5057,7 +5089,7 @@ function totalRoomExist()
 
 function totalRoomInventory()
 {
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $roomListArry = getRoomList();
     $totalRoom = 0;
     $currentDate = date('Y-m-d');
@@ -5072,7 +5104,7 @@ function totalRoomInventory()
 function settingValue()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = mysqli_query($conDB, "select * from propertysetting where hotelId = '$hotelId'");
     $test = 'true';
     if (mysqli_num_rows($sql) > 0) {
@@ -5089,7 +5121,7 @@ function settingValue()
 function countTotalBooking($rid, $date = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $BookSql = "SELECT booking.*,bookingdetail.*, bookingdetail.id as bookingDetailMainId FROM booking,bookingdetail where booking.hotelId = '$hotelId' and booking.id = bookingdetail.bid and booking.payment_status='1' and bookingdetail.roomId ='$rid' and bookingdetail.checkIn <= '$date' && bookingdetail.checkOut > '$date'";
 
@@ -5108,7 +5140,7 @@ function countTotalBooking($rid, $date = '')
 function countTotalBookingDetailByBID($bid)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from bookingdetail where bid = '$bid'";
     $totalRow = mysqli_num_rows(mysqli_query($conDB, $sql));
 
@@ -5118,7 +5150,7 @@ function countTotalBookingDetailByBID($bid)
 function getTotalRoom($rid, $date, $date2 = '', $onlyRoom = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     if ($date2 == '') {
         $date2 = $date;
     }
@@ -5144,7 +5176,7 @@ function getTotalRoom($rid, $date, $date2 = '', $onlyRoom = '')
 function countTotalQPBooking($rid, $date = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $BookSql = "SELECT sum(nOfRoom) as noRoom FROM quickpay where  room = '$rid' and paymentStatus='1' and checkIn <= '$date' && checkOut > '$date'";
 
     $check_sold_arr = mysqli_fetch_assoc(mysqli_query($conDB, $BookSql));
@@ -5156,7 +5188,7 @@ function countTotalQPBooking($rid, $date = '')
 function getRatePlanByRoomId($rid)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $data = array();
     $sql = mysqli_query($conDB, "select * from roomratetype where room_id  = '$rid'");
     if (mysqli_num_rows($sql)) {
@@ -5169,7 +5201,7 @@ function getRatePlanByRoomId($rid)
 
 function getHotelUserDetail($uid = '', $name = '', $userId = '', $email = '', $phone = '', $role = '', $order = '',$delete='',$status=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $hotelId = orginalHotelId($hotelId);
     $sql = "select hotel.*,hoteluser.*,hoteluser.id as hotelUserId from hotel,hoteluser where hotel.id = hoteluser.hotelMainId ";
 
@@ -5235,7 +5267,7 @@ function getHotelUserDetail($uid = '', $name = '', $userId = '', $email = '', $p
 
 function getUserAccess($uid = '',$pageId=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from user_access where hotelId = '$hotelId' ";
 
     if ($uid != '') {
@@ -5268,7 +5300,7 @@ function getUserAccess($uid = '',$pageId=''){
 function getSuperAdminData($sid = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from superadmin where id != '' ";
 
     if ($sid != '') {
@@ -5426,7 +5458,7 @@ function getHotelSeoData($id = '', $hid = '')
 function setHotelDetail($cname, $value)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "update hotel set $cname = '$value' where hCode = '$hotelId'";
     if (mysqli_query($conDB, $sql)) {
         $data = 1;
@@ -5439,7 +5471,7 @@ function setHotelDetail($cname, $value)
 function hotelTerm($id = '', $hid = '', $type = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $hid = ($hid == '') ? $hotelId : $hid;
     if ($id != '') {
         $array[] = ['id' => $id];
@@ -5458,7 +5490,7 @@ function getPropertyCounList($id = '', $pid = '', $name = '')
 {
 
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * from propertycounlist where id != '' ";
 
@@ -5489,7 +5521,7 @@ function getPropertyCounList($id = '', $pid = '', $name = '')
 function getHotelImageData($hid = '', $accessValue = '', $accessKey = '', $imgName = '', $imgId = '', $array = '', $private='',$order='')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $query = "select * from hotel_image where id != ''";
     if ($imgId != '') {
         $query .= " and id = '$imgId'";
@@ -5641,7 +5673,7 @@ function getDataBaseDate2($date)
 function getAmenitieById($aid = '', $aname = '', $arr = '', $count = '', $order = '', $notid = '', $said = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $query =  "select * from amenities where hotelId = '$hotelId' and deleteRec = '1'";
 
@@ -5698,7 +5730,7 @@ function getAmenitieIdByRoomId($rid)
 function countRoomViewByDate($slug = '', $date = '', $tab = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from roomnumber where hotelId = '$hotelId'";
     $blockedrromsql = "select * from roomnumber where hotelId = '$hotelId' and constuctionStatus =4";
     $bookSql = "select booking.*,bookingdetail.roomId from booking,bookingdetail where booking.id = bookingdetail.bid and booking.hotelId = '$hotelId'";
@@ -7629,13 +7661,15 @@ function send_email($email='', $gname = '', $cc = '', $bcc = '', $html='', $subj
         $mail = new PHPMailer(true);
 
         $mail->SMTPDebug = 0;
-        $mail->isSMTP();
-        $mail->Host = 'smtp.zeptomail.in';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'emailapikey';
-        $mail->Password = 'PHtE6r0KRbjviWIvpxgJ5ae7HselZ4smqepvfwdD4o0RD/UAHE1Wqdp9xjCxqEssUqFAFPefyto5ueud5bqNJDu5PGsZX2qyqK3sx/VYSPOZsbq6x00cslsbd03VXIDocdBr0yDRstqX';
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = 587;
+        
+        $mail->isSMTP();              
+        $mail->Host = 'smtp.zeptomail.in';  
+        $mail->SMTPAuth = true;                               
+        $mail->Username = 'emailapikey';                 
+        $mail->Password = 'PHtE6r0KRbjviWIvpxgJ5ae7HselZ4smqepvfwdD4o0RD/UAHE1Wqdp9xjCxqEssUqFAFPefyto5ueud5bqNJDu5PGsZX2qyqK3sx/VYSPOZsbq6x00cslsbd03VXIDocdBr0yDRstqX';  
+        $mail->SMTPSecure = 'tls';                            
+        $mail->Port = 587; 
+        
         $mail->setFrom('noreply@retrod.in', $hotel_name);
         $mail->addAddress($email, $gname);
         $mail->addCC($hotel_Email);
@@ -7681,6 +7715,12 @@ function send_email($email='', $gname = '', $cc = '', $bcc = '', $html='', $subj
 
 
 function custom_number_format($n, $precision = 1){
+    // Check if $n is numeric
+    if (!is_numeric($n)) {
+        return 0;
+    }
+
+    // Proceed with formatting based on the magnitude of $n
     if ($n < 900) {
         $n_format = number_format($n);
     } else if ($n < 900000) {
@@ -7734,7 +7774,7 @@ function visitor_count($ip)
 function roomBooking()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = mysqli_query($conDB, "select * from booking,bookingdetail where booking.id = bookingdetail.bid and  booking.payment_status = '1' and booking.hotelId = '$hotelId' and booking.deleteRec = '1'");
     $data = mysqli_num_rows($sql);
     if (mysqli_num_rows($sql) == '') {
@@ -7746,7 +7786,7 @@ function roomBooking()
 function qpRoomBooking()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = mysqli_query($conDB, "select * from quickpay where paymentStatus = '1'");
     return mysqli_num_rows($sql);
 }
@@ -7754,7 +7794,7 @@ function qpRoomBooking()
 function roomNight()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $count = roomBooking();
     $currennt_date = date('Y-m-d');
     if ($count > 0) {
@@ -7769,7 +7809,7 @@ function roomNight()
 function getRoomNight($date = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $count = roomBooking();
     $result = 0;
     $currennt_date = date('Y-m-d');
@@ -7792,7 +7832,7 @@ function getRoomNight($date = '')
 
 function getActiveFeed($limit = '', $type = '', $bid = '', $bdid = '', $groupBy = '', $notin = '', $date = '',$ip=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $query = "select * from activityfeed where hotelId = '$hotelId'";
 
     if ($type != '') {
@@ -7847,7 +7887,7 @@ function getActiveFeed($limit = '', $type = '', $bid = '', $bdid = '', $groupBy 
 function earnig()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $count = roomBooking();
     if ($count > 0) {
         $sql = mysqli_query($conDB, "select id from booking where hotelId = '$hotelId' and payment_status = '1' and deleteRec = '1'");
@@ -7964,7 +8004,7 @@ function revenueCalculate($date1 = '', $date2 = '', $bookingSourse = '', $bookin
 
 // function dailyRoomBook($date=''){
 //     global $conDB;
-//     global $hotelId;
+//     $hotelId = HOTEL_ID;
 //     $
 // }
 
@@ -8036,7 +8076,7 @@ function dailyQuickPayEarning($date)
 function dailyBookingEarning($date, $bookingSourse = '', $bookingType = '', $payStatus = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $revenue = array();
     $currennt_date = $date;
     $one_day = strtotime('1 day 00 second', 0);
@@ -8091,7 +8131,7 @@ function dailyBookingEarning($date, $bookingSourse = '', $bookingType = '', $pay
 function dailyBookingEarningByAddOn($date,$array='')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = mysqli_query($conDB, "select * from booking where hotelId = '$hotelId' and  add_on LIKE  '$date%'  and payment_status = '1' and deleteRec = '1'");
     $revenue = 0;
     $data = array();
@@ -8119,10 +8159,9 @@ function dailyBookingEarningByAddOn($date,$array='')
     return $data;
 }
 
-function dailyBookingEarningByAddOnCount($date)
-{
+function dailyBookingEarningByAddOnCount($date){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = mysqli_query($conDB, "select id from booking where hotelId = '$hotelId' and  add_on LIKE  '$date%'  and payment_status = '1' and deleteRec = '1'");
     $revenueCount = mysqli_num_rows($sql);
 
@@ -8132,7 +8171,7 @@ function dailyBookingEarningByAddOnCount($date)
 function dailyQuickPayEarningByAddOn($date)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = mysqli_fetch_assoc(mysqli_query($conDB, "select sum(totalAmount) from quickpay where  hotelId = '$hotelId' and addOn LIKE  '$date %' and paymentStatus = '1' "));
     $revenue = $sql['sum(totalAmount)'];
     if ($revenue == '') {
@@ -8144,7 +8183,7 @@ function dailyQuickPayEarningByAddOn($date)
 function dailyQuickPayEarningByAddOnCount($date)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = mysqli_query($conDB, "select * from quickpay where hotelId = '$hotelId' and addOn LIKE  '$date %' and paymentStatus = '1' ");
     $revenueCount = mysqli_num_rows($sql);
     if ($revenueCount == '') {
@@ -8156,7 +8195,7 @@ function dailyQuickPayEarningByAddOnCount($date)
 function dailyUserPayQuickPayEarning($date)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $currennt_date = $date;
     $one_day = strtotime('1 day 00 second', 0);
     $nextDay = date('Y-m-d', strtotime($currennt_date) + $one_day);
@@ -8171,7 +8210,7 @@ function dailyUserPayQuickPayEarning($date)
 function dailyUserPayBookingEarning($date)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $revenue = 0;
     $currennt_date = $date;
     $one_day = strtotime('1 day 00 second', 0);
@@ -8187,7 +8226,7 @@ function dailyUserPayBookingEarning($date)
 function dailyUserPayBookingEarningByAddOn($date)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $revenue = 0;
     $sql = mysqli_fetch_assoc(mysqli_query($conDB, "select sum(userPay) from booking where hotelId = '$hotelId' and  add_on LIKE  '$date %'  and payment_status = '1' "));
     $revenue = $sql['sum(userPay)'];
@@ -8200,7 +8239,7 @@ function dailyUserPayBookingEarningByAddOn($date)
 function dailyUserPayQuickPayEarningByAddOn($date)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = mysqli_fetch_assoc(mysqli_query($conDB, "select sum(amount) from quickpay where hotelId = '$hotelId' and  addOn LIKE  '$date %' and paymentStatus = '1' "));
     $revenue = $sql['sum(amount)'];
     if ($revenue == '') {
@@ -8213,7 +8252,7 @@ function dailyUserPayQuickPayEarningByAddOn($date)
 function MonthlyBookingEarning($date, $date2, $be='')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $revenue = 0;
     $currennt_date = $date;
     $one_day = strtotime('1 day 00 second', 0);
@@ -8236,7 +8275,7 @@ function MonthlyBookingEarning($date, $date2, $be='')
 function MonthlyQuickPayEarning($date, $date2)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $currennt_date = $date;
     $one_day = strtotime('1 day 00 second', 0);
     $nextDay = date('Y-m-d', strtotime($date2) + $one_day);
@@ -8252,7 +8291,7 @@ function MonthlyQuickPayEarning($date, $date2)
 function averageStay()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $total_booking = roomBooking();
     if ($total_booking == 0) {
         $result = 0;
@@ -8267,7 +8306,7 @@ function averageStay()
 function rate_performance()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $total_booking = roomBooking();
     $currennt_date = date('Y-m-d');
     if ($total_booking == 0) {
@@ -8299,7 +8338,7 @@ function rate_performance()
 
 function getGuestamenddetailData($cin='',$cout='',$bid='',$bdid=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from guestamenddetail where hotelId = '$hotelId'";
 
     if($cin != ""){
@@ -8331,7 +8370,7 @@ function getGuestamenddetailData($cin='',$cout='',$bid='',$bdid=''){
 function guestAmendReport($checkInDate = '', $checkOutDate = '', $bid='',$bdid='')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $data = array();
     $sql = "select booking.*,guestamenddetail.*,guestamenddetail.id as amendDetailId,bookingdetail.checkIn,bookingdetail.checkOut, booking.add_on as bookingAddOn from booking,guestamenddetail,bookingdetail where booking.id = guestamenddetail.bid and bookingdetail.id = guestamenddetail.bdid and booking.hotelId = '$hotelId'  ";
@@ -8397,34 +8436,43 @@ function guestAmendReport($checkInDate = '', $checkOutDate = '', $bid='',$bdid='
 
 
 function countCheckIn($date = ''){
-    $date = ($date == '') ? date('Y-m-d') : $date;
-    $arry = guestAmendReport($date);
+    $date = ($date == '') ? date('Y-m-d') : date('Y-m-d', strtotime($date));
+    $arry = fetchData('bookingdetail', ['hotelId'=>HOTEL_ID, 'checkIn' => $date]);
     
     $checkin = 0;
     $pending = 0;
     foreach ($arry as $val) {
-        if ($val['checkIn'] == '') {
-            $pending++;
-        } else {
-            $checkin++;
-        }
+        $adult = $val['adult'];
+        $child = $val['child'];
+        $pax = intval($adult) + intval($child);
+        $checkin += $pax;
+        $pending += $pax;
+        // if ($val['checkIn'] == '') {
+        //     $pending++;
+        // } else {
+        //     $checkin++;
+        // }
     }
 
     return ['checkin' => $checkin, 'pending' => $pending];
 }
 
-function countCheckOut($date = '')
-{
-    $date = ($date == '') ? date('Y-m-d') : $date;
-    $arry = guestAmendReport('', $date);
+function countCheckOut($date = ''){
+    $date = ($date == '') ? date('Y-m-d') : date('Y-m-d', strtotime($date));
+    $arry = fetchData('bookingdetail', ['hotelId'=>HOTEL_ID, 'checkOut' => $date]);
     $checkOut = 0;
     $pending = 0;
     foreach ($arry as $val) {
-        if ($val['checkOut'] == '') {
-            $pending++;
-        } else {
-            $checkOut++;
-        }
+        $adult = $val['adult'];
+        $child = $val['child'];
+        $pax = intval($adult) + intval($child);
+        $checkOut += $pax;
+        $pending += $pax;
+        // if ($val['checkIn'] == '') {
+        //     $pending++;
+        // } else {
+        //     $checkin++;
+        // }
     }
 
     return ['checkOut' => $checkOut, 'pending' => $pending];
@@ -8475,7 +8523,7 @@ function countRoomStatus($date = '')
 function todayCheckIn()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $current_date = strtotime(date('Y-m-d'));
     $today = date('Y-m-d', $current_date);
     $sql = mysqli_query($conDB, "select * from booking where hotelId = '$hotelId' and checkIn = '$today' and payment_status = '1'");
@@ -8485,7 +8533,7 @@ function todayCheckIn()
 function todayCheckOut()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $current_date = strtotime(date('Y-m-d'));
     $today = date('Y-m-d', $current_date);
     $sql = mysqli_query($conDB, "select * from booking where hotelId = '$hotelId' and checkout = '$today' and payment_status = '1'");
@@ -8495,7 +8543,7 @@ function todayCheckOut()
 function qpTodayCheckIn()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $current_date = strtotime(date('Y-m-d'));
     $today = date('Y-m-d', $current_date);
     $sql = mysqli_query($conDB, "select * from quickpay where hotelId = '$hotelId' and checkIn = '$today' and paymentStatus = '1'");
@@ -8505,7 +8553,7 @@ function qpTodayCheckIn()
 function qpTodayCheckOut()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $current_date = strtotime(date('Y-m-d'));
     $today = date('Y-m-d', $current_date);
     $sql = mysqli_query($conDB, "select * from quickpay where hotelId = '$hotelId' and checkOut = '$today' and paymentStatus = '1'");
@@ -8515,7 +8563,7 @@ function qpTodayCheckOut()
 function tryRoomBooking()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = mysqli_query($conDB, "select * from booking,bookingdetail where hotelId = '$hotelId' and booking.id = bookingdetail.bid and booking.payment_status= '2' and booking.status = '1'");
     return mysqli_num_rows($sql);
 }
@@ -8523,7 +8571,7 @@ function tryRoomBooking()
 function tryBook()
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $count = roomBooking();
     if ($count > 0) {
         $sql = mysqli_query($conDB, "select booking.id from booking,bookingdetail where hotelId = '$hotelId' and booking.id = bookingdetail.bid and booking.payment_status= '2' and booking.status = '1'");
@@ -8819,7 +8867,7 @@ function getHotelService()
 function getCouponArry($cid = '', $status = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
 
     if ($status == '') {
@@ -8949,7 +8997,7 @@ function getPercentageByClass($percentage, $fst = '35', $snd = '45', $fth = '75'
 
 function setKOTOrderConform($name = '', $number = '', $email = '',$tid='',$resId=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     if (isset($_SESSION['kot']) && count($_SESSION['kot']) > 0) {
         $hotelDetailArry = hotelDetail('', '', '', '', $hotelId);
@@ -9044,7 +9092,7 @@ function setKOTOrderConform($name = '', $number = '', $email = '',$tid='',$resId
 function getKotService($id = '', $status = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from sys_kotservice where id !=''";
 
     if ($status != '') {
@@ -9127,7 +9175,7 @@ function getAllKotProduct($mealTime = '')
 
 function getKotProduct($id = '', $status = '', $productCat = '', $delete = '', $proName = '', $mealTime = '', $pid = '', $checkId = '', $cat = '', $order=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $data = array();
     $sql = "select * from kotprouct_hotel where hotelId ='$hotelId'";
 
@@ -9304,7 +9352,7 @@ function getKotQtyUnitList($id = '')
 function getKotStaockExistData($id = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from kot_stock where id != ''";
     if ($id != '') {
         $sql .= " and id = '$id'";
@@ -9324,7 +9372,7 @@ function getKotStaockExistData($id = '')
 function getKotStockManagment($id = '', $sIt = '', $order = '', $orderBy = "", $date = '', $orderType = 'buy')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select kot_stock.*, kot_raw_product_list.name, kot_raw_product_list.priceCalculateBy,kot_raw_product_list.img,kot_stock_timeline.qty,kot_stock_timeline.addBy,kot_stock_timeline.addOn as timelineAddOn from kot_raw_product_list,kot_stock, kot_stock_timeline where kot_stock.hotelId ='$hotelId' and kot_raw_product_list.id = kot_stock.rawProId and kot_stock_timeline.kotStockId = kot_stock.id and kot_stock_timeline.action = '$orderType'";
 
 
@@ -9358,7 +9406,7 @@ function getKotStockManagment($id = '', $sIt = '', $order = '', $orderBy = "", $
 function getKotStockTimeline($sid = '', $action = '', $date = '', $sum = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * ";
 
@@ -9474,7 +9522,7 @@ function getPriceCalculate($disPro = '', $disValue = '', $total = '', $perfect =
 function getKotGstPrice($type = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from kotgstprice where deleteRec = '1'";
 
     $data = array();
@@ -9561,7 +9609,7 @@ function getAddKotProductDetail()
 
 function getKotOrder($koid = '', $date = '', $page = '', $search = '', $getMaxBillNo = '', $sid = '', $spid = '', $status = '', $bdid = ''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $date = ($date == '') ? date('Y-m-d') : $date;
     $sql = "select * from kotorder where hotelId = '$hotelId' ";
 
@@ -9692,7 +9740,7 @@ function generateKotOrder($koid){
 
 function getKotOrderDetail($koid = ''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * from kotorderdetail where orderId = '$koid'";
 
@@ -9724,7 +9772,7 @@ function getKotOrderDetail($koid = ''){
 function getKotOrderGuestDetail($kgid = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * from kotguestdetail where hotelId = '$hotelId' ";
 
@@ -9748,7 +9796,7 @@ function getKotOrderGuestDetail($kgid = '')
 function getKotTableData($tid = '', $name = '', $kotSearch = '', $sName = '', $status = '', $delete = '', $order = '', $orderby = '', $date = '',$except='')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $date = ($date == '') ? date('Y-m-d') : $date;
     $sql = "select * from kottable where hotelId = '$hotelId' ";
 
@@ -10071,7 +10119,7 @@ function countEmptyFieldPercentageByArry($array = [], $total = '', $remove = [])
 function setPaymentTimeline($proId, $proSubId, $accessId, $amount, $paymentMethod = '', $remark = '', $addBy = '', $tip = '',$bid='',$posId='')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $addBy = dataAddBy();
     $billNo = generateBillNo();
 
@@ -10112,7 +10160,7 @@ function setPaymentTimeline($proId, $proSubId, $accessId, $amount, $paymentMetho
 function getGuestPaymentTimeline($pid = '', $accessId = '', $date = '', $method = '', $proId = '', $subProId = '', $hId = '', $sum = '', $sDate = '', $eDate = '', $user = '',$dateFilter='',$bid='',$posId='',$payStatus='',$statusUpdateOn='')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sDate = ($sDate == '') ? date('Y-m-d') . " 00:00:00" :  date('Y-m-d', strtotime($sDate)) . " 00:00:00";
     $eDate = ($eDate == '') ? date('Y-m-d') . " 23:59:59" :  date('Y-m-d', strtotime($eDate)) . " 23:59:59";
     $hId = ($hId == '') ? $hotelId : $hId;
@@ -10501,7 +10549,7 @@ function showUserAddForm($id = '')
 function userAddFormSubmit($id = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $userName = $_POST['userName'];
     $userPhoneNum = $_POST['userPhoneNum'];
     $userEmaiId = $_POST['userEmaiId'];
@@ -11038,7 +11086,7 @@ function getRatePlanDetailById($rdid)
 function getSysSociallinkData($id = '', $exist = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $sql = "select * from sys_sociallink where status = '1'";
 
     if ($id != '') {
@@ -11123,7 +11171,7 @@ function getarriveData($date = '', $action = '')
 }
 
 function updateRoomStatus($rnum, $value, $check = '', $constuction = ''){
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     global $conDB;
     global $time;
     $addBy = dataAddBy();
@@ -11405,7 +11453,7 @@ function createSelectItem($data, $select = '', $existData = '')
 
 function createRatePlanInputField($rid = '', $rdid = '', $rpid = '', $sPrice = '', $dPrice = '', $exAPrice = '', $exCPrice = '', $existrpArry = '')
 {
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $ratePlanHtml = createSelectItem(getPropertyRatePlaneList('', $hotelId, '', 'yes'), $rpid, $existrpArry);
     $sprice = $sPrice;
     $dprice = $dPrice;
@@ -11525,11 +11573,11 @@ function phonePePaymentGatway($mid, $salt, $indexId, $paymentId, $amount, $mobil
 
 function setPaymentLinkGenerate($pid = '', $proId = '0', $accessId = '0', $perName = '', $perEmail = '', $perPhone = '', $paymentAmount = '', $paymentReason = ''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $linkIdCode = (count(getHotelServiceData('', $hotelId, 6)) > 0) ? getHotelServiceData('', $hotelId, 6)[0]['voucher'] : '';
     $paymentId = "$linkIdCode-" . rand(100, 999999);
     $data = array();
-
+    
     if ($paymentAmount == '') {
         $data = [
             'status' => 'error',
@@ -11644,7 +11692,7 @@ function amenitiesFilter($array)
 function getBeGalleryCategory($gid = '', $limit = '', $delete = '', $orderBy = '', $orderIn = '', $checkName = '', $notId = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $sql = "select * from be_gallery_category where hotelId='$hotelId' ";
 
@@ -11691,7 +11739,7 @@ function getBeGalleryCategory($gid = '', $limit = '', $delete = '', $orderBy = '
 
 function getBeKotCategory($id = '', $name = '', $order = ''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     
     $sql = "select * from kotprouct_cat where hotelId='$hotelId' and deleteRec = '1'";
 
@@ -11877,6 +11925,7 @@ function orderEmail2Body($oid){
     $proLocarion = fetchData('propertylocation', ['hotelId'=>$_SESSION['HOTEL_ID']])[0];
     $guestArray = (isset(fetchData('guest', ['bookId'=>$oid, 'groupadmin'=> 1])[0])) ? fetchData('guest', ['bookId'=>$oid, 'groupadmin'=> 1])[0] : array();
     $onlyBookingArray = fetchData('booking', ['id'=>$oid])[0];
+    $travelagent = $onlyBookingArray['travelagent'];
     
     $name = (isset($guestArray['name'])) ? $guestArray['name']: '';
     $email = (isset($guestArray['email'])) ? $guestArray['email']: '';
@@ -11932,11 +11981,13 @@ function orderEmail2Body($oid){
         $bookingStatus = $bidrow['bookingStatus'];
         $plan =$bidrow['rateplan'][0];
         $total = $bidrow['total'];
+        $exBD = $bidrow['exBD'];
         $discount = ($bookingDetailArry['totalDiscount'] == 0) ? 0 : '&#x20b9; '.$bookingDetailArry['totalDiscount'];
 
         $extraCharge = 0.00;
 
-        $roomdetailsHtml.='
+        if($travelagent == '' || $travelagent == 'other'){
+            $roomdetailsHtml.='
                 <tr>
                     <td>
                         '.$sn.'. Room Type :'. $roomName.'
@@ -11970,7 +12021,7 @@ function orderEmail2Body($oid){
                 </tr>
 
                 <tr>
-                    <td></td>
+                    <td>Ex bed\'s '.$exBD.'</td>
                     <td>Total:</td>
                     <td>&#x20b9; '. $total.'</td>
                 </tr>
@@ -11982,6 +12033,30 @@ function orderEmail2Body($oid){
                 </tr>          
             
         ';
+        }else{
+            $roomdetailsHtml.='
+                <tr>
+                    <td>
+                        '.$sn.'. Room Type :'. $roomName.'
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Plan: '. $plan.' , Adult: '. $adult.' , Child: '. $child.'</td>
+                    </td>
+                </tr>
+
+                <tr style="height: 10px;">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>          
+            
+        ';
+        }
+
+        
     }
 
     $reservationNumber = printBooingId($oid);
@@ -12000,8 +12075,10 @@ function orderEmail2Body($oid){
 
 
     $bookedOn = $add_on;
-    $arrivalDate = date('d-M', strtotime($bookingDetailArry['checkIn']));
-    $departureDate = date('d-M', strtotime($bookingDetailArry['checkOut']));
+    $arrivalDate = date('d-M Y', strtotime($bookingDetailArry['checkIn']));
+    $arrivalTime = date('h:i A', strtotime($bookingDetailArry['checkInTime']));
+    $departureDate = date('d-M Y', strtotime($bookingDetailArry['checkOut']));
+    $departureTime = date('h:i A', strtotime($bookingDetailArry['checkOutTime']));
     $night = $bookingDetailArry['night'];
     
     $totalRoom = 2;
@@ -12012,6 +12089,31 @@ function orderEmail2Body($oid){
     $total = $total_price;
     $paid = $userPay;
     $ToBePay = $total - $paid;
+
+
+    if($travelagent == '' || $travelagent == 'other'){
+        $footerPrice = '
+            <hr>
+            <table style="width:100%; border-collapse:collapse;">
+                <tbody>
+                    <tr style="width: 100%;">
+                        <td style="width: 33%;">
+                            <h3>Grand Total: &#x20b9; '. $total.'</h3>
+                        </td>
+                        <td style="width: 33%;">
+                            <h3>Total Advances: &#x20b9; '. $paid.'</h3>
+                        </td>
+                        <td style="width: 33%;">
+                            <h3>Est. Balance: &#x20b9; '. $ToBePay.'</h3>
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+        ';
+    }else{
+        $footerPrice = '';
+    }
 
         $html = '
             <table style="width: 95%; border:2px solid black; margin: 0 auto;">
@@ -12072,13 +12174,13 @@ function orderEmail2Body($oid){
                                         <td>Email::</td>
                                         <td>'. $email.'</td>
                                         <td>Arrival Date:</td>
-                                        <td>'. $arrivalDate.'</td>
+                                        <td>'. $arrivalDate.', '.$arrivalTime.'</td>
                                     </tr>
                                     <tr>
                                         <td>Organisation:</td>
                                         <td>'. $company_name.'</td>
                                         <td>Departure Date:</td>
-                                        <td>'. $departureDate.'</td>
+                                        <td>'. $departureDate.', '.$departureTime.'</td>
                                     </tr>
                                     <tr>
                                         <td>GST:</td>
@@ -12111,25 +12213,79 @@ function orderEmail2Body($oid){
                                 <tbody>'.$roomdetailsHtml.'</tbody>
                             </table>
                         
-                            <hr>
+                            
 
-                            <table style="width:100%; border-collapse:collapse;">
-                                <tbody>
-                                    <tr style="width: 100%;">
-                                        <td style="width: 33%;">
-                                            <h3>Grand Total: &#x20b9; '. $total.'</h3>
-                                        </td>
-                                        <td style="width: 33%;">
-                                            <h3>Total Advances: &#x20b9; '. $paid.'</h3>
-                                        </td>
-                                        <td style="width: 33%;">
-                                            <h3>Est. Balance: &#x20b9; '. $ToBePay.'</h3>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                            '.$footerPrice.'
 
-                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
+            <table style="width: 95%; margin: 0 auto;">
+                <tbody>
+                    <tr>
+                        <td>
+                            <h4>TERMS AND CONDITIONS </h4>
+                            <strong>Check-In and Check-Out</strong>
+                            <ul>
+                                <li><small>Check-in: 9:00AM, Check-out: 8:00AM</small></li>
+                                <li><small>Photo ID (Aadhar, Passport, Voter ID Only) of all members checking in has to be
+                                mandatorily furnished at the time of Check-in</small></li>
+                                <li><small>Copy of the booking voucher must be produced at the time of Check-In. </small></li>
+                            </ul> <br/>
+
+                            <strong>Payment Policy </strong> <br/>
+                            <small>Full Payment: All reservations made must be paid in full at the time of booking. This includes, but
+                            is not limited to, the changes in the name of the has been occupants, dates for which the booking
+                            is made. </small> <br/><br/>
+
+                            <strong>Non-transferability </strong> <br/>
+                            <small>Any booking made is strictly non-transferable.</small> <br/><br/>
+
+                            <strong>Allotment of Room</strong> <br/>
+                            <small>The category of room booked is confirmed, however the room number will only be allotted at the
+                            time of check-in. Any special requests made for the room (including but not limited to the floor
+                            the size, the view) will be. processed on the date of the check-in based on the availability and
+                            there is no guarantee extended for the same.</small> <br/><br/>
+
+                            <strong>Communicaton</strong> <br/>
+                            <small>All communicatons will be made to and replied to only when received from the registered e-mail
+                            ID as provided at the time of booking</small> <br/><br/>
+
+                            <strong>Pets</strong> <br/>
+                            <small>We strive to provide a comfortable and enjoyable experience for all our guests. We regret to
+                            inform you that we are not a pet-friendly hotel.</small> <br/><br/>
+
+                            <strong>Cancellaton</strong>
+                            <ul>
+                                <li><small>For booking cancellation can only be done manually, please send an email to:
+                                (info@nayakbeachresort.com I info@nayakhotels.com) and the amount shall be refunded
+                                to the customer’s account as per the refund policy of the hotel maximum within 10-14
+                                business days of the date of cancellation request.</small></li>
+                                <li><small>There will be no entertaining of cancellation request or refund if the same is made nine
+                                (9) days prior to the date when the intended stay commences. 
+                                </small></li>
+                                <li><small>There will be a 50% refund of the booking amount when a cancellation request is made
+                                between ten (10) - nineteen (19) days prior to the date when the intended stay
+                                commences.</small></li>
+                                <li><small>There will be a 75% refund of the booking amount when a cancellation request is made
+                                more than nineteen (19) days prior to the date when the intended stay commences. </small></li>
+                            </ul> <br/>
+
+                            <strong>No Show</strong> <br/>
+                            <small>The booking will be automatically cancelled if there is no-show and failure to occupy the room
+                            within twelve (12) hours from 9:00AM. There will be no refund of the booking amount paid in the
+                            case of a no-show. All late check-ins must be communicated to the hotel management on the day
+                            prior to the date when the intended stay commences by 8:30PM.</small> <br/><br/>
+
+                            <strong>Dispute</strong> <br/>
+                            <small>Any and all disputes arising from the stay, the booking, etc. will be subject to the jurisdiction of
+                            Puri, Odisha only. </small> <br/><br/>
+
+                            <strong>Refunds</strong> <br/>
+                            <small>All refunds will be made to the source account where the original booking was made from and
+                            shall be processed within 10-14 business days. </small>
                         </td>
                     </tr>
                 </tbody>
@@ -12433,7 +12589,7 @@ function orderEmail2Body($oid){
  }
 
  function getSysMailinvoice($id = ''){
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $array = array();
 
     if ($id != '') {
@@ -12445,7 +12601,7 @@ function orderEmail2Body($oid){
 }
 
 function getmailinvoice(){
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $array = array();
     $array[] = ['hotelId' => $hotelId];
 
@@ -12535,12 +12691,26 @@ function getBookingSourceList(){
 return $html;
 }
 
-function getOrganisationListData(){
+function getOrganisationListData($id='',$name='',$state = ''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $html ='';
      $query = "SELECT * FROM organisations where hotelId = '$hotelId' and status = 1";
-
+     
+     if($id != ''){
+         $query .= " and id = '$id'";
+     }
+     
+     if($name != ''){
+         $query .= " and name like '%$name%'";
+     }
+     
+     if($state != ''){
+         $query .= " and organisationState = '$state'";
+     }
+     
+     
+     $data = array();
      $sql = mysqli_query($conDB,$query);
      if(mysqli_num_rows($sql)>0){
         while($row = mysqli_fetch_assoc($sql)){
@@ -12561,15 +12731,12 @@ function getOrganisationListData(){
             $data[] = array_merge($row,$advance);
         }
      }
-     else{
-        $html.='No Data';
-     }
      return $data;
 }
 
 function getOrganisationData($id='', $catcheck=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $data = array();
     $id = ($catcheck != '') ? (($id == '') ? 0 : $id) : $id;
      $query = "SELECT * FROM organisations where hotelId = '$hotelId'";
@@ -12590,7 +12757,7 @@ function getOrganisationData($id='', $catcheck=''){
 
 function getOrganisationList(){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $html ='';
      $query = "SELECT * FROM organisations where hotelId = '$hotelId' and status = 1";
 
@@ -12606,22 +12773,40 @@ function getOrganisationList(){
      return $html;
 }
 
-    function setOrganisationDetails($organisationName, $organisationEmail, $organisationAddress, $organisationCity, $organisationState, $organisationCountry, $organisationPostCode, $organisationNumber, $organisationGstNo, $ratePlan, $salesManager, $organisationDiscount, $organisationNote){
-        global $hotelId;
+    function setOrganisationDetails($organisationName, $conName, $organisationEmail='', $organisationAddress='', $organisationCity='', $organisationState='', $organisationCountry='', $organisationPostCode='', $organisationNumber='', $organisationGstNo='', $ratePlan='', $salesManager='', $organisationDiscount='', $organisationNote='',$actionId=''){
+        $hotelId = HOTEL_ID;
         global $conDB;
-        $query = "INSERT INTO organisations (hotelId,name,organisationEmail, organisationAddress, organisationCity, organisationState, organisationCountry, organisationPostCode, organisationNumber, organisationGstNo, ratePlan, salesManager, organisationDiscount, organisationNote)
-        VALUES ('$hotelId','$organisationName','$organisationEmail', '$organisationAddress', '$organisationCity', '$organisationState', '$organisationCountry', '$organisationPostCode', '$organisationNumber', '$organisationGstNo', '$ratePlan', '$salesManager', $organisationDiscount, '$organisationNote');
+        if($actionId != ''){
+            $query = "UPDATE organisations
+                    SET name = '$organisationName',
+                        orgConName = '$conName',
+                        organisationEmail = '$organisationEmail',
+                        organisationAddress = '$organisationAddress',
+                        organisationCity = '$organisationCity',
+                        organisationState = '$organisationState',
+                        organisationCountry = '$organisationCountry',
+                        organisationPostCode = '$organisationPostCode',
+                        organisationNumber = '$organisationNumber',
+                        organisationGstNo = '$organisationGstNo',
+                        ratePlan = '$ratePlan',
+                        salesManager = '$salesManager',
+                        organisationDiscount = $organisationDiscount,
+                        organisationNote = '$organisationNote'
+                    WHERE id = '$actionId'";
+        }else{
+            $query = "INSERT INTO organisations (hotelId,name,orgConName,organisationEmail, organisationAddress, organisationCity, organisationState, organisationCountry, organisationPostCode, organisationNumber, organisationGstNo, ratePlan, salesManager, organisationDiscount, organisationNote)
+        VALUES ('$hotelId','$organisationName', '$conName', '$organisationEmail', '$organisationAddress', '$organisationCity', '$organisationState', '$organisationCountry', '$organisationPostCode', '$organisationNumber', '$organisationGstNo', '$ratePlan', '$salesManager', $organisationDiscount, '$organisationNote');
         ";
-        $sql = mysqli_query($conDB,$query);
-        if($sql){
-            return 'ok';
         }
-        return 'no';
+        
+        $sql = mysqli_query($conDB,$query);
+        
+        return mysqli_insert_id($conDB);
     }
 
     function getGstNumberFromOrganisationName($name='',$dataid=''){
         global $conDB;
-        global $hotelId;
+        $hotelId = HOTEL_ID;
         $query = "SELECT organisationGstNo FROM organisations WHERE hotelId = '$hotelId' AND name = '$name' AND id = '$dataid'";
 
         $sql = mysqli_query($conDB,$query);
@@ -12646,15 +12831,29 @@ function getOrganisationList(){
 
     }
 
-    function getTravelagent(){
+    function getTravelagent($id = '',$name='',$state=''){
         global $conDB;
-        global $hotelId;
+        $hotelId = HOTEL_ID;
         $sql = "SELECT * FROM  travel_agents WHERE hotelId = '$hotelId'";
+        
+        if($id != ''){
+            $sql .= " and id = '$id'";
+        }
+        
+        if($name != ''){
+            $sql .= " and agentName like '%$name%'";
+        }
+        
+        if($state != ''){
+            $sql .= " and travelagentState = '$state'";
+        }
         
         $data = array();
         $query = mysqli_query($conDB, $sql);
         if (mysqli_num_rows($query) > 0) {
             while ($row = mysqli_fetch_assoc($query)) {
+                $aGroup = $row['travelagentGroup'];
+                $aGroupName = fetchData('travelAgentGroup', [id=>$aGroup])[0];
                 $tid = $row['id'];
                 $bookingArray = getAllBooingData('','','','','','',$tid);
                 $totalPrice = 0;
@@ -12667,6 +12866,7 @@ function getOrganisationList(){
 
                 $advance = [
                     'balance'=>$totalPrice,
+                    'groupName'=>$aGroupName['name']
                 ];
 
                 $data[] = array_merge($row,$advance);
@@ -12677,17 +12877,38 @@ function getOrganisationList(){
     }
 
 
-function setTraveAgentData($travelagentname, $travelagentemail, $travelagentAddress, $travelagrntCity, $travelagentState, $travelagentCountry, $travelagentPostCode, $travelagentPhoneno, $travelagentGstNo, $travelagentcommission, $travelaaagentGstonCommision, $travelaaagentTcs, $travelaaagentTds, $travelagentNote){
+function setTraveAgentData($agentName,$travelagentname, $travelagentemail, $travelagentAddress, $travelagrntCity, $travelagentState, $travelagentCountry, $travelagentPostCode, $travelagentPhoneno, $travelagentGstNo, $travelagentcommission, $travelaaagentGstonCommision, $travelaaagentTcs, $travelaaagentTds, $travelagentNote,$travelagentGroup,$actionId=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
+    if($actionId != ''){
+        $query = "UPDATE travel_agents 
+          SET 
+              agentName = '$agentName',
+              travelagentname = '$travelagentname',
+              travelagentemail = '$travelagentemail',
+              travelagentAddress = '$travelagentAddress',
+              travelagrntCity = '$travelagrntCity',
+              travelagentState = '$travelagentState',
+              travelagentCountry = '$travelagentCountry',
+              travelagentPostCode = '$travelagentPostCode',
+              travelagentPhoneno = '$travelagentPhoneno',
+              travelagentGstNo = '$travelagentGstNo',
+              travelagentcommission = $travelagentcommission,
+              travelaaagentGstonCommision = $travelaaagentGstonCommision,
+              travelaaagentTcs = $travelaaagentTcs,
+              travelaaagentTds = $travelaaagentTds,
+              travelagentNote = '$travelagentNote',
+              travelagentGroup = '$travelagentGroup'
+          WHERE id = $actionId";
 
-    $query = "INSERT INTO travel_agents (hotelId,travelagentname, travelagentemail, travelagentAddress, travelagrntCity, travelagentState, travelagentCountry, travelagentPostCode, travelagentPhoneno, travelagentGstNo, travelagentcommission, travelaaagentGstonCommision, travelaaagentTcs, travelaaagentTds, travelagentNote) VALUES('$hotelId','$travelagentname', '$travelagentemail', '$travelagentAddress', '$travelagrntCity', '$travelagentState', '$travelagentCountry', '$travelagentPostCode', '$travelagentPhoneno', '$travelagentGstNo', $travelagentcommission, $travelaaagentGstonCommision, $travelaaagentTcs, $travelaaagentTds, '$travelagentNote')";
-    $sql = mysqli_query($conDB,$query);
-    if($sql){
-        return true;
+    }else{
+        $query = "INSERT INTO travel_agents (hotelId,agentName,travelagentname, travelagentemail, travelagentAddress, travelagrntCity, travelagentState, travelagentCountry, travelagentPostCode, travelagentPhoneno, travelagentGstNo, travelagentcommission, travelaaagentGstonCommision, travelaaagentTcs, travelaaagentTds, travelagentNote,travelagentGroup) VALUES('$hotelId','$agentName','$travelagentname', '$travelagentemail', '$travelagentAddress', '$travelagrntCity', '$travelagentState', '$travelagentCountry', '$travelagentPostCode', '$travelagentPhoneno', '$travelagentGstNo', $travelagentcommission, $travelaaagentGstonCommision, $travelaaagentTcs, $travelaaagentTds, '$travelagentNote','$travelagentGroup')";
     }
-    else{
-        return false;
+    
+    $sql = mysqli_query($conDB,$query);
+
+    if($sql){
+        return mysqli_insert_id($conDB);
     }
 
 
@@ -12720,7 +12941,7 @@ function getProAddonCharge(){
 }
 function setExtraChargeList($name,$amount,$id=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     if($id !=''){
         $query = "UPDATE property_addon_charges SET name = '$name', amount = $amount WHERE id = $id";
     }
@@ -12740,7 +12961,7 @@ function setExtraChargeList($name,$amount,$id=''){
 function guestNamesByBid($bid)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $query = "SELECT name FROM guest Where hotelId = $hotelId and bookingdId = $bid";
     $sql = mysqli_query($conDB, $query);
@@ -12759,7 +12980,7 @@ function guestNamesByBid($bid)
 function getFolioHistory($bid)
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $query = "SELECT * FROM booking_folio WHERE hotelId = $hotelId and bid = $bid";
     $sql = mysqli_query($conDB, $query);
     $data = []; 
@@ -12775,7 +12996,7 @@ function getFolioHistory($bid)
 
 function getExtraChargeDetails($id=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     if($id!=''){
         $query = "SELECT * FROM property_addon_charges WHERE hotelid=$hotelId AND id = $id";
     }
@@ -12799,7 +13020,7 @@ function getExtraChargeDetails($id=''){
 
 function deleteChargeList($id){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
 
     $query = "DELETE From property_addon_charges WHERE hotelid=$hotelId AND id = $id";
@@ -12814,7 +13035,7 @@ function deleteChargeList($id){
 
 
 function checkUserAccess($uid,$pageId=''){
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     global $conDB;
     $uid = ($uid == '') ? $_SESSION['ADMIN_ID'] : $uid;
     $userArry = getHotelUserDetail($uid)[0];
@@ -12841,7 +13062,7 @@ function checkUserAccess($uid,$pageId=''){
 }
 
 function userAccessUpdate($uid,$pageId,$fullArry=[]){
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     global $conDB;
     global $time;
 
@@ -12911,7 +13132,7 @@ function arrayFormatingByTree($tab,$pdata){
 //code written by abinash in 27/02/2024
 function setPaymentVerifyCheckBox($unCheck=''){
     global $conDB;  
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $query = "SELECT * FROM payment_verify where hotelId = $hotelId";
     $sql = mysqli_query($conDB,$query);
@@ -12944,7 +13165,7 @@ function setPaymentVerifyCheckBox($unCheck=''){
 }
 function checkVerifiedOrNot(){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $query = "SELECT * FROM payment_verify WHERE hotelId = $hotelId";
     $sql = mysqli_query($conDB,$query);
@@ -12965,7 +13186,7 @@ function checkVerifiedOrNot(){
 function getGuestPaymentDetails($bid = '', $date = '')
 {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
             $query = "SELECT 
             proId, 
@@ -12998,7 +13219,7 @@ function getGuestPaymentDetails($bid = '', $date = '')
 
 function setSettelement($bid, $listId = '',$date='') {
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $query = "UPDATE payment_timeline SET openFolio = 0 WHERE bid = $bid AND hotelId = $hotelId";
     if (!empty($listId)) {
@@ -13018,7 +13239,7 @@ function setSettelement($bid, $listId = '',$date='') {
 
 function getPaymentHistDetails($bid,$date){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $query = "SELECT * FROM payment_timeline WHERE proId = $bid AND hotelId = $hotelId AND DATE(addOn) = '$date'";
 
@@ -13034,7 +13255,7 @@ function getPaymentHistDetails($bid,$date){
 }
 function setPaymentProofCheckBox($unCheck=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $query = "SELECT * FROM payment_verify where hotelId = $hotelId";
     $sql = mysqli_query($conDB,$query);
 
@@ -13088,7 +13309,7 @@ function getHotelPageLink($hId=''){
 
 function setHotelPageLink($hid, $aboutPage='',$conPage='',$hotelP='',$cancelP='',$rPolicy=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     
     if(count(getHotelPageLink($hid)) > 0){        
         $sqlArray = array();
@@ -13128,7 +13349,7 @@ function setHotelPageLink($hid, $aboutPage='',$conPage='',$hotelP='',$cancelP=''
 }
  function getGuestInformationByBid($bid){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $query = "SELECT * FROM guest WHERE bookId = $bid and hotelId = '$hotelId'";
 
@@ -13249,7 +13470,7 @@ function customDecodeBase64($input) {
 
 function getResList(){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     
     $query = "SELECT * FROM kot_restaurant WHERE hotelId = $hotelId AND deleteRec = 1";
     $sql = mysqli_query($conDB,$query);
@@ -13263,7 +13484,7 @@ function getResList(){
 
 function getRestIdFromTableId($tid){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
     $query = "SELECT resId FROM kottable WHERE hotelId = $hotelId AND id=$tid";
     $sql = mysqli_query($conDB,$query);
     if(mysqli_num_rows($sql)>0){
@@ -13275,7 +13496,7 @@ function getRestIdFromTableId($tid){
 
 function updateLiveorderkot($qty='',$proId='',$orderId=''){
     global $conDB;
-    global $hotelId;
+    $hotelId = HOTEL_ID;
 
     $qTyquery ="SELECT qty FROM kotorderdetail WHERE proId = $proId AND orderId = $orderId";
     $qTysql = mysqli_query($conDB,$qTyquery);
@@ -13537,8 +13758,7 @@ function buildQuery($tableName, $conditions=array(), $orderByColumn = 'id', $ord
 
 function fetchData($tableName, $conditions=array(), $orderByColumn = 'id', $orderDirection = 'DESC'){
     global $conDB;
-    $sql = buildQuery($tableName, $conditions, $orderByColumn, $orderDirection);
-   
+    $sql = buildQuery($tableName, $conditions, $orderByColumn, $orderDirection);   
     $query = mysqli_query($conDB, $sql);
     $data = array();
     while($row = mysqli_fetch_assoc($query)){
@@ -13625,6 +13845,156 @@ function sendDataReservation($key,$url,$table,$data){
         echo 'Response: ' . $response;
     }
 }
+
+
+
+function listOfOdishaDistric(){
+    $districts = [
+        "Angul",
+        "Balangir",
+        "Balasore",
+        "Bargah",
+        "Bhadrak",
+        "Boudh",
+        "Cuttak",
+        "Deogarh",
+        "Dhenkanal",
+        "Ganjam",
+        "Gajapati",
+        "Jagatsinghpur",
+        "Jajpur",
+        "Jharsuguda",
+        "Kalhandi",
+        "Keonjhar",
+        "Kendrapara",
+        "Khurda",
+        "Koraput",
+        "Malkangiri",
+        "Mayurbhanj",
+        "Nayagarh",
+        "Navapada",
+        "Navaragpur",
+        "Phulbani",
+        "Puri",
+        "Rayagada",
+        "Sambalpur",
+        "Sonepur",
+        "Sundergarh"
+    ];
+    
+    $json_data = json_encode($districts);
+    
+    return $json_data;
+    
+}
+
+function getStatesOfIndia() {
+    $states_of_india = array(
+        "Andhra Pradesh",
+        "Arunachal Pradesh",
+        "Assam",
+        "Bihar",
+        "Chhattisgarh",
+        "Goa",
+        "Gujarat",
+        "Haryana",
+        "Himachal Pradesh",
+        "Dharamshala",
+        "Jharkhand",
+        "Karnataka",
+        "Kerala",
+        "Madhya",
+        "Maharashtra",
+        "Nagpur",
+        "Manipur",
+        "Meghalaya",
+        "Mizoram",
+        "Nagaland",
+        "Odisha",
+        "Punjab",
+        "Rajasthan",
+        "Sikkim",
+        "Tamil Nadu",
+        "Telangana",
+        "Tripura",
+        "Uttar Pradesh",
+        "Uttarakhand",
+        "Dehradun",
+        "West Bengal",
+        "Andaman and Nicobar Islands",
+        "Chandigarh",
+        "Dadra and Nagar",
+        "Delhi",
+        "Jammu and Kashmir",
+        "Jammu",
+        "Ladakh",
+        "Kargil",
+        "Lakshadweep",
+        "Puducherry"
+    );
+    
+    return $states_of_india;
+}
+
+
+function loadTableSkeleton(){
+    $html = '`<table class="tg">
+                <tr>
+                    <th class="tg-cly1"><div class="tb_line"></div></th>
+                    <th class="tg-cly1"><div class="tb_line"></div></th>
+                    <th class="tg-cly1"><div class="tb_line"></div></th>
+                    <th class="tg-cly1"><div class="tb_line"></div></th>
+                    <th class="tg-cly1"><div class="tb_line"></div></th>
+                    <th class="tg-cly1"><div class="tb_line"></div></th>
+                    <th class="tg-cly1"><div class="tb_line"></div></th>
+                    <th class="tg-cly1"><div class="tb_line"></div></th>
+                </tr>
+                <tr>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                </tr>
+                <tr>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                </tr>
+                <tr>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                </tr>
+                <tr>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                    <td class="tg-cly1"><div class="tb_line"></div></td>
+                </tr>
+            </table>`;';
+
+    return $html;
+}
+
+
 
  ?>
 
