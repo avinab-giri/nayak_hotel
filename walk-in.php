@@ -150,13 +150,20 @@ $grcLink = FRONT_SITE . '/grc';
                                                         </div>
                                                     </div>
 
-                                                    <div class="col-6">
+                                                    <div class="col-md-2">
+                                                        <div class="form-group">
+                                                            <label for="tootalRooms">Rooms</label>
+                                                            <input min="1" onkeypress="totalRoomsUpdate(this)" onchange="totalRoomsUpdate(this)" id="tootalRooms" class="form-control" type="number" value="1" placeholder="" name="tootalRooms">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-5">
                                                         <div class="form-group">
                                                             <label for="">Arr. Details</label>
                                                             <input class="form-control" type="text" value="" placeholder="" name="arrDetails">
                                                         </div>
                                                     </div>
-                                                    <div class="col-6">
+                                                    <div class="col-md-5">
                                                         <div class="form-group">
                                                             <label for="">Dep. Details</label>
                                                             <input class="form-control" type="text" value="" placeholder="" name="depDetails">
@@ -185,76 +192,7 @@ $grcLink = FRONT_SITE . '/grc';
                                                                 </tr>
                                                             </thead>
                                                             <tbody id="roomDetailId">
-                                                                <tr>
-                                                                    <td class="pr10">
-                                                                        <div class="form-group">
-                                                                            <select class="selectRoomId customSelect" name="selectRoom[]" data-rno="0">
-                                                                                <option value="0" selected="">-Select Room</option>
-                                                                                <?php
-                                                                                foreach (fetchData('room', ['hotelId' => $_SESSION['HOTEL_ID']]) as $item) {
-                                                                                    $roomId = $item['id'];
-                                                                                    $roomName = $item['header'];
-                                                                                    echo '<option value="' . $roomId . '">' . $roomName . '</option>';
-                                                                                }
-                                                                                ?>
-                                                                            </select>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td class="pr10">
-                                                                        <div class="form-group">
-                                                                            <select class="rateTypeId customSelect" name="selectRateType[]" data-rno="0">
-                                                                                <option value="" selected="">-Select</option>
-                                                                                <?php
-                                                                                foreach (fetchData('sys_rate_plan') as $item) {
-                                                                                    $rpId = $item['id'];
-                                                                                    $srtcode = $item['srtcode'];
-                                                                                    echo '<option value="' . $rpId . '">' . $srtcode . '</option>';
-                                                                                }
-                                                                                ?>
-                                                                            </select>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td class="pr10">
-                                                                        <div class="form-group">
-                                                                            <input class="form-control" type="number" min="0" value="0" placeholder="" name="selectAdult[]">
-                                                                        </div>
-                                                                    </td>
-
-                                                                    <td class="pr10">
-                                                                        <div class="form-group">
-                                                                            <input class="form-control" type="number" min="0" value="0" name="selectChild[]">
-                                                                        </div>
-                                                                    </td>
-
-                                                                    <td class="pr10">
-                                                                        <div class="form-group">
-                                                                            <input class="form-control" type="number" min="0" value="0" name="extraBD[]">
-                                                                        </div>
-                                                                    </td>
-
-                                                                    <td class="pr10">
-                                                                        <div class="form-group">
-                                                                            <select onchange="calculateTotal()" class="customSelect roomGst" name="roomGst[]" id="">
-                                                                                <option value="0">0</option>
-                                                                                <option selected value="12">12%</option>
-                                                                                <option value="18">18%</option>
-                                                                            </select>
-                                                                        </div>
-                                                                    </td>
-
-                                                                    <td>
-                                                                        <div class="form-group reservationRateArea">
-                                                                            <input onchange="calculateTotal()" type="number" value="0" class="form-control totalPriceSection" name="totalPrice[]">
-                                                                        </div>
-                                                                    </td>
-
-                                                                    <td>
-                                                                        <div class="form-group reservationRateArea">
-                                                                            <input type="number" value="0" class="form-control totalPriceWithGst disabled" name="totalPriceWithGst[]" readonly>
-                                                                        </div>
-                                                                    </td>
-
-                                                                </tr>
+                                                                
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -666,6 +604,82 @@ $grcLink = FRONT_SITE . '/grc';
 
         var date = new Date();
 
+        function roomDetailContent(){
+            let html = `
+                <tr>
+                    <td class="pr10">
+                        <div class="form-group">
+                            <select class="selectRoomId customSelect" name="selectRoom[]" data-rno="0">
+                                <option value="0" selected="">-Select Room</option>
+                                <?php
+                                foreach (fetchData('room', ['hotelId' => $_SESSION['HOTEL_ID']]) as $item) {
+                                    $roomId = $item['id'];
+                                    $roomName = $item['header'];
+                                    echo '<option value="' . $roomId . '">' . $roomName . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="pr10">
+                        <div class="form-group">
+                            <select class="rateTypeId customSelect" name="selectRateType[]" data-rno="0">
+                                <option value="" selected="">-Select</option>
+                                <?php
+                                foreach (fetchData('sys_rate_plan') as $item) {
+                                    $rpId = $item['id'];
+                                    $srtcode = $item['srtcode'];
+                                    echo '<option value="' . $rpId . '">' . $srtcode . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="pr10">
+                        <div class="form-group">
+                            <input class="form-control" type="number" min="0" value="0" placeholder="" name="selectAdult[]">
+                        </div>
+                    </td>
+
+                    <td class="pr10">
+                        <div class="form-group">
+                            <input class="form-control" type="number" min="0" value="0" name="selectChild[]">
+                        </div>
+                    </td>
+
+                    <td class="pr10">
+                        <div class="form-group">
+                            <input class="form-control" type="number" min="0" value="0" name="extraBD[]">
+                        </div>
+                    </td>
+
+                    <td class="pr10">
+                        <div class="form-group">
+                            <select onchange="calculateTotal()" class="customSelect roomGst" name="roomGst[]" id="">
+                                <option value="0">0</option>
+                                <option selected value="12">12%</option>
+                                <option value="18">18%</option>
+                            </select>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="form-group reservationRateArea">
+                            <input onchange="calculateTotal()" type="number" value="0" class="form-control totalPriceSection" name="totalPrice[]">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="form-group reservationRateArea">
+                            <input type="number" value="0" class="form-control totalPriceWithGst disabled" name="totalPriceWithGst[]" readonly>
+                        </div>
+                    </td>
+
+                </tr>
+            `;
+            return html;
+        }
+
         $('#checkInInut').datepicker({
             format: 'dd-mm-yyyy',
             autoclose: true,
@@ -690,7 +704,25 @@ $grcLink = FRONT_SITE . '/grc';
         });
 
 
+        function setRoomContent(rooms){
+            let html = '';
+
+            for (let i = 0; i < rooms; i++) {
+                html += roomDetailContent();
+            }
+
+            $('#roomDetailId').html(html);
+        }
+
+
+        function totalRoomsUpdate(e){
+            let rooms = e.value;
+            setRoomContent(rooms)
+        }
+
+
         $(document).ready(() => {
+            setRoomContent(1);
             $('#currentDateStart').datepick({
                 onSelect: function(dates) {
                     var currentDate = $(this).val();

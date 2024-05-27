@@ -42,117 +42,61 @@ if ($type == 'load_resorvation') {
     // $si = 0;
     // $pagination = '';    
     
-    $page = '';
-    if(isset($_POST['page'])){
-        $page = $_POST['page'];
-    }else{
-        $page = 1;
-    }
+    // $page = '';
+    // if(isset($_POST['page'])){
+    //     $page = $_POST['page'];
+    // }else{
+    //     $page = 1;
+    // }
 
 
-    $offset = ($page -1) * $limit_per_page;
+    // $offset = ($page -1) * $limit_per_page;
 
-    $sql .= " limit $offset, {$limit_per_page}";
+    // $sql .= " limit $offset, {$limit_per_page}";
 
     $clrPreviewHtml = clrPreviewHtml();
     $html = '<div class="row">';
    
     $query = mysqli_query($conDB, $sql);
-    // $si = $si + ($limit_per_page *  $page) - $limit_per_page;
     $paginationHtml = '';
-
-    if (mysqli_num_rows($query) > 0) {
-        if (mysqli_num_rows($query) > 0) {
-
-            while ($row = mysqli_fetch_assoc($query)) {
-                // pr($row);
-                $html .= '<div class="col-xl-3 col-md-4 col-sm-6 col-xs-12">';
-                $bid = $row['bookingMainId'];
-                $bookinId = $row['bookinId'];
-                $reciptNo = $row['reciptNo'];
-                $userPay = $row['userPay'];
-                $checkIn = $row['checkIn'];
-                $checkOut = $row['checkOut'];
-                $nroom = $row['nroom'];
-                $couponCode = $row['couponCode'];
-
-                $pickUp = $row['pickUp'];
-                $payment_status = $row['payment_status'];
-                $payment_id = $row['payment_id'];
-                $bookingSource = $row['bookingSource'];
-                $add_on = $row['add_on'];
-                $bookingDetailMainId = '';
-                if (isset($row['bookingDetailMainId'])) {
-                    $bookingDetailMainId = $row['bookingDetailMainId'];
-                }
-                $addBy = explode(',', $row['addBy']);
-                $maxAddBy = count($addBy);
-                $addByValue = $addBy[$maxAddBy - 1];
-                $addByValueArr = explode('_', $addByValue);
-
-                $bookingDetailArray = getBookingDetailById($bid);
-
-                $grossCharge = $bookingDetailArray['totalPrice'];
-                $gname = $bookingDetailArray['name'];
-                $nAdult = $bookingDetailArray['totalAdult'];
-                $nChild = $bookingDetailArray['totalChild'];
-                $checkinStatusArray = $bookingDetailArray['checkinStatusArray'][0];
-
-                $statusArray = [
-                    'name' => $checkinStatusArray['name'],
-                    'bg' => $checkinStatusArray['bg'],
-                    'clr' => $checkinStatusArray['color'],
-                ];
-
-
-                $html .= reservationContentView($bid, $reciptNo, $gname, $checkIn, $checkOut, $add_on, $nAdult, $nChild, $grossCharge, $userPay, 'yes', $rTabType, $bookingDetailMainId, '', $bookingSource, '', $bookinId, $statusArray);
-
-                $html .= '</div>';
-            }
-            $paginationHtml = '<ul class="pagination">';
-            for($i =1; $i <= $totalPage ; $i ++){
-                $active = ($i == $page) ? 'active' : '';
-                $paginationHtml .= "<li class='paginate_button $active'><a href='javascript:void(0)' onclick=\"loadResorvation('','','','','',$i)\">$i</a></li>";
-
-            }
-
-            $paginationHtml .= '</ul>';
-
-        } else {
-            $html .= '
-        
-                <div class="noDataContent">
-                    <div class="content">
-                        <h4>No Data</h4>
-                    </div>
-                </div>
-            
-            ';
+    $resData = array();
+    while($row = mysqli_fetch_assoc($query)){
+        $bid  = $row['bookingMainId'];
+        $checkIn  = $row['mainCheckIn'];
+        $checkOut  = $row['mainCheckOut'];
+        $bookingDetailArray = fetchData('bookingdetail', ['bid'=> $bid]);
+        $guestArray = (isset(fetchData('guest', ['bookId'=>$bid, 'groupadmin' => 1])[0])) ? fetchData('guest', ['bookId'=>$bid, 'groupadmin' => 1])[0] : [];
+        $totalAdult = 0;
+        $totalChild = 0;
+        $totalBookingPrice = 0;
+        $totalExBd = 0;
+        $totalRooms = count($bookingDetailArray);
+        foreach($bookingDetailArray as $item){
+            $totalAdult += $item['adult'];
+            $totalChild += $item['child'];
+            $totalExBd += $item['exBd'];
+            $totalBookingPrice += $item['totalPrice'];
         }
-    } else {
-        if ($rTabType == 'all') {
-            $html .= '
-                <div class="noDataContent">
-                    <div class="content">
-                        <h4>No Data</h4>
-                        <a href="'.$newResLink.'" id="noDataClickToReservation" class="btn bg-gradient-info">Add Reservation</a>
-                    </div>
-                </div>
-            ';
-        } else {
-            $html .= '
-            <div class="noDataContent">
-                <div class="content">
-                    <h4>No Data</h4>                      
-                </div>
-            </div>
-        ';
-        }
+
+        $advanceArray = [
+            'totalAdult'=>intval($totalAdult),
+            'totalChild'=>intval($totalChild),
+            'totalBookingPrice'=>intval($totalBookingPrice),
+            'totalExBd'=>intval($totalExBd),
+            'totalRooms'=>intval($totalRooms),
+            'nightCount'=> getNightCountByDay($checkIn,$checkOut),
+            'guestName' => (isset($guestArray['name'])) ? $guestArray['name'] : ''
+        ];
+
+        $resData[]= array_merge($row, $advanceArray);
     }
 
-    $html .= '</div>'. $paginationHtml;
-
-    echo $html;
+    $data = [
+        'pagination'=>'',
+        'data'=>$resData
+    ];
+    
+    echo json_encode($data);
 }
 
 if ($type == 'bookingreport') {

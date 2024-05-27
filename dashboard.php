@@ -9,7 +9,7 @@ checkLoginAuth();
 
 
 $hotelData = hotelDetail();
-$hotelDetailArray = fetchData('hotel', ['hCode'=> HOTEL_ID])[0];
+$hotelDetailArray = fetchData('hotel', ['hCode' => HOTEL_ID])[0];
 
 $hotelName = ucfirst($hotelDetailArray['hotelName']);
 
@@ -574,13 +574,8 @@ $hotelName = ucfirst($hotelDetailArray['hotelName']);
                     <div class="card z-index-2 stayViewReport">
                         <div class="card-header px-3 py-2" style="border-bottom: 1px solid #e9e9e9;">
                             <div class="dFlex jcsb aic">
-                                <h6 class="mb0">
-                                    <a class="dFlex aic wAuto" href="<?= FRONT_SITE . '/stay-view' ?>">
-                                        <h4 class="mr8">Occupancy Forecast</h4> <svg class="icon">
-                                            <use href="#lunchIcon"></use>
-                                        </svg>
-                                    </a>
-                                </h6>
+                                <h4 class="mr8">Occupancy Forecast</h4>
+                                <input readonly id="occupancyDatePick" type="text" value="<?= date('m/d/Y') ?>">
                             </div>
                         </div>
                         <div class="card-body p-3">
@@ -661,8 +656,8 @@ $hotelName = ucfirst($hotelDetailArray['hotelName']);
     <script>
         $('.linkBtn').removeClass('active');
         $('.homeLink').addClass('active');
-        
 
+        $('#occupancyDatePick').datepicker();
 
         function loadRevenueOverviewSec($action = '') {
             var act = $action;
@@ -747,6 +742,13 @@ $hotelName = ucfirst($hotelDetailArray['hotelName']);
             loadActiveFeed();
 
             loadOccupancyForecastReport('<?= date("Y-m-d", strtotime('-2 days')) ?>', '<?= date("Y-m-d", strtotime('2 days')) ?>');
+
+            $(document).on('change', '#occupancyDatePick', function(){
+                let value = $(this).val();
+                let formateDate = moment(value).format('YYYY-MM-DD');
+                let new_date = moment(formateDate, "YYYY-MM-DD").add(4, 'days').format('YYYY-MM-DD');
+                loadOccupancyForecastReport(formateDate,new_date);
+            })
 
             $(document).on('click', '.dropdownSec ul button', function() {
                 var content = $(this).html();

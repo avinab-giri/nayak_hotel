@@ -30,7 +30,7 @@ $bid = $_GET['id'];
         }
     </script>
     <script>
-        // setTimeout(Print, 1000);
+        setTimeout(Print, 1000);
     </script>
 </body>
 </html>

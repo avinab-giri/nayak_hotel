@@ -591,7 +591,7 @@ function reservationRightNav(){
     $rightNav = '
         <ul>
         
-            <li style="margin-right: 5px;"><a class="btn btn-success" id="excelImport" href="javascript:void(0)"> <i class="fas fa-file-import"></i> Import</a> </li>
+            <li style="margin-right: 5px;"><a class="btn btn-success" id="exportData" href="javascript:void(0)"> <i class="fas fa-file-export"></i> Export</a> </li>
             <li style="margin-right: 5px;"><a target="_blank" class="mb-0 btn btn-secondary" href="' . $grcLink . '"><i class="fas fa-print"></i> Print Blank GRC</a></li>
             <li><a class="btn btn-warning" id="searchBtnReservation" href="javascript:void(0)"> <i class="fas fa-search"></i></a> </li>
         </ul>
@@ -13844,6 +13844,22 @@ function sendDataReservation($key,$url,$table,$data){
     } else {
         echo 'Response: ' . $response;
     }
+}
+
+
+function occupancyRoomList($rid, $data){
+    global $conDB;
+    $hotelId = HOTEL_ID;
+    $nextDate = date('Y-m-d', strtotime('+1 day', strtotime($data)));
+    $sql = "SELECT * FROM bookingdetail 
+        WHERE hotelId = '$hotelId' and checkIn >= '$data' 
+        AND checkOut <= '$nextDate' and roomId = '$rid'";
+    $query = mysqli_query($conDB, $sql);
+    $data = array();
+    while($row = mysqli_fetch_assoc($query)){
+        $data[] = $row;
+    }
+    return $data;
 }
 
 

@@ -174,13 +174,26 @@ $grcLink = FRONT_SITE . '/grc';
         $('.resLink').addClass('active');
 
 
+        function exportFile() {
+            var currentDate = new Date();
+            var day = currentDate.getDate()
+            var month = currentDate.getMonth() + 1;
+            $('#reservationTable').table2excel({
+                exclude: ".no-export",
+                filename: `reservation-${day}-${month}.xls`,
+                fileext: ".xls",
+                exclude_links: true,
+                exclude_inputs: true
+            });
+        }
+
+        $(document).on('click', '#exportData', function() {
+            exportFile();
+        });
+
 
         $(document).ready(() => {
             loadResorvation('all');
-
-
-
-
         });
 
         $('#excelExport').click(function() {

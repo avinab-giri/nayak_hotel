@@ -2304,7 +2304,6 @@
         $startDate = ($_POST['startDate'] != '') ? date('Y-m-d', strtotime($_POST['startDate'])) : date('Y-m-d');
         $endDate = ($_POST['endDate'] != '') ? date('Y-m-d', strtotime($_POST['endDate'])) : date("d-m-Y", strtotime("$startDate +1 day"));
         $getRoomDataArry = getRoomData();
-        // pr($getRoomDataArry);
 
         $roomName = array();
         $data = array();
@@ -2313,7 +2312,7 @@
 
         $interval = round(abs(strtotime($endDate) - strtotime($startDate)) / 86400);
 
-        for($i = 1; $i <= $interval; $i ++){
+        for($i = 0; $i < $interval; $i ++){
             $currentDate = date('Y-m-d', strtotime($startDate) + (86400 * $i));
             $cDate[] = $currentDate;
         }
@@ -2325,9 +2324,9 @@
             $roomName[] = $name;
             $perDayData = array();
 
-            for($i = 1; $i <= $interval; $i ++){
+            for($i = 0; $i < $interval; $i ++){
                 $currentDate = date('Y-m-d', strtotime($startDate) + (86400 * $i));
-                $occupancy = count(getRoomNumberWithFilter($roomId,'reserved',$currentDate));   
+                $occupancy = count(occupancyRoomList($roomId,$currentDate));   
 
                 $perDayData[] = [
                     'date'=>$currentDate,                    

@@ -44,6 +44,10 @@ img {
           user-select: none;
 }
 
+a.hcw:hover{
+  color: white !important;
+}
+
 .scrolableTable {
   width: 100%;
   overflow: hidden;

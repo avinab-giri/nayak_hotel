@@ -357,15 +357,100 @@ function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingTy
         type: 'post',
         data: { type: 'load_resorvation', rTab: rTab, search: search, reserveType: reserveType, bookingType: bookingType, currentDate: currentDate,page: page },
         success: function (data) {
+            var response = JSON.parse(data);
+            var resData = response.data;
+            var pagination = response.pagination;
+            var paginationHtml = '';
 
-            $('#resorvationContent').html(data);
-          
-            if (window.filePath == 'stay-view') {
-                var getTime = $('#currentDateStart').val();
-                loadStayView(getTime);
-            } else {
-                reservationCountNavBar(rTab, '', currentDate);
+            page = (page == '') ? 1 : page;
+
+            if(pagination > 0){
+                for (let i = 1; i <= pagination; i++) {
+                    var active = (page == i) ? 'active' :'';
+                    paginationList += `<li class="paginate_button ${active}"><a href="javascript:void(0)" onclick='loadGuest(${i})'>${i}</a></li>`;
+                }
+
+                paginationHtml = `
+                    <ul class="pagination">
+                        ${paginationList}
+                    </ul>
+                `;
             }
+
+            let tableRow = '';
+
+            if(resData.length > 0){
+                $.each(resData, (index,val)=>{
+                    let bid = val.bookingMainId;
+                    let reciptNo = generateNumber(val.reciptNo);
+                    let GuestName = val.guestName;
+                    let rooms = val.totalRooms;
+                    let checkIn = moment(val.mainCheckIn).format('DD MMM, YY');
+                    let checkOut = moment(val.mainCheckOut).format('DD MMM, YY');
+                    let night = val.nightCount;
+                    let pax = val.totalAdult + '/' + val.totalChild;
+                    let total = rupeesFormat(val.totalBookingPrice);
+    
+                    let grcLink = `${webUrl}grc?id=${bid}`;
+                    let voucherLink = `${webUrl}view-voucher?id=${bid}`;
+                    let viewLink = '';
+                    tableRow += `
+                        <tr>
+                            <td>${reciptNo}</td>
+                            <td>${GuestName}</td>
+                            <td>${rooms}</td>
+                            <td>${checkIn}</td>
+                            <td>${night}</td>
+                            <td>${checkOut}</td>
+                            <td>${pax}</td>
+                            <td>${total}</td>
+                            <td>
+                                <div class="tableCenter">
+                                    <span class="tableHide"><svg class="svg-inline--fa fa-ellipsis-h fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-h" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"></path></svg><!-- <i class="fas fa-ellipsis-h"></i> Font Awesome fontawesome.com --></span>
+                                    <span class="tableHoverShow">              
+    
+                                        <a class="badge bg-gradient-primary hcw" href="${grcLink}" target="_blank" data-tooltip-top="GRC"><i class="fas fa-print"></i></a>
+    
+                                        <a class="badge bg-gradient-info hcw" href="${voucherLink}" target="_blank" data-tooltip-top="Guest Voucher"><i class="fas fa-file-alt"></i> </a>
+    
+                                        <a onclick="viewBookingReport(${bid})" class="badge bg-gradient-success hcw" href="javascript:void(0)" data-tooltip-top="View"><i class="fas fa-eye"></i></a>
+    
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+    
+                });
+            }else{
+                tableRow = `<tr><td colspan="100%">No Data</td></tr>`;
+            }
+
+
+            let html = `
+                        <table id="reservationTable" class="table">
+                            <thead>
+                                <tr>
+                                    <th>Receipt no</th>
+                                    <th>Guest Name</th>
+                                    <th>Rooms</th>
+                                    <th>Check In</th>
+                                    <th>Night</th>
+                                    <th>Check Out</th>
+                                    <th>Pax</th>
+                                    <th>Total</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRow}
+                            </tbody>
+                        </table>
+
+                        ${paginationHtml}
+            `;
+
+            $('#resorvationContent').html(html);
 
         }
     });
@@ -1158,10 +1243,10 @@ $(document).on('click', '#addReservationSubmitBtn', function (e) {
     var idName = $('.reservationTab.active').prop('id');
     var roomId = $('.selectRoomId').val();
     var guestName = $('#guestName').val();
-    var roomNum = $('.roomNumSelect').val();
     var page = window.filePath;
 
-    var roomNumArray = $('.roomNumSelect').toArray();
+    var roomNumArray = $('.selectRoomId').toArray();
+    var roomDetailArray = $('.rateTypeId').toArray();
     var errorArray = $('.error').toArray();
 
     var hasError = false;
@@ -1171,9 +1256,10 @@ $(document).on('click', '#addReservationSubmitBtn', function (e) {
         if(innerHTMLContent.trim() != ''){
             hasError = true;
         }
-    });
+    });   
 
     var hasZeroValue = false;
+    var roomDetailValue = false;
 
     $.each(roomNumArray, (index, element) => {
         if (element.value === "0") {
@@ -1182,12 +1268,18 @@ $(document).on('click', '#addReservationSubmitBtn', function (e) {
         }
     });
 
+    $.each(roomDetailArray, (index, element) => {
+        var innerHTMLContent = $(element).html();
+        if(element.value === "0"){
+            roomDetailValue = true;
+            return false;
+        }
+    });
+
 
     if (hasError) {
-        event.preventDefault();
-        console.log('false');
+        e.preventDefault();
     }else{
-        console.log('true');
 
         $(this).html('Loading...');
         $(this).addClass('disabled');
@@ -1204,8 +1296,8 @@ $(document).on('click', '#addReservationSubmitBtn', function (e) {
             $(this).html('Save');
             $(this).removeClass('disabled');
     
-        } else if (roomNum == 0) {
-            sweetAlert("Please Select Room Number.", "error");
+        } else if (roomDetailValue) {
+            sweetAlert("Please select Rate plan.", "error");
     
             $(this).html('Save');
             $(this).removeClass('disabled');
