@@ -3166,7 +3166,7 @@
         global $conDB;
         global $time;
         $bid = $_POST['bid'];
-        $sql = "update booking set status = '6', actionOn = '$time' where id = '$bid'";
+        $sql = "update booking set status = '7', actionOn = '$time' where id = '$bid'";
         $data = '';
         if(mysqli_query($conDB, $sql)){
             foreach(fetchData('bookingdetail',['bid'=>$bid]) as $item){

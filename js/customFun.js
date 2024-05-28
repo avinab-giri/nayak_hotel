@@ -4891,7 +4891,7 @@ function addCompanyForm(id=''){
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="organisationName" class="control-label">Name</label>                     
+                        <label for="organisationName" class="control-label">Name *</label>                     
                         <input type="text" placeholder="Organisation Name" class="form-control" name="organisationname" value="${name}" id="organisationName">
                         <input name="actionId" type="hidden" value="${id}"/>
                         <ul id="organisationDropDown" class="inputDropDown"></ul >
@@ -4899,16 +4899,16 @@ function addCompanyForm(id=''){
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="control-label">Contact person Name</label>                     
-                        <input type="text" placeholder="Contact person Name" class="form-control" name="oConPerName" value="${orgConName}">
+                        <label class="control-label">Contact Person Name *</label>                     
+                        <input type="text" placeholder="Contact person Name" class="form-control" name="oConPerName" id="orgConName" value="${orgConName}">
             
                     </div>
                 </div>
             
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="control-label">Email</label>                     
-                        <input type="text" placeholder="Organisation Email" class="form-control" name="organisationemail" value="${organisationEmail}">
+                        <label class="control-label">Email *</label>                     
+                        <input type="text" placeholder="Organisation Email" class="form-control" name="organisationemail" id="organisationemail" value="${organisationEmail}">
             
                     </div>
                 </div>           

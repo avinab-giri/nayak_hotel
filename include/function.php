@@ -375,47 +375,7 @@ function websiteNav(){
         </nav>
         
 
-        <div class="modal" id="addOrganisationModal" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Add Organisation</h5>
-                            <button type="button" class="closeOrganisation" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div id="organisationbody" style="margin:0 auto;"></div>
-                        <div class="modal-footer">
-                            <button type="button" id="submitOrganisation" class="btn btn-primary">Save changes</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="modal" id="addTravelAgentModal" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Add Travel Agent</h5>
-                            <button type="button" class="closeTravelAgent" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div id="TravelAgentbody" style="margin:0 auto;">
-
-                            <div class="travelaagent-modal-body">
-                                
-                            </div>
-
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" id="submitTravelAgent" class="btn btn-primary">Save changes</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+       
 
     ';
 }

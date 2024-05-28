@@ -390,6 +390,10 @@ function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingTy
                     let rooms = val.totalRooms;
                     let checkIn = moment(val.mainCheckIn).format('DD MMM, YY');
                     let checkOut = moment(val.mainCheckOut).format('DD MMM, YY');
+                    let checkInTime = val.checkInTime;
+                    let checkOutTime = val.checkOutTime;
+                    let checkInTimeFormat = (checkInTime != '00:00:00') ? ', '+moment(checkInTime, 'hh:mm:ss').format('LT') : '';
+                    let checkOutTimeFormat = (checkInTime != '00:00:00') ? ', '+moment(checkOutTime, 'hh:mm:ss').format('LT') : '';
                     let night = val.nightCount;
                     let pax = val.totalAdult + '/' + val.totalChild;
                     let total = rupeesFormat(val.totalBookingPrice);
@@ -401,16 +405,16 @@ function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingTy
                     let grcLink = `${webUrl}grc?id=${bid}`;
                     let voucherLink = `${webUrl}view-voucher?id=${bid}`;
                     let noShowBtn = (val.status == 1) ? `<li><button onclick="makeNoShowReservation(${bid})">Mark As No Show</button></li>` : '';
-                    let cancelResBtn = (val.status == 1) ? `<li><button onclick="makeCancelReservation(${bid})">Cancel Reservation</button></li>` : '';
+                    let cancelResBtn = (val.status == 1) ? `<li><button onclick="makeCancelReservation(${bid})">Void Reservation</button></li>` : '';
 
                     tableRow += `
                         <tr>
                             <td>${reciptNo}</td>
                             <td>${GuestName}</td>
                             <td>${rooms}</td>
-                            <td>${checkIn}</td>
+                            <td>${checkIn}${checkInTimeFormat}</td>
                             <td>${night}</td>
-                            <td>${checkOut}</td>
+                            <td>${checkOut}${checkOutTimeFormat}</td>
                             <td>${pax}</td>
                             <td>${total}</td>
                             <td><span style="border-radius: 2px;" class="badge ${statusCls}">${statusBtn}</span></span></label></td>
@@ -4718,10 +4722,9 @@ $(document).on('click', '#submitOrganisation', function () {
 
     formData += '&type=addNewOrganisation';
 
-    var organisationname = $('#organisationname').val();
-    var orgConName = $('#orgConName').val();
-    var organisationemail = $('#organisationemail').val();
-
+    let organisationname = $('#organisationName').val();
+    let orgConName = $('#orgConName').val();
+    let organisationemail = $('#organisationemail').val();
 
     if(organisationname == ''){
         sweetAlert('Name Is Required!', 'error');
