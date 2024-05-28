@@ -1096,7 +1096,8 @@ table tbody tr:hover .tableHide {
   display: none;
 }
 table tbody tr:hover .tableHoverShow {
-  display: block;
+  display: flex;
+  align-items: center;
 }
 table tbody tr:hover label {
   color: #000000;
@@ -1266,6 +1267,7 @@ table.dummystuf tr:nth-child(even) {
 #resorvationContent a {
   position: relative;
   z-index: 5;
+  margin-right: 3px;
 }
 
 .reservationContent,
@@ -10817,7 +10819,7 @@ footer {
 
 .customDropdown ul {
   position: absolute;
-  top: calc(100% + 5px);
+  top: calc(100% + -1px);
   right: 0;
   width: max-content;
   height: auto;
@@ -10835,7 +10837,7 @@ footer {
   text-align: left;
 }
 
-.customDropdown ul button {
+.customDropdown ul button,.customDropdown ul a {
   border: none;
   display: block;
   width: 100%;
@@ -10851,7 +10853,7 @@ footer {
   display: block;
 }
 
-.customDropdown li button:hover {
+.customDropdown li button:hover,.customDropdown li a:hover {
   background: #ededed;
   opacity: 1;
 }
@@ -11037,5 +11039,38 @@ footer {
     background: #ff9090;
 }
 
+#occupancyDatePick {
+  background: #ebebeb;
+  height: 30px;
+  border: 1px solid #cfcfcf;
+  border-radius: 3px;
+  padding: 0 8px;
+  width: 125px;
+  text-align: center;
+  letter-spacing: .1em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s ease-in-out;
+}
 
+#occupancyDatePick:focus-visible{
+  border: 1px solid #cfcfcf;
+  outline: none;
+}
 
+#occupancyDatePick:hover{
+  background: #cfcfcf;
+}
+
+.span-badge {
+  background: #007adb;
+  color: #ffffff;
+  border: 1px solid #0566b3;
+  font-weight: 700;
+  width: 25px;
+  height: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+}

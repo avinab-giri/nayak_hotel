@@ -37,28 +37,28 @@ if ($type == 'load_resorvation') {
 
     $sql = reservationReturnQuery($rTabType, $currentDate, $search, $paymentStatus);
 
-    $limit_per_page = 21;
+    $limit_per_page = 20;
     $totalPage = ceil(mysqli_num_rows(mysqli_query($conDB, $sql)) / $limit_per_page);
-    // $si = 0;
-    // $pagination = '';    
+
+    $pagination = '';    
     
-    // $page = '';
-    // if(isset($_POST['page'])){
-    //     $page = $_POST['page'];
-    // }else{
-    //     $page = 1;
-    // }
+    $page = '';
+    if(isset($_POST['page'])){
+        $page = $_POST['page'];
+    }else{
+        $page = 1;
+    }
 
 
-    // $offset = ($page -1) * $limit_per_page;
+    $offset = ($page -1) * $limit_per_page;
 
-    // $sql .= " limit $offset, {$limit_per_page}";
+    $sql .= " limit $offset, {$limit_per_page}";
 
     $clrPreviewHtml = clrPreviewHtml();
     $html = '<div class="row">';
    
     $query = mysqli_query($conDB, $sql);
-    $paginationHtml = '';
+
     $resData = array();
     while($row = mysqli_fetch_assoc($query)){
         $bid  = $row['bookingMainId'];
@@ -92,7 +92,7 @@ if ($type == 'load_resorvation') {
     }
 
     $data = [
-        'pagination'=>'',
+        'pagination'=>$totalPage,
         'data'=>$resData
     ];
     

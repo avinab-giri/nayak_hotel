@@ -586,14 +586,29 @@ function reservationLeftNav($active){
 }
 
 
-function reservationRightNav(){
+function reservationRightNav($export = true, $print = true, $search = true){
     $grcLink = FRONT_SITE . '/grc';
+    $exportHtml = '';
+    if($export){
+        $exportHtml = '<li style="margin-right: 5px;"><a class="btn btn-success" id="exportData" href="javascript:void(0)"> <i class="fas fa-file-export"></i> Export</a> </li>';
+    }
+
+    $printHtml = '';
+    if($print){
+        $printHtml = '<li style="margin-right: 5px;"><a target="_blank" class="mb-0 btn btn-secondary" href="' . $grcLink . '"><i class="fas fa-print"></i> Print Blank GRC</a></li>';
+    }
+
+    $searchHtml = '';
+    if($search){
+        $searchHtml = '<li><a class="btn btn-warning" id="searchBtnReservation" href="javascript:void(0)"> <i class="fas fa-search"></i></a> </li>';
+    }
     $rightNav = '
-        <ul>
-        
-            <li style="margin-right: 5px;"><a class="btn btn-success" id="exportData" href="javascript:void(0)"> <i class="fas fa-file-export"></i> Export</a> </li>
-            <li style="margin-right: 5px;"><a target="_blank" class="mb-0 btn btn-secondary" href="' . $grcLink . '"><i class="fas fa-print"></i> Print Blank GRC</a></li>
-            <li><a class="btn btn-warning" id="searchBtnReservation" href="javascript:void(0)"> <i class="fas fa-search"></i></a> </li>
+        <ul>        
+            
+            '.$exportHtml.'
+            '.$printHtml.'
+            '.$searchHtml.'
+            
         </ul>
         <div id="searchForReservation">
             <input id="searchForReservationValue" type="text" class="form-contol" placeholder="Search Text.">
@@ -12853,7 +12868,7 @@ function getOrganisationList(){
         if (mysqli_num_rows($query) > 0) {
             while ($row = mysqli_fetch_assoc($query)) {
                 $aGroup = $row['travelagentGroup'];
-                $aGroupName = fetchData('travelAgentGroup', [id=>$aGroup])[0];
+                $aGroupName = (isset(fetchData('travelAgentGroup', ['id'=>$aGroup])[0])) ? fetchData('travelAgentGroup', ['id'=>$aGroup])[0] : [];
                 $tid = $row['id'];
                 $bookingArray = getAllBooingData('','','','','','',$tid);
                 $totalPrice = 0;
@@ -12866,7 +12881,7 @@ function getOrganisationList(){
 
                 $advance = [
                     'balance'=>$totalPrice,
-                    'groupName'=>$aGroupName['name']
+                    'groupName'=> (isset($aGroupName['name'])) ? $aGroupName['name'] : ''
                 ];
 
                 $data[] = array_merge($row,$advance);

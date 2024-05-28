@@ -336,8 +336,8 @@ function success($msg) {
     return $html;
 }
 
-function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingType = '', $currentDate = '', $page) {
-
+function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingType = '', $currentDate = '', $page = 1) {
+    
     var rTab = $rTab;
     var search = $search;
     var reserveType = $reserveType;
@@ -355,21 +355,24 @@ function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingTy
     $.ajax({
         url: webUrl + 'include/ajax/resorvation.php',
         type: 'post',
-        data: { type: 'load_resorvation', rTab: rTab, search: search, reserveType: reserveType, bookingType: bookingType, currentDate: currentDate,page: page },
+        data: { type: 'load_resorvation', rTab: rTab, search: search, reserveType: reserveType, bookingType: bookingType, currentDate: currentDate, page: page },
         success: function (data) {
             var response = JSON.parse(data);
             var resData = response.data;
             var pagination = response.pagination;
-            var paginationHtml = '';
+            var paginationList = '';
+            let paginationHtml = '';
 
             page = (page == '') ? 1 : page;
 
             if(pagination > 0){
                 for (let i = 1; i <= pagination; i++) {
                     var active = (page == i) ? 'active' :'';
-                    paginationList += `<li class="paginate_button ${active}"><a href="javascript:void(0)" onclick='loadGuest(${i})'>${i}</a></li>`;
+                    paginationList += `<li class="paginate_button ${active}"><a href="javascript:void(0)" onclick="loadResorvation('all','','','','','${i}')">${i}</a></li>`;
                 }
+            }
 
+            if(pagination > 0){
                 paginationHtml = `
                     <ul class="pagination">
                         ${paginationList}
@@ -390,10 +393,16 @@ function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingTy
                     let night = val.nightCount;
                     let pax = val.totalAdult + '/' + val.totalChild;
                     let total = rupeesFormat(val.totalBookingPrice);
+
+                    let checkinstatusArray = getCheckInStatus(val.status);
+                    let statusCls = checkinstatusArray.btnCls;
+                    let statusBtn = checkinstatusArray.name;
     
                     let grcLink = `${webUrl}grc?id=${bid}`;
                     let voucherLink = `${webUrl}view-voucher?id=${bid}`;
-                    let viewLink = '';
+                    let noShowBtn = (val.status == 1) ? `<li><button onclick="makeNoShowReservation(${bid})">Mark As No Show</button></li>` : '';
+                    let cancelResBtn = (val.status == 1) ? `<li><button onclick="makeCancelReservation(${bid})">Cancel Reservation</button></li>` : '';
+
                     tableRow += `
                         <tr>
                             <td>${reciptNo}</td>
@@ -404,19 +413,20 @@ function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingTy
                             <td>${checkOut}</td>
                             <td>${pax}</td>
                             <td>${total}</td>
-                            <td>
-                                <div class="tableCenter">
-                                    <span class="tableHide"><svg class="svg-inline--fa fa-ellipsis-h fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-h" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"></path></svg><!-- <i class="fas fa-ellipsis-h"></i> Font Awesome fontawesome.com --></span>
-                                    <span class="tableHoverShow">              
-    
-                                        <a class="badge bg-gradient-primary hcw" href="${grcLink}" target="_blank" data-tooltip-top="GRC"><i class="fas fa-print"></i></a>
-    
-                                        <a class="badge bg-gradient-info hcw" href="${voucherLink}" target="_blank" data-tooltip-top="Guest Voucher"><i class="fas fa-file-alt"></i> </a>
-    
-                                        <a onclick="viewBookingReport(${bid})" class="badge bg-gradient-success hcw" href="javascript:void(0)" data-tooltip-top="View"><i class="fas fa-eye"></i></a>
-    
-                                    </span>
-                                </div>
+                            <td><span style="border-radius: 2px;" class="badge ${statusCls}">${statusBtn}</span></span></label></td>
+                            <td class="no-export">
+                            <div class="customDropdown" style="display: flex;justify-content: center;">
+                                <button class="btnCD reservationDetailActionBtn">
+                                    <span></span><span></span><span></span>
+                                </button>
+                                <ul>
+                                    ${noShowBtn}
+                                    ${cancelResBtn}
+                                    <li><a href="${grcLink}" target="_blank" >GRC</a></li>
+                                    <li> <a href="${voucherLink}" target="_blank">Guest Voucher</a></li>
+                                    <li><a onclick="viewBookingReport(${bid})" href="javascript:void(0)">View Booking</a></li>
+                                </ul>
+                            </div>
                             </td>
                         </tr>
                     `;
@@ -439,7 +449,8 @@ function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingTy
                                     <th>Check Out</th>
                                     <th>Pax</th>
                                     <th>Total</th>
-                                    <th>Action</th>
+                                    <th>Status</th>
+                                    <th class="no-export">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5193,6 +5204,7 @@ $(document).on('change','#bookByOther',function(){
 
 $(document).on('click', '.customDropdown .btnCD', function(e) {
     e.preventDefault();
+    $('.customDropdown ul').removeClass('show');
     $(this).siblings('ul').toggleClass('show');
 });
 

@@ -51,7 +51,7 @@ $grcLink = FRONT_SITE . '/grc';
                 <?php
 
                 $leftNav = reservationLeftNav('New');
-                $rightNav = reservationRightNav();
+                $rightNav = reservationRightNav(false,true,false);
 
                 echo backNavbarUi('', '', $rightNav, $leftNav);
 
