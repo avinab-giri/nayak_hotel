@@ -418,19 +418,22 @@ function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingTy
                             <td>${pax}</td>
                             <td>${total}</td>
                             <td><span style="border-radius: 2px;" class="badge ${statusCls}">${statusBtn}</span></span></label></td>
+                            <td></td>
+                            <td></td>
+                            <td><button data-tooltip-top="View Booking" onclick="viewBookingReport(${bid})"><i class="fas fa-eye"></i></button></td>
                             <td class="no-export">
-                            <div class="customDropdown" style="display: flex;justify-content: center;">
-                                <button class="btnCD reservationDetailActionBtn">
-                                    <span></span><span></span><span></span>
-                                </button>
-                                <ul>
-                                    ${noShowBtn}
-                                    ${cancelResBtn}
-                                    <li><a href="${grcLink}" target="_blank" >GRC</a></li>
-                                    <li> <a href="${voucherLink}" target="_blank">Guest Voucher</a></li>
-                                    <li><a onclick="viewBookingReport(${bid})" href="javascript:void(0)">View Booking</a></li>
-                                </ul>
-                            </div>
+                                <div class="customDropdown" style="display: flex;justify-content: center;">
+                                    <button class="btnCD reservationDetailActionBtn">
+                                        <span></span><span></span><span></span>
+                                    </button>
+                                    <ul>
+                                        ${noShowBtn}
+                                        ${cancelResBtn}
+                                        <li><a href="${grcLink}" target="_blank" >GRC</a></li>
+                                        <li> <a href="${voucherLink}" target="_blank">Guest Voucher</a></li>
+                                        <li><a onclick="viewBookingReport(${bid})" href="javascript:void(0)">View Booking</a></li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -445,15 +448,18 @@ function loadResorvation($rTab = '', $search = '', $reserveType = '', $bookingTy
                         <table id="reservationTable" class="table">
                             <thead>
                                 <tr>
-                                    <th>Receipt no</th>
+                                    <th>Booking No</th>
                                     <th>Guest Name</th>
                                     <th>Rooms</th>
-                                    <th>Check In</th>
+                                    <th>Arrival</th>
                                     <th>Night</th>
-                                    <th>Check Out</th>
+                                    <th>Departure</th>
                                     <th>Pax</th>
                                     <th>Total</th>
                                     <th>Status</th>
+                                    <th>Refer to</th>
+                                    <th>Book By</th>
+                                    <th>View</th>
                                     <th class="no-export">Action</th>
                                 </tr>
                             </thead>
@@ -5245,7 +5251,15 @@ $(document).on('keyup','#organisationName', function(){
     getInputNameCheck('organisations',name, 'organisationDropDown','organisationName');
 });
 
-
+$(document).on('change', '#billingmode', function(e){
+    var value = $(this).val();
+    
+    if(value == 'company'){
+        $('.companySection').addClass('show');
+    }else{
+        $('.companySection').removeClass('show');
+    }
+})
 
 
 

@@ -588,7 +588,7 @@ function reservationContentView($bid, $reciptNo, $gname, $checkIn, $checkOut, $b
                                 </div>
                             </li>
                             <li class='dFlex aic jcc fdc dif wAuto'>
-                                <small>Check In</small>
+                                <small>Arrival </small>
                                 <div class='dFlex aic jcc fdc dif wAuto badge badge-success item'>
                                     <span>$checkInMonth</span>
                                     <strong>$checkInDay</strong>
@@ -602,7 +602,7 @@ function reservationContentView($bid, $reciptNo, $gname, $checkIn, $checkOut, $b
                                 </div>
                             </li>
                             <li class='dFlex aic jcc fdc dif wAuto'>
-                                <small>Check Out</small>
+                                <small>Departure </small>
                                 <div class='dFlex aic jcc fdc dif wAuto badge badge-danger item'>
                                     <span>$checkOutMonth</span>
                                     <strong>$checkOutDay</strong>

@@ -509,7 +509,7 @@ if ($type == 'getRoomDetailByRoomNo') {
 
         $html .= '
             <tr>
-                <td class="pr10">
+                <td>
                     <div class="form-group">
                         <select class="customSelect" name="selectRoom[]" data-rno="' . $i . '">
                             <option value="0" selected>-Select Room</option>
@@ -517,7 +517,12 @@ if ($type == 'getRoomDetailByRoomNo') {
                         </select>
                     </div>
                 </td>
-                <td class="pr10">
+                <td>
+                    <div class="form-group">
+                        <input name="numberOfRooms[]" class="form-control" type="number" min="1" value="1"/>
+                    </div>
+                </td>
+                <td>
                     <div class="form-group">
                         <select class="customSelect" name="selectRateType[]" ' . $disabled . ' data-rno="' . $i . '">
                             <option value="" selected>-Select</option>
@@ -525,23 +530,23 @@ if ($type == 'getRoomDetailByRoomNo') {
                         </select>
                     </div>
                 </td>
-                <td class="pr10">
+                <td>
                     <div class="form-group">
                         <input class="form-control" type="number" min="0" value="0" placeholder="" name="selectAdult[]">
                     </div>
                 </td>
-                <td class="pr10">
+                <td>
                     <div class="form-group">
                         <input class="form-control" type="number" min="0" value="0" name="selectChild[]">
                     </div>
                 </td>
-                <td class="pr10">
+                <td >
                     <div class="form-group">
                         <input class="form-control" type="number" min="0" value="0" name="extraBD[]">
                     </div>
                 </td>
 
-                <td class="pr10">
+                <td >
                     <div class="form-group">
                         <select class="customSelect roomGst" name="roomGst[]" id="">
                             <option value="0">0</option>

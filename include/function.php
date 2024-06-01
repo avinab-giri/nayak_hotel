@@ -38,6 +38,13 @@ if (isset($_SESSION['HOTEL_ID'])) {
     }
 }
 
+function toConvertArrayToStr($array, $symbol = ','){
+    return implode($symbol, $array);
+}
+
+function toConvertStrToArray($array, $symbol = ','){
+    return explode($symbol, $array);
+}
 
 function orginalHotelId($hotelId){   
     
@@ -2666,7 +2673,7 @@ function getBookingData($bid = '', $rNum = '', $checkIn = '', $id = '', $onlyChe
     if (mysqli_num_rows($sql) > 0) {
         while ($row = mysqli_fetch_assoc($sql)) {
             $couponCode = $row['couponCode'];
-            $roomDetailArry = getSysPropertyRatePlaneList($row['roomDId'])[0];
+            $roomDetailArry = (isset(getSysPropertyRatePlaneList($row['roomDId'])[0])) ? getSysPropertyRatePlaneList($row['roomDId'])[0] : [];
             $addByArray = getAddByData($row['addBy'],'yes');
             $coompanyArray = isset(getOrganisationData($row['organisation'], 'yes')[0]) ? getOrganisationData($row['organisation'],'yes')[0] : array();
             $totalAdult = 0;
@@ -2708,8 +2715,8 @@ function getBookingData($bid = '', $rNum = '', $checkIn = '', $id = '', $onlyChe
                 'totalRoomPrice' => $totalRoomPrice,
                 'totalCouponPrice' => $totalCouponPrice,
                 'roomType' => (isset(getRoomData($row['roomId'])[0])) ? getRoomData($row['roomId'])[0]['header'] : '',
-                'roomPlanSrt' => (isset($roomDetailArry)) ? $roomDetailArry['srtcode'] : '',
-                'roomPlanFull' => (isset($roomDetailArry)) ? $roomDetailArry['fullForm'] : '',
+                'roomPlanSrt' => (isset($roomDetailArry['srtcode'])) ? $roomDetailArry['srtcode'] : '',
+                'roomPlanFull' => (isset($roomDetailArry['fullForm'])) ? $roomDetailArry['fullForm'] : '',
             ];
             $data[] = array_merge($row, $advance);
         }
@@ -2976,8 +2983,10 @@ function getBookingDetailById($bid = '', $roomNo = '', $bdid = '', $date = ''){
             $gst = getPercentageValu($roomPrice, $gstPer);
             $totalGst += $gst * $night;
 
-            $rateTypeS = getSysPropertyRatePlaneList($roomDId)[0]['srtcode'];
-            $rateTypeF = getSysPropertyRatePlaneList($roomDId)[0]['fullForm'];
+            $getRateTypeArray = (isset(getSysPropertyRatePlaneList($roomDId)[0])) ? getSysPropertyRatePlaneList($roomDId)[0]: [];
+
+            $rateTypeS = (isset($getRateTypeArray['srtcode'])) ? $getRateTypeArray['srtcode'] : '';
+            $rateTypeF = (isset($getRateTypeArray['fullForm'])) ? $getRateTypeArray['fullForm'] : '';
 
             $totalPrice = $sumSubTotalPrice + $totalGst;
 

@@ -51,7 +51,7 @@ $grcLink = FRONT_SITE . '/grc';
                 <?php
 
                 $leftNav = reservationLeftNav('New');
-                $rightNav = reservationRightNav(false,true,false);
+                $rightNav = reservationRightNav(false, true, false);
 
                 echo backNavbarUi('', '', $rightNav, $leftNav);
 
@@ -150,20 +150,20 @@ $grcLink = FRONT_SITE . '/grc';
                                                         </div>
                                                     </div>
 
-                                                    <div class="col-md-2">
+                                                    <!-- <div class="col-md-2">
                                                         <div class="form-group">
                                                             <label for="tootalRooms">Rooms</label>
                                                             <input min="1" onkeypress="totalRoomsUpdate(this)" onchange="totalRoomsUpdate(this)" id="tootalRooms" class="form-control" type="number" value="1" placeholder="" name="tootalRooms">
                                                         </div>
-                                                    </div>
+                                                    </div> -->
 
-                                                    <div class="col-md-5">
+                                                    <div class="col-md-6">
                                                         <div class="form-group">
                                                             <label for="">Arr. Details</label>
                                                             <input class="form-control" type="text" value="" placeholder="" name="arrDetails">
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-5">
+                                                    <div class="col-md-6">
                                                         <div class="form-group">
                                                             <label for="">Dep. Details</label>
                                                             <input class="form-control" type="text" value="" placeholder="" name="depDetails">
@@ -181,7 +181,8 @@ $grcLink = FRONT_SITE . '/grc';
                                                         <table width="100%" id="roomDetailTable">
                                                             <thead>
                                                                 <tr>
-                                                                    <th width="15%" class="py10">Room Type</th>
+                                                                    <th width="10%" class="py10">Room Type</th>
+                                                                    <th width="10%" class="py10">Rooms</th>
                                                                     <th width="10%" class="py10">Rate Type</th>
                                                                     <th width="10%" class="py10">Adult</th>
                                                                     <th width="10%" class="py10">Child</th>
@@ -192,7 +193,7 @@ $grcLink = FRONT_SITE . '/grc';
                                                                 </tr>
                                                             </thead>
                                                             <tbody id="roomDetailId">
-                                                                
+
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -223,6 +224,7 @@ $grcLink = FRONT_SITE . '/grc';
                                                                 <option value="5">Airbnb</option>
                                                                 <option value="6">MakeMyTrip</option>
                                                                 <option value="7">Booking.com</option>
+                                                                <option value="8">Offline Booking</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -235,7 +237,7 @@ $grcLink = FRONT_SITE . '/grc';
                                                                 <?php
                                                                 foreach (fetchData('travel_agents', ['hotelId' => $_SESSION['HOTEL_ID']]) as $item) {
                                                                     $taId = $item['id'];
-                                                                    $name = $item['travelagentname'];
+                                                                    $name = $item['agentName'];
                                                                     echo '<option value="' . $taId . '">' . $name . '</option>';
                                                                 }
                                                                 ?>
@@ -379,27 +381,76 @@ $grcLink = FRONT_SITE . '/grc';
                                                                     <input type="text" placeholder="District" class="form-control district" name="district">
                                                                 </div>
                                                             </div>
-                                                            
+
                                                             <div class="col-md-4">
                                                                 <div class="form-group">
                                                                     <label for="state">State</label>
                                                                     <select class="customSelect" name="state" id="state">
                                                                         <option value="">Select _</option>
                                                                         <?php
-                                                                            foreach(getStatesOfIndia() as $item){
-                                                                                echo "<option value='$item'>$item</option>";
-                                                                            }
+                                                                        foreach (getStatesOfIndia() as $item) {
+                                                                            echo "<option value='$item'>$item</option>";
+                                                                        }
                                                                         ?>
                                                                     </select>
                                                                 </div>
                                                             </div>
-                                                            
+
                                                         </div>
 
                                                         <div class="row">
                                                             <div class="col-md-12">
                                                                 <label for="guestAddress">Address</label>
                                                                 <textarea class="form-control" name="guestAddress" id="guestAddress" rows="1"></textarea>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row py-2">
+                                                            <div class="col-12">
+                                                                <label class="form-check-label" for="">Communication</label> 
+                                                            </div>
+                                                            <div class="col-12 d-flex ">
+                                                                <div class="form-check mR10">
+                                                                    <input class="form-check-input" type="checkbox" value="1" id="phoneCall" name="communication[]">
+                                                                    <label class="form-check-label" for="phoneCall">
+                                                                        Phone Call
+                                                                    </label>
+                                                                </div>
+                                                                <div class="form-check mR10">
+                                                                    <input class="form-check-input" type="checkbox" value="2" id="whatsApp" name="communication[]">
+                                                                    <label class="form-check-label" for="whatsApp">
+                                                                        Whatsapp
+                                                                    </label>
+                                                                </div>
+                                                                <div class="form-check mR10">
+                                                                    <input class="form-check-input" type="checkbox" value="3" id="eMail" name="communication[]">
+                                                                    <label class="form-check-label" for="eMail">
+                                                                        E-Mail
+                                                                    </label>
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="checkbox" value="4" id="resCounter" name="communication[]">
+                                                                    <label class="form-check-label" for="resCounter">
+                                                                        Reservation Counter
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-12 d-flex py-2">
+                                                                <div class="form-check mR10">
+                                                                    <input class="form-check-input" type="radio" value="1" id="specialCare" checked name="specialCare">
+                                                                    <label class="form-check-label" for="specialCare">
+                                                                        Special Care Guest
+                                                                    </label>
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="radio" value="0" id="notSpecialCare" name="specialCare">
+                                                                    <label class="form-check-label" for="notSpecialCare">
+                                                                        Not Special Care Guest
+                                                                    </label>
+                                                                </div>
                                                             </div>
                                                         </div>
 
@@ -410,27 +461,36 @@ $grcLink = FRONT_SITE . '/grc';
                                                     </div>
 
                                                     <div class="row">
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-12">
                                                             <div class="form-group">
-
                                                                 <label class="control-label">Billing Mode</label>
                                                                 <select class="customSelect" name="billingmode" id="billingmode">
-                                                                    <option value="1">Guest</option>
-                                                                    <option value="2">Complementary</option>
-                                                                    <option value="3">Company</option>
+                                                                    <option value="guest">Guest</option>
+                                                                    <option value="complementary">Complementary</option>
+                                                                    <option value="company">Company</option>
                                                                 </select>
 
 
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label class="control-label">GST Number</label>
-                                                                <input type="text" placeholder="GST Number" id="gstNoField" class="form-control" name="gstnumber">
+                                                        <div class="col-12 companySection">
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label for="companyName" class="control-label">Company Name</label>
+                                                                        <input type="text" placeholder="Company Name" id="companyName" class="form-control" name="companyName">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label class="control-label">GST Number</label>
+                                                                        <input type="text" placeholder="GST Number" id="gstNoField" class="form-control" name="gstnumber">
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div class="col-md-12">
-                                                            <label for="specialRequest">Special Request</label>
+                                                            <label for="specialRequest">Guest Special Request</label>
                                                             <textarea class="form-control" name="specialRequest" id="specialRequest" rows="3"></textarea>
                                                         </div>
                                                     </div>
@@ -604,10 +664,10 @@ $grcLink = FRONT_SITE . '/grc';
 
         var date = new Date();
 
-        function roomDetailContent(){
+        function roomDetailContent() {
             let html = `
                 <tr>
-                    <td class="pr10">
+                    <td>
                         <div class="form-group">
                             <select class="selectRoomId customSelect" name="selectRoom[]" data-rno="0">
                                 <option value="0" selected="">-Select Room</option>
@@ -621,7 +681,12 @@ $grcLink = FRONT_SITE . '/grc';
                             </select>
                         </div>
                     </td>
-                    <td class="pr10">
+                    <td>
+                        <div class="form-group">
+                            <input name="numberOfRooms[]" class="form-control" type="number" min="1" value="1"/>
+                        </div>
+                    </td>
+                    <td>
                         <div class="form-group">
                             <select class="rateTypeId customSelect" name="selectRateType[]" data-rno="0">
                                 <option value="" selected="">-Select</option>
@@ -635,25 +700,25 @@ $grcLink = FRONT_SITE . '/grc';
                             </select>
                         </div>
                     </td>
-                    <td class="pr10">
+                    <td>
                         <div class="form-group">
                             <input class="form-control" type="number" min="0" value="0" placeholder="" name="selectAdult[]">
                         </div>
                     </td>
 
-                    <td class="pr10">
+                    <td>
                         <div class="form-group">
                             <input class="form-control" type="number" min="0" value="0" name="selectChild[]">
                         </div>
                     </td>
 
-                    <td class="pr10">
+                    <td>
                         <div class="form-group">
                             <input class="form-control" type="number" min="0" value="0" name="extraBD[]">
                         </div>
                     </td>
 
-                    <td class="pr10">
+                    <td>
                         <div class="form-group">
                             <select onchange="calculateTotal()" class="customSelect roomGst" name="roomGst[]" id="">
                                 <option value="0">0</option>
@@ -704,7 +769,7 @@ $grcLink = FRONT_SITE . '/grc';
         });
 
 
-        function setRoomContent(rooms){
+        function setRoomContent(rooms) {
             let html = '';
 
             for (let i = 0; i < rooms; i++) {
@@ -715,7 +780,7 @@ $grcLink = FRONT_SITE . '/grc';
         }
 
 
-        function totalRoomsUpdate(e){
+        function totalRoomsUpdate(e) {
             let rooms = e.value;
             setRoomContent(rooms)
         }

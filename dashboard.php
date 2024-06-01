@@ -91,7 +91,7 @@ $hotelName = ucfirst($hotelDetailArray['hotelName']);
                     <div class="col-xl-4 col-md-6 col-sm-12 mb-3">
                         <div style="height:85px" class="card overflow-hidden">
                             <div class="card-body p-3">
-                                <a href="<?= FRONT_SITE . '/report/rooms-status' ?>">
+                                <a href="<?= FRONT_SITE . '/report/checkin' ?>">
                                     <div class="d-flex positionA">
                                         <div class="icon icon-shape bg-gradient-info shadow text-center border-radius-md overviewIcon">
                                             <?= getSysActivityStatusData(2)[0]['svg'] ?>
@@ -111,7 +111,7 @@ $hotelName = ucfirst($hotelDetailArray['hotelName']);
                     <div class="col-xl-4 col-md-6 col-sm-12 mb-3">
                         <div style="height:85px" class="card overflow-hidden">
                             <div class="card-body p-3">
-                                <a href="<?= FRONT_SITE . '/report/due-out-guests' ?>">
+                                <a href="<?= FRONT_SITE . '/report/checkout' ?>">
                                     <div class="d-flex positionA">
                                         <div class="icon icon-shape bg-gradient-warning shadow text-center border-radius-md overviewIcon">
                                             <?= getSysActivityStatusData(3)[0]['svg'] ?>

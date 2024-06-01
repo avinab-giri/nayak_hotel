@@ -45,6 +45,7 @@ $roomGst = $_POST['roomGst'];
 $roomPriceArray = $_POST['totalPrice'];
 $totalPriceWithGstArray = $_POST['totalPriceWithGst'];
 $extraBDArray = $_POST['extraBD'];
+$numberOfRoomsarray = $_POST['numberOfRooms'];
 
 $travelagent = $_POST['travelagent'];
 $bookByName = (isset($_POST['bookByName'])) ? $_POST['bookByName'] : '';
@@ -56,6 +57,8 @@ $bookByblock = (isset($_POST['bookByblock'])) ? $_POST['bookByblock'] : '';
 $bookBydistrict = (isset($_POST['bookBydistrict'])) ? $_POST['bookBydistrict'] : '';
 $bookBystate = (isset($_POST['bookBystate'])) ? $_POST['bookBystate'] : '';
 $bookByAddress = (isset($_POST['bookByAddress'])) ? $_POST['bookByAddress'] : '';
+$companyName = (isset($_POST['companyName'])) ? $_POST['companyName'] : '';
+$gstnumber = (isset($_POST['gstnumber'])) ? $_POST['gstnumber'] : '';
 
 $checkInTime = (isset($_POST['checkInTime'])) ? $_POST['checkInTime'] : '';
 $checkOutTime = (isset($_POST['checkOutTime'])) ? $_POST['checkOutTime'] : '';
@@ -71,6 +74,8 @@ $pinCode = safeData($_POST['pinCode']);
 $block = (isset($_POST['block'])) ? safeData($_POST['block']) : '';
 $district = safeData($_POST['district']);
 $state = safeData($_POST['state']);
+$communication = $_POST['communication'];
+$specialCare = safeData($_POST['specialCare']);
 
 
 $paymentMethod = ($_POST['paymentMethod'] == '') ? 0 : safeData($_POST['paymentMethod']);
@@ -110,6 +115,8 @@ $bookingDataArray = [
     'checkOutTime' => $checkOutTime,
     'checkInDetail' => $arrDetails,
     'checkOutDetail' => $depDetails,
+    'compayName' => $companyName,
+    'gstno' => $gstnumber,
 ];
 
 $lastId = insertData('booking', $bookingDataArray);
@@ -119,6 +126,7 @@ $bookByArray = [
     'bid' => $lastId,
     'hotelId' => $_SESSION['HOTEL_ID'],
     'travelType' => $travelagent,
+    'organizationId' => $organisation,
     'name' => $bookByName,
     'email' => $bookByEmail,
     'whatsapp' => $bookByWhatsApp,
@@ -143,6 +151,7 @@ if (isset($selectRoom)) {
         $roomPrice = $roomPriceArray[$key];
         $totalPriceWithGst = $totalPriceWithGstArray[$key];
         $extraBD = $extraBDArray[$key];
+        $numberOfRooms = $numberOfRoomsarray[$key];
 
         $bookingDetailsDataArray = [
             'hotelId' => $_SESSION['HOTEL_ID'],
@@ -158,6 +167,7 @@ if (isset($selectRoom)) {
             'checkIn' => $checkIn,
             'checkOut' => $checkOut,
             'exBd' => $extraBD,
+            'noOfRooms' => $numberOfRooms,
         ];
 
         $lastBookingDetailId = insertData('bookingdetail', $bookingDetailsDataArray);
@@ -183,6 +193,8 @@ $guestDataArray = [
     'full_address' => $guestAddress,
     'addOn' => $time,
     'groupadmin' => 1,
+    'communication' => toConvertArrayToStr($communication),
+    'specialCare' => $specialCare
 ];
 
 insertData('guest', $guestDataArray);
